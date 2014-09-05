@@ -51,7 +51,7 @@ trait ToolsSettings {
       if (!tldDir.isDirectory)
         println("no tld founds in " + tldDir)
       else {
-        val dstDir = (if(args.size==1) (javaSource in Compile).value else file(args(1))) / "wcs" / "core" / "tags"
+        val dstDir = (if(args.size==1) (javaSource in Compile).value else file(args(1))) / "wcs" / "core" / "tag"
         for {
           tld <- tldDir.listFiles
           if tld.getName.endsWith(".tld")
