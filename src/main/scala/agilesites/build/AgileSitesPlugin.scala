@@ -10,11 +10,9 @@ object AgileSitesPlugin
   with ToolsSettings
   with TomcatSettings
   with SetupSettings
-  with DeploySettings 
+  with DeploySettings
   with ScaffoldSettings
-  //with JBakeSettings
-  //with ScrivenerSettings 
-  {
+  with WebSettings {
 
   override lazy val settings =
     configSettings ++
@@ -22,6 +20,6 @@ object AgileSitesPlugin
       toolsSettings ++
       tomcatSettings ++
       deploySettings ++
-      scaffoldSettings
-  // val bookSettings = jBakeSettings ++ scrivenerSettings
+      scaffoldSettings ++
+      webSettings
 }
