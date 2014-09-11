@@ -12,11 +12,10 @@ import java.util.Formatter
 import java.util.regex.Pattern
 import agilesites.build.util.WebUtil
 
-
 trait WebSettings extends Utils with WebUtil {
   this: Plugin with ConfigSettings =>
 
-  def fingerPrintMap(files: Seq[File], prefixLen: Int): Seq[(Regex, String)] =
+  def fingerPrintMap(files: Seq[File], prefixLen: Int): Seq[(Regex, (String, String))] =
     for (file <- files) yield {
       // normalize filename
       val normfile = deprefixNomalizeFile(file, prefixLen)
@@ -24,14 +23,16 @@ trait WebSettings extends Utils with WebUtil {
       val md5sum = md5(file)
       // chreate a mapping from the normal to the finger printed version
       val hashedfile = assetHashedFilePath(normfile, md5sum)
-      (new Regex(Pattern.quote(normfile)), hashedfile)
-      
+      val fileAndHash = s"/${normfile}\n${md5sum}"
+      (new Regex(Pattern.quote(normfile)), fileAndHash -> hashedfile)
+
     }
 
-  def replaceWithMap(src: File, replacements: Seq[(Regex, String)]) = {
-    def rep(x: String, y: Tuple2[Regex, String]) = y._1.replaceAllIn(x, y._2)
+  def replaceWithMap(src: File, replacements: Seq[(Regex, (String, String))]) = {
+    def rep(x: String, y: Tuple2[Regex, Tuple2[String, String]]) = y._1.replaceAllIn(x, y._2._2)
     replacements.foldLeft(readFile(src))(rep _)
   }
+
 
   lazy val asWebFolder = taskKey[File]("AgileSites assets folder ")
 
@@ -75,23 +76,14 @@ trait WebSettings extends Utils with WebUtil {
     println()
     // write the index too
     val sitename = normalizeSiteName(asSites.value.split(",").head)
-    val assetIndexFile = tgt /  sitename /"assets.txt"
-    val assetIndexBody = destlist.map(_.getPath.substring(ntgt).replace(File.separator, "/")).mkString("\n")
+    val assetIndexFile = tgt / sitename / "assets.txt"
+    val assetIndexBody = fpMap.map(_._2._1).mkString("\n")
+    //destlist.map(_.getPath.substring(ntgt).replace(File.separator, "/")).mkString("\n")
     writeFile(assetIndexFile, assetIndexBody, log)
     if (log != null)
       log.info(s"copying #${destlist.size} files")
     destlist ++ Seq(assetIndexFile)
   }
-
-  /*
-  resourceGenerators in Compile += Def.task {
-	val src = WebKeys.assets.value
-	val tgt = (resourceManaged in Compile).value
-	val log = streams.value.log
-    recursiveCopy(src, tgt, log)(notLess) ++ 
-    Seq(recursiveIndex(src, tgt / "telmore" / "assets.txt", log)(notLess))
-  }.taskValue
-*/
 
   val webSettings = Seq(
     asWebFolder := baseDirectory.value / "src" / "main" / "assets",
