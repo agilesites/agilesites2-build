@@ -19,6 +19,7 @@ object AgileSitesPlugin
       utilSettings ++
       toolsSettings ++
       tomcatSettings ++
+      setupSettings ++
       deploySettings ++
       scaffoldSettings ++
       webSettings

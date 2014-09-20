@@ -1,4 +1,4 @@
-val v = "1.9-M6"
+val v = "1.9-M8"
 
 val libDeps = Seq(
    "org.scalatest" %% "scalatest" % "2.2.0" % "test",
@@ -39,7 +39,7 @@ val mysettings = Seq(name := "agilesites2-build",
 	sbtPlugin := true,
 	version := v,
 	scalaVersion := "2.10.4",
-	scalacOptions += "-deprecation",
+	scalacOptions ++= Seq("-deprecation", "-feature"),
 	libraryDependencies ++= libDeps ++ tomcatDeps("tomcat"))
 
 val root = project.in(file(".")).

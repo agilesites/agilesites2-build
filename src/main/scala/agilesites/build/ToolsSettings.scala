@@ -10,36 +10,6 @@ import java.io.File
 trait ToolsSettings {
   this: Plugin with UtilSettings with ConfigSettings =>
 
-  // find the default workspace from sites
-  def defaultWorkspace(sites: String) = normalizeSiteName(sites.split(",").head)
-
-  def catalogManager(url: String, user: String, pass: String, jars: Seq[File], opts: Seq[String], log: Logger) {
-    val cp = (Seq(file("bin").getAbsoluteFile) ++ jars).mkString(java.io.File.pathSeparator)
-
-    val cmd = Seq("-cp", cp)
-    val stdopts = Seq("-u", user, "-p", pass, "-b", url + "/CatalogManager")
-    val all = if (opts.size > 0) {
-      if (opts(0) == "view") cmd
-      else cmd ++ stdopts ++ opts
-    } else {
-      log.info("use 'view' to display the gui")
-      log.info("use a sequence of options for other functions")
-      log.info("(not needed -u -p -b)")
-      cmd ++ Seq("-h")
-    }
-
-    Fork.java(None, all, Some(new java.io.File(".")), log)
-
-    /*
-    val forkOpt = ForkOptions(
-      runJVMOptions = all Seq("-cp", all.mkString(File.pathSeparator)),
-      workingDirectory = Some(baseDirectory.value))
-
-    Fork.java(forkOpt, "org.jbake.launcher.Main" +: args)
-     */
-
-  }
-
   lazy val sitesTagWrapperGen = inputKey[Unit]("Generate Tag Wrappers")
   lazy val sitesTagWrapperGenTask = sitesTagWrapperGen := {
 
@@ -51,7 +21,7 @@ trait ToolsSettings {
       if (!tldDir.isDirectory)
         println("no tld founds in " + tldDir)
       else {
-        val dstDir = (if(args.size==1) (javaSource in Compile).value else file(args(1))) / "wcs" / "core" / "tag"
+        val dstDir = (if (args.size == 1) (javaSource in Compile).value else file(args(1))) / "wcs" / "core" / "tag"
         for {
           tld <- tldDir.listFiles
           if tld.getName.endsWith(".tld")
@@ -68,14 +38,11 @@ trait ToolsSettings {
     }
   }
 
-  lazy val sitesCatalogManager = inputKey[Unit]("WCS Catalog Manager")
-  val sitesCatalogManagerTask = sitesCatalogManager := {
-    val args = Def.spaceDelimited("<arg>").parsed
-    catalogManager(sitesUrl.value, sitesUser.value, sitesPassword.value, sitesPopulateClasspath.value, args, streams.value.log)
-  }
+  // find the default workspace from sites
+  def defaultWorkspace(sites: String) = normalizeSiteName(sites.split(",").head)
 
-  lazy val sitesPopulateClasspath = taskKey[Seq[File]]("Sites Populate Classpath")
-  lazy val sitesPopulateClasspathTask = sitesPopulateClasspath <<= (sitesHome, baseDirectory) map {
+  lazy val cmovClasspath = taskKey[Seq[File]]("Sites Populate Classpath")
+  lazy val cmovClasspathTask = cmovClasspath <<= (sitesHome, baseDirectory) map {
     (home, base) =>
       val h = file(home)
       Seq(base / "bin", h / "bin") ++
@@ -84,20 +51,77 @@ trait ToolsSettings {
         (h / "wem" ** "*.jar").get
   }
 
-  lazy val sitesPopulate = TaskKey[Unit]("Sites Catalog Manager Populate")
-  val sitesPopulateTask = sitesPopulate <<=
-    (sitesHello, sitesHome, sitesUrl, sitesUser, sitesPassword, sitesPopulateClasspath, streams) map {
-      (hello, home, url, user, pass, classpath, s) =>
-        if (hello.isEmpty)
-          throw new Exception("Web Center Sites must be online.")
-        val dir = file("core") / "populate"
-        catalogManager(url, user, pass, classpath, Seq("-x", "import_all", "-d", dir.getAbsolutePath), s.log)
-        (file(home) / "populate.done").createNewFile
+  lazy val cmov = inputKey[Unit]("WCS Catalog Mover")
+  val cmovTask = cmov := {
+    val args = Def.spaceDelimited("<arg>").parsed
+    val log = streams.value.log
+    if (args.length == 0) {
+      println(s"""usage: cman <cmd> [<dir>] [<options>....]])
+	         |<cmd> one of view, setup, import, import_all, export, export_all
+	         |<dir> defaults to "core" under sites/export/populate
+	  	     |<options> can be: 
+	         |-b base URL (defaults to ${sitesUrl.value}/CatalogManager)
+	         |-u user name (defaults to ${sitesUser.value})
+	         |-p password (defaults to ${sitesPassword.value})
+	         |-s server name (optional)
+	         |-t catalog name (can be repeated, export only)
+	         |-f file to import
+	         |-c catalog data directory (optional)
+	         |-a ACL list (optional)
+	         |-i ini file(s) to merge (optional)
+          """.stripMargin)
+    } else {
+
+      val cp = (Seq(file("bin").getAbsoluteFile) ++ cmovClasspath.value).mkString(java.io.File.pathSeparator)
+      val coreJar = (fullClasspath in Compile).value.files.filter(_.getName.startsWith("agilesites2-core")).head
+
+      if (sitesHello.value.isEmpty)
+        throw new Exception(s"Web Center Sites must be online as s{sitesUrl.value}.")
+
+      val cmd = if (args(0) == "setup") {
+        if (coreJar.exists()) {
+          log.info(s"extracting aaagile")
+          val populateDir = file(sitesPopulateDir.value)
+          IO.delete(populateDir / "aaagile")
+          IO.unzip(coreJar, populateDir, GlobFilter("aaagile/*"))
+          if ((populateDir / "aaagile").exists())
+            "import_all"
+          else
+            throw new Exception(s"cannot find aaagile dir in ${populateDir}")
+        } else
+          throw new Exception("cannot find agilesites2-core in classpath")
+      } else
+        args(0)
+
+      val opts =
+        if (cmd == "view") Seq()
+        else {
+          val set = args.toSet
+          val dir =
+            if (args.length > 1) file(sitesPopulateDir.value) / args(1)
+            else file(sitesPopulateDir.value) / "aaagile"
+
+          println(dir, dir.isDirectory())
+          if (!dir.isDirectory)
+            throw new Exception(s"not found ${dir.getAbsolutePath}")
+
+          Seq("-d", dir.getAbsolutePath, "-x", cmd) ++
+            (if (set("-b")) Seq() else Seq("-b", sitesUrl.value + "/CatalogManager")) ++
+            (if (set("-u")) Seq() else Seq("-u", sitesUser.value)) ++
+            (if (set("-p")) Seq() else Seq("-p", sitesPassword.value))
+        }
+
+      Fork.java(ForkOptions(
+        runJVMOptions = Seq("-cp", cp),
+        workingDirectory = Some(baseDirectory.value)),
+        "COM.FutureTense.Apps.CatalogMover" +: opts)
+
     }
 
-  lazy val csdtClientHome = settingKey[File]("CSDT Client Home")
-  lazy val csdtEnvision = settingKey[File]("CSDT Envision Folder")
-  lazy val csdtClientClasspath = settingKey[Seq[File]]("CSDT Client Classpath")
+  }
+
+  lazy val csdtHome = settingKey[File]("CSDT Client Home")
+  lazy val csdtClasspath = settingKey[Seq[File]]("CSDT Client Classpath")
 
   // interface to csdt from sbt
   lazy val csdt = inputKey[Unit]("Content Server Development Tool")
@@ -110,15 +134,15 @@ trait ToolsSettings {
     val user = sitesUser.value
     val password = sitesPassword.value
     val sites = asSites.value
-    val seljars = csdtClientClasspath.value
+    val seljars = csdtClasspath.value
     val log = streams.value.log
-    val envision = csdtEnvision.value
+    val envision = file(sitesEnvisionDir.value)
     val defaultSite = sites.split(",").head
 
     val defaultWorkspace = envision / defaultSite
-    if(!defaultWorkspace.exists())
+    if (!defaultWorkspace.exists())
       defaultWorkspace.mkdir
-      
+
     val workspaces = envision.listFiles.filter(_.isDirectory).map(_.getName)
     val workspaceSearch = (s"#${defaultSite}#" +: args).reverse.filter(_.startsWith("#")).head.substring(1)
 
@@ -128,9 +152,6 @@ trait ToolsSettings {
 
     val fromSites = (("!" + defaultSite) +: args).reverse.filter(_.startsWith("!")).head.substring(1)
     val toSites = (("^" + fromSites) +: args).reverse.filter(_.startsWith("^")).head.substring(1)
-
-    //println(workspaceSearch)
-    //println(workspace.mkString(" "))
 
     if (args.size > 0 && args(0) == "raw") {
       Run.run("com.fatwire.csdt.client.main.CSDT",
@@ -216,9 +237,8 @@ trait ToolsSettings {
     }
   }
 
-  val toolsSettings = Seq(sitesTagWrapperGenTask, csdtTask,
-    csdtClientHome := baseDirectory.value / "sites" / "home" / "csdt" / "csdt-client",
-    csdtEnvision := baseDirectory.value / "sites" / "home" / "export" / "envision",
-    csdtClientClasspath := (csdtClientHome.value ** "*.jar").get)
-
+  val toolsSettings = Seq(sitesTagWrapperGenTask, cmovTask, csdtTask,
+    csdtHome := baseDirectory.value / "sites" / "home" / "csdt" / "csdt-client",
+    cmovClasspathTask,
+    csdtClasspath := (csdtHome.value ** "*.jar").get)
 }

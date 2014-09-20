@@ -3,9 +3,9 @@ import sbt._
 import Keys._
 
 trait SetupSettings {
-  this: Plugin with UtilSettings with ConfigSettings with DeploySettings =>
+  this: Plugin with UtilSettings with ConfigSettings with ToolsSettings with DeploySettings =>
 
-  def setupServletRequest(webapp: String, sites: String, sitesSeq: Seq[Tuple2[String, String]], flexBlobs: String, staticBlobs: String) {
+  def setupServletRequest(webapp: String, sites: String, sitesSeq: Seq[Tuple2[String, String]], statics: String) {
 
     val prpFile = file(webapp) / "WEB-INF" / "classes" / "ServletRequest.properties"
 
@@ -42,23 +42,12 @@ trait SetupSettings {
       prp.setProperty("agilesites.name." + normalizeSiteName(k), k)
     }
 
-    prp.setProperty("agilesites.blob.flex", flexBlobs)
-    prp.setProperty("agilesites.blob.static", staticBlobs)
+    prp.setProperty("agilesites.statics", statics)
 
     // store
     println("~ " + prpFile)
     prp.store(new java.io.FileWriter(prpFile),
       "updated by AgileSites setup")
-  }
-
-  // create directories for the setup
-  def setupMkdirs(shared: String, version: String, sites: String) {
-    // create local export dir for csdt
-    (file("export")).mkdir
-    (file("export") / "envision").mkdir
-    (file("export") / "envision" / "cs_workspace").mkdir
-    (file(shared) / "Storage").mkdir
-    (file(shared) / "Storage" / "Static").mkdir
   }
 
   // select jars for the setup offline
@@ -72,7 +61,6 @@ trait SetupSettings {
 
     setupCopyJars(destlib, addJars, removeJars)
 
-    //println(destlib)
   }
 
   // select jars for the setup online
@@ -108,7 +96,7 @@ trait SetupSettings {
   def setupCopyJars(destlib: File, addJars: Seq[File], removeJars: Seq[File]) {
 
     // remove jars
-    println("** removing old version of files");
+    println("** removing old version of files **");
     for (file <- removeJars) {
       val tgt = destlib / file.getName
       tgt.delete
@@ -116,7 +104,7 @@ trait SetupSettings {
     }
 
     // add jars
-    println("** installing new version of files");
+    println("** installing new version of files **");
     for (file <- addJars) yield {
       val tgt = destlib / file.getName
       IO.copyFile(file, tgt)
@@ -127,7 +115,7 @@ trait SetupSettings {
   }
 
   // configure futurentense.ini
-  def setupFutureTenseIni(home: String, shared: String, sites: String, static: String, version: String) {
+  def setupFutureTenseIni(home: String, shared: String, sites: String, version: String, envision: String) {
 
     val prpFile = file(home) / "futuretense.ini"
     val prp = new java.util.Properties
@@ -137,88 +125,87 @@ trait SetupSettings {
 
     prp.setProperty("agilesites.dir", jardir.getAbsolutePath);
     prp.setProperty("agilesites.poll", "1000");
-    prp.setProperty("agilesites.static", file(static).getAbsolutePath);
-    prp.setProperty("cs.csdtfolder", file("export").getAbsolutePath)
+    prp.setProperty("cs.csdtfolder", file(envision).getParentFile().getAbsolutePath())
 
     println("~ " + prpFile)
     prp.store(new java.io.FileWriter(prpFile),
       "updated by AgileSites setup")
-
   }
 
-  // copy jars in the webapp lib folder
-  lazy val sitesCopyJarsWeb = taskKey[Unit]("Sites Copy Jars to WEB-INF/lib")
-  val sitesCopyJarsWebTask = sitesCopyJarsWeb <<=
-    (sitesHello, fullClasspath in Compile, sitesWebapp, sitesVersion) map {
-      (hello, classpath, webapp, version) =>
-        if (!hello.isEmpty)
-          throw new Exception("Web Center Sites must be offline.")
-        setupCopyJarsWeb(webapp, classpath.files, version)
-    }
-
-  // copy jars in the agilesites lib 
-  lazy val sitesCopyJarsLib = taskKey[Unit]("Sites Copy Jars to agilesites/lib")
-  val sitesCopyJarsLibTask = sitesCopyJarsLib <<=
-    (sitesHello, fullClasspath in Compile, sitesShared) map {
-      (hello, classpath, shared) =>
-        if (!hello.isEmpty)
-          throw new Exception("Web Center Sites must be offline.")
-        setupCopyJarsLib(shared, classpath.files)
-    }
-
-  lazy val sitesSetup = taskKey[Unit]("Sites Setup Offline")
-  val sitesSetupTask = sitesSetup := {
+  lazy val asSetup = taskKey[Unit]("Sites Setup Offline")
+  val asSetupTask = asSetup := {
 
     val classes = (classDirectory in Compile).value
+    val classpath = (fullClasspath in Compile).value.files
     val sites = asSites.value
     val version = sitesVersion.value
     val home = sitesHome.value
     val shared = sitesShared.value
     val webapp = sitesWebapp.value
     val url = sitesUrl.value
-    val flexBlobs = asFlexRegex.value
-    val staticBlobs = asBlobRegex.value
-    val jar = asPackage.value
+    val statics = asStatics.value
+    val envision = sitesEnvisionDir.value
+    val hello = sitesHello.value
 
-    val static = (file(shared) / "Storage" / "Static") getAbsolutePath
+    if (!hello.isEmpty)
+      throw new Exception("Web Center Sites must be offline.")
 
     println("*** Installing AgileSites for WebCenter Sites ***");
 
-    val vhosts = (sites split ",") map { site =>
+    val vhosts = (sites split ",").map { site =>
       (site, url + "/Satellite/" + normalizeSiteName(site))
-    } toSeq
+    }.toSeq
 
-    setupMkdirs(shared, version, sites)
-    setupServletRequest(webapp, sites, vhosts, flexBlobs, staticBlobs)
-    setupFutureTenseIni(home, shared, static, sites, version)
+    setupServletRequest(webapp, sites, vhosts, statics)
+    setupFutureTenseIni(home, shared, sites, version, envision)
 
     // remove any other jar starting with agilesites-all-assembly 
     // remnants of the past
-    for (f <- (file(shared) / "agilesites").listFiles) {
-      if (f.isFile && f.getName.startsWith("agilesites-all-assembly")) {
-        //println("candidate to removal: "+f)
-        if (!f.getAbsolutePath.equals(jar)) {
+    val agilesitesDir = file(shared) / "agilesites"
+    if (agilesitesDir.exists())
+      for (f <- agilesitesDir.listFiles) {
+        if (f.isFile && f.getName.startsWith("agilesites-all-assembly")) {
           f.delete
           println("--- " + f);
-        } else {
-          //println("not removing "+jar)
         }
       }
-    }
+    else agilesitesDir.mkdirs()
 
-    // remove pupulate mark if there
-    (file(home) / "populate.done").delete
+    // installing jars
+    setupCopyJarsWeb(webapp, classpath, version)
+    setupCopyJarsLib(shared, classpath)
 
     println("""**** Setup Complete.
               |**** Please restart your application server.
-              |**** You need to complete installation with "wcs-deploy".""".stripMargin)
+              |**** You need to complete installation with "asDeploy".""".stripMargin)
   }
 
-  //val asAssemblyTarget = settingKey[File]("target of an assembly")
+  lazy val asSetupOnline = taskKey[Unit]("Sites Populate Online")
+  val asSetupOnlineTask = asSetupOnline := {
 
-  //val asAssemblyTask = taskKey[Unit]("copy the target of an assembly")
+    val log = streams.value.log
 
-  //asCopyAssemblyTarget := file("bin"),
+    println("hello....")
 
-  val setupSettings = Seq()
+    if (sitesHello.value.isEmpty)
+      throw new Exception(s"Web Center Sites must be online at ${sitesUrl}.")
+
+    val jar = (fullClasspath in Compile).value.files.filter(_.getName.startsWith("agilesites2-core")).head
+
+    if (jar.exists()) {
+      log.info(s"extracting aaagile from ${jar}")
+      IO.delete(file(sitesPopulateDir.value) / "aaagile")
+      val populateDir = file(sitesPopulateDir.value)
+      IO.unzip(jar, populateDir, GlobFilter("aaagile/*"))
+      if ((populateDir / "aaagile").exists())
+        cmov.toTask(" import_all aaagile").value
+      else
+        log.error(s"cannot find aaagile dir in ${populateDir}")
+    } else {
+      log.error("cannot find agilesites2-core in classpath")
+    }
+
+  }
+
+  val setupSettings = Seq(asSetupTask, asSetupOnlineTask)
 }

@@ -41,7 +41,7 @@ trait Utils {
   }
 
   // is an html file?
-  def isHtml(f: File) = !("\\.html?$".r findFirstIn f.getName.toLowerCase isEmpty)
+  def isHtml(f: File) = !(("\\.html?$".r findFirstIn f.getName.toLowerCase).isEmpty)
 
   // is not a .less file?
   def notLess(f: File) = !f.getName.endsWith(".less")
@@ -87,7 +87,7 @@ trait Utils {
     val siteList = if (sites == null) {
       List("")
     } else {
-      sites split (",") map { s => "&site=" + s } toList
+      (sites split (",") map { s => "&site=" + s }).toList
     }
 
     //println(siteList)

@@ -3,6 +3,7 @@ package agilesites.build
 import sbt._
 import Keys._
 import agilesites.build.util.Utils
+import java.io.File
 
 trait TomcatSettings extends Utils {
   this: Plugin with ConfigSettings =>
@@ -12,7 +13,7 @@ trait TomcatSettings extends Utils {
     report => report.select(configurationFilter("tomcat"))
   }
 
-  def tomcatEmbedded(base: File, port: Int, classpath: Seq[File], webapps: Seq[String], debug: Boolean) = {
+  def tomcatEmbedded(base: File, port: Int, classpath: Seq[File], debug: Boolean) = {
 
     import java.io._
     import java.io.File.pathSeparator
@@ -33,10 +34,11 @@ trait TomcatSettings extends Utils {
       "-Xms256m" :: "-Xmx1024m" :: "-XX:MaxPermSize=256m" ::
       s"-Dorg.owasp.esapi.resources=${bin}" :: debugSeq
 
-    val args = Seq(port.toString, base.getAbsolutePath) ++ webapps
+    val args = Seq(port.toString, base.getAbsolutePath)
 
     val cmd = opts ++ args
 
+    println(opts)
     val forkOpt = ForkOptions(
       runJVMOptions = opts,
       envVars = Map("CATALINA_HOME" -> base.getAbsolutePath),
@@ -44,31 +46,38 @@ trait TomcatSettings extends Utils {
     Fork.java(forkOpt, "setup.SitesServer" +: args)
   }
 
-  def tomcatEmbeddedScript(base: File, port: Int, classpath: Seq[File], webapps: Seq[String]) = {
-    if (java.io.File.pathSeparator == ";") {
-      val basepath = base.getAbsolutePath
-      val classpathCmd = classpath.map(x => "set CP=%CP%;\"" + x.getAbsolutePath + "\"").mkString("\r\n")
-      val classpathSvc = classpath.map(x => "\"" + x.getAbsolutePath + "\"").mkString(";")
-      
-      val fw = new java.io.FileWriter("sites-server.cmd")
-      val javahome = System.getProperty("java.home")
-      val apps = webapps.mkString("\"", "\" \"", "\"")
-      val apps2 = webapps.mkString("\"", "\";\"", "\"")
-      val startArgs = s"""${port} "${basepath}"  ${apps}"""
-      val startArgs2 = s"""${port};"${basepath}";${apps2}"""
-      val port1 = (port + 1).toString
-      val opts = """-Djava.io.tmpdir="${basepath}\temp" -Xms256m -Xmx1024m -XX:MaxPermSize=256m -Dorg.owasp.esapi.resources="${basepath}\bin""""
-      val opts2 = opts.replace(' ', ';')
+  def tomcatEmbeddedScriptWindows(base: File, classpath: Seq[File]) {
 
-      
-      fw.write(s"""@echo off
-set CATALINA_HOME="${basepath}"
-set JAVA="${javahome}\\bin\\java.exe"
-set PRUN="${basepath}\\bin\\sites.exe"
-set CP="${basepath}\\bin";"${basepath}\\bin\\setup.jar";"${basepath}\\home\\bin"
+    val tomcat = file("bin") / "tomcat"
+    tomcat.mkdirs
+    val classpathLs = for (src <- classpath) yield {
+      val tgt = tomcat / src.getName
+      println(s"+++ ${tgt}")
+      IO.copyFile(src, tgt, false)
+      s"""set CP=%CP%;"%BASE%\\bin\\tomcat\\${src.getName}"""".replaceAllLiterally("\\\\", "\\")
+    }
+
+    val classpathCmd = classpathLs.mkString("\r\n")
+    val script = new java.io.File("sites-server.cmd")
+    script.delete
+    val fw = new java.io.FileWriter(script)
+    val javahome = System.getProperty("java.home")
+    val startArgs = s"""%SITES_PORT% "%BASE%""""
+    val startArgs2 = s"""%SITES_PORT%;"%BASE%""""
+    val opts = """-Djava.io.tmpdir="%BASE%\temp" -Xms256m -Xmx1024m -XX:MaxPermSize=256m -Dorg.owasp.esapi.resources="%BASE%\bin""""
+    val opts2 = opts.replace(' ', ';')
+
+    fw.write(s"""@echo off
+set BASE=%~dp0
+IF %BASE:~-1%==\\ SET BASE=%BASE:~0,-1%
+mkdir "%BASE%\\logs" 2>nul:
+mkdir "%BASE%\\temp" 2>nul:
+call "%BASE%\\agilesites.cmd"
+set JAVA="%SITES_JAVA_HOME%\\bin\\java.exe"
+set CP="%BASE%\\bin";"%BASE%\\bin\\setup.jar";"%BASE%\\home\\bin"
 ${classpathCmd}
 set OPTS=${opts}
-if "%~1"=="debug" set OPTS=%OPTS% -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
+if "%~1"=="debug" set OPTS=%OPTS% -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=%SITES_PORT_DEBUG%
 if "%~1"=="stop" goto stop
 if "%~1"=="start" goto start
 if "%~1"=="install" goto install
@@ -81,8 +90,11 @@ goto end
 :run
 %JAVA% -cp %CP% %OPTS% setup.SitesServer ${startArgs}
 goto end
+:kill
+%JAVA% -cp %CP% %OPTS% setup.SitesServer stop %SITES_PORT_KILL%
+goto end
 :install
-%PRUN% //IS//sites --DisplayName="Sites" --Install="sites.exe" --Startup=auto --JavaHome="${javahome}" --Classpath=${classpathSvc} --StartClass=setup.SitesServer --StartParams=${startArgs2} --StopClass=setup.SitesServer ++StopParams="stop;${port1}" --StartMode=java ++JvmOptions="${opts2}"  --LogPath="${base}\\logs" --StdOutput --StdError
+%PRUN% //IS//sites --DisplayName="Sites" --Install="sites.exe" --Startup=auto --JavaHome="${javahome}" --Classpath=TODO --StartClass=setup.SitesServer --StartParams=${startArgs2} --StopClass=setup.SitesServer ++StopParams="stop;%SITES_KILL_PORT%" --StartMode=java ++JvmOptions="${opts2}"  --LogPath="${base}\\logs" --StdOutput --StdError
 goto end
 :uninstall
 %PRUN% //DS//sites
@@ -92,19 +104,28 @@ goto end
 goto end
 :stop
 %PRUN% //SS//sites
-goto end
-:kill
-%JAVA% -cp %CP% %OPTS% setup.SitesServer stop ${port + 1}
 :end
 """)
-      fw.close
-    }
+    fw.close
+    println(s"+++ ${script}")
+  }
+  
+  def tomcatEmbeddedScriptUnix(base: File, classpath: Seq[File]) {
+	  println("TODO!")
+  }
+
+  lazy val sitesServerScript = taskKey[Unit]("Generate a  Launch Script")
+
+  lazy val sitesServerScriptTask = sitesServerScript := {
+    if (File.pathSeparator == ";")
+      tomcatEmbeddedScriptWindows(baseDirectory.value, tomcatEmbeddedClasspath.value)
+    else
+      tomcatEmbeddedScriptUnix(baseDirectory.value, tomcatEmbeddedClasspath.value)
   }
 
   lazy val sitesServer = inputKey[Unit]("Launch Local Sites")
 
   lazy val sitesServerTask = sitesServer := {
-
     val args: Seq[String] = Def.spaceDelimited("<arg>").parsed
     val classpath = tomcatEmbeddedClasspath.value
     val port = sitesPort.value.toInt
@@ -112,14 +133,9 @@ goto end
     val home = sitesHome.value
     val url = sitesUrl.value
     val log = streams.value.log
-    val cs = (base / "webapps" / "cs").getAbsolutePath
-    val cas = (base / "webapps" / "cas").getAbsolutePath
+    val cs = file("webapps") / "cs"
+    val cas = file("webapps") / "cas"
 
-    //for(folder <- folders) println("*** -"+folder)  
-    //val root = (base / "app" / "src" / "main" / "static").getAbsolutePath
-    //val test = (base / "app" / "src" / "test" / "static").getAbsolutePath
-
-    val webapps = Seq( /*"=" + root, "test=" + test, */ "cs=" + cs, "cas=" + cas)
     val usage = "usage: start [debug]|stop|status|script"
 
     args.headOption match {
@@ -131,7 +147,6 @@ goto end
           println("Local Sites Server not running")
         } catch {
           case e: Throwable =>
-            //e.printStackTrace
             println("Local Sites Server running")
         }
 
@@ -157,7 +172,7 @@ goto end
           override def run() {
             try {
               println(s"*** Local Sites Server starting in port ${port}***")
-              val tomcatProcess = tomcatEmbedded(base, port, classpath, webapps, debug)
+              val tomcatProcess = tomcatEmbedded(base, port, classpath, debug)
             } catch {
               case e: Throwable =>
                 //e.printStackTrace
@@ -170,9 +185,6 @@ goto end
         println(" *** Waiting for Local Sites Server startup to complete ***")
         println(httpCallRaw(url + "/HelloCS"))
 
-      case Some("script") =>
-        tomcatEmbeddedScript(base, port, classpath, webapps)
-
       case Some(thing) =>
         println(usage)
     }
@@ -183,14 +195,18 @@ goto end
   val hsqlVersion = "1.8.0.10"
   def tomcatDeps(tomcatConfig: String) = Seq(
     //"org.apache.tomcat" % "tomcat-catalina" % tomcatVersion % tomcatConfig,
-    "org.apache.tomcat" % "tomcat-dbcp" % tomcatVersion % tomcatConfig,
-    "org.apache.tomcat.embed" % "tomcat-embed-logging-log4j" % tomcatVersion % tomcatConfig,
+
     "org.apache.tomcat.embed" % "tomcat-embed-core" % tomcatVersion % tomcatConfig,
+    "org.apache.tomcat.embed" % "tomcat-embed-logging-juli" % tomcatVersion % tomcatConfig,
     "org.apache.tomcat.embed" % "tomcat-embed-jasper" % tomcatVersion % tomcatConfig,
+    "org.apache.tomcat" % "tomcat-jasper" % tomcatVersion % tomcatConfig,
+    "org.apache.tomcat" % "tomcat-jasper-el" % tomcatVersion % tomcatConfig,
+    "org.apache.tomcat" % "tomcat-jsp-api" % tomcatVersion % tomcatConfig,
+    "org.apache.tomcat" % "tomcat-dbcp" % tomcatVersion % tomcatConfig,
     "org.hsqldb" % "hsqldb" % hsqlVersion % tomcatConfig)
 
   val tomcatSettings = Seq(ivyConfigurations += config("tomcat"),
     libraryDependencies ++= tomcatDeps("tomcat") ++ tomcatDeps("provided"),
-    tomcatEmbeddedClasspathTask, sitesServerTask)
-    
+    tomcatEmbeddedClasspathTask, sitesServerTask, sitesServerScriptTask)
+
 }
