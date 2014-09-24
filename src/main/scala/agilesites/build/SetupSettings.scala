@@ -180,32 +180,6 @@ trait SetupSettings {
               |**** You need to complete installation with "asDeploy".""".stripMargin)
   }
 
-  lazy val asSetupOnline = taskKey[Unit]("Sites Populate Online")
-  val asSetupOnlineTask = asSetupOnline := {
-
-    val log = streams.value.log
-
-    println("hello....")
-
-    if (sitesHello.value.isEmpty)
-      throw new Exception(s"Web Center Sites must be online at ${sitesUrl}.")
-
-    val jar = (fullClasspath in Compile).value.files.filter(_.getName.startsWith("agilesites2-core")).head
-
-    if (jar.exists()) {
-      log.info(s"extracting aaagile from ${jar}")
-      IO.delete(file(sitesPopulateDir.value) / "aaagile")
-      val populateDir = file(sitesPopulateDir.value)
-      IO.unzip(jar, populateDir, GlobFilter("aaagile/*"))
-      if ((populateDir / "aaagile").exists())
-        cmov.toTask(" import_all aaagile").value
-      else
-        log.error(s"cannot find aaagile dir in ${populateDir}")
-    } else {
-      log.error("cannot find agilesites2-core in classpath")
-    }
-
-  }
-
-  val setupSettings = Seq(asSetupTask, asSetupOnlineTask)
+ 
+  val setupSettings = Seq(asSetupTask)
 }

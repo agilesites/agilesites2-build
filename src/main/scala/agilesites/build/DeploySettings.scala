@@ -17,14 +17,24 @@ trait DeploySettings {
     asUploadTarget.value match {
       case Some(url) =>
         val targetUri = new java.net.URI(url)
-        val Array(user, pass) = targetUri.getUserInfo.split(":")
-        val host = targetUri.getHost
-        val path = targetUri.getPath
-        val port = if (targetUri.getPort == -1) 22 else targetUri.getPort
-        if (!ScpTo.scp(jar.getAbsolutePath(), user, pass, host, port, path))
-          log.error("!!! cannot upload ")
-        else
-          log.info("uploaded " + url)
+        val proto = targetUri.getScheme
+        if (proto == "file") {
+        	val f = file(targetUri.getPath)
+        	f.getParentFile.mkdirs()
+        	IO.copyFile(jar, f)
+        	log.info("+++ " + f)
+        } else if (proto == "scp") {
+          val Array(user, pass) = targetUri.getUserInfo.split(":")
+          val host = targetUri.getHost
+          val path = targetUri.getPath
+          val port = if (targetUri.getPort == -1) 22 else targetUri.getPort
+          if (!ScpTo.scp(jar.getAbsolutePath(), user, pass, host, port, path))
+            log.error("!!! cannot upload ")
+          else
+            log.info("+++ uploaded " + url)
+        } else {
+          log.error("unknown protocol for asUploadTarget")
+        }
       case None =>
         val destdir = file(sitesShared.value) / "agilesites"
         val destjar = file(sitesShared.value) / "agilesites" / jar.getName
@@ -32,7 +42,6 @@ trait DeploySettings {
         destdir.mkdir
         IO.copyFile(jar, destjar)
         log.info("+++ " + destjar.getAbsolutePath)
-        destjar.getAbsolutePath.toString
     }
   }
 

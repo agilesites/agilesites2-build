@@ -105,12 +105,14 @@ trait ToolsSettings {
           if (!dir.isDirectory)
             throw new Exception(s"not found ${dir.getAbsolutePath}")
 
-          Seq("-d", dir.getAbsolutePath, "-x", cmd) ++
+          Seq("-d", dir.getAbsolutePath, "-x", cmd) ++ args.drop(2) ++
             (if (set("-b")) Seq() else Seq("-b", sitesUrl.value + "/CatalogManager")) ++
             (if (set("-u")) Seq() else Seq("-u", sitesUser.value)) ++
             (if (set("-p")) Seq() else Seq("-p", sitesPassword.value))
         }
 
+      println(opts)
+      
       Fork.java(ForkOptions(
         runJVMOptions = Seq("-cp", cp),
         workingDirectory = Some(baseDirectory.value)),
@@ -126,7 +128,6 @@ trait ToolsSettings {
   // interface to csdt from sbt
   lazy val csdt = inputKey[Unit]("Content Server Development Tool")
   val csdtTask = csdt := {
-
     val args: Seq[String] = Def.spaceDelimited("<arg>").parsed
     val home = sitesHome.value
     val version = sitesVersion.value
