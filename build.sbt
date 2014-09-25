@@ -1,4 +1,4 @@
-val v = "1.9-M9"
+val v = "1.9-M10"
 
 val libDeps = Seq(
    "org.scalatest" %% "scalatest" % "2.2.0" % "test",
