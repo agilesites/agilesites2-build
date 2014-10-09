@@ -2,8 +2,8 @@ package agilesites.build
 
 import sbt._
 import Keys._
-
 import agilesites.build.util.Utils
+import java.nio.charset.Charset
 
 trait UtilSettings extends Utils {
   this: Plugin with ConfigSettings =>
@@ -77,9 +77,25 @@ trait UtilSettings extends Utils {
         None
     }
   }
-   
+
+  //lazy val asGenerateVersionClass = taskKey[Seq[File]]("Generate a Version Class")
+
+  val asGenerateVersionClass = Def.task {
+    val vclass = name.value.replace('-', '_')    
+    val vfile = (sourceManaged in Compile).value / "wcs" / "version" / (vclass + ".java")
+    val date = new java.util.Date()
+    IO.write(vfile, s"""package wcs.version;
+public class ${vclass} { public static void main(String[] args) {
+  System.out.println("Jar: ${name.value}\\nVersion: ${version.value}\\nTimestamp: ${date.getTime().toString}\\nDate: ${date.toString}\\n");
+} }""", Charset.forName("UTF-8"), false)
+    Seq(vfile)
+  }
+  
+  
   val utilSettings = Seq(asShellPromptTask,
     asProperties := Seq("agilesites.properties"),
-    asPropertyMapTask,
-    sitesHelloTask) 
+    asPropertyMapTask, sitesHelloTask,
+    //artifactName := name.value + "-" + version.value,
+    packageOptions in (Compile, packageBin) += Package.ManifestAttributes( java.util.jar.Attributes.Name.MAIN_CLASS -> s"wcs.version.${name.value.replace('-', '_')}" ),
+    sourceGenerators in Compile += asGenerateVersionClass.taskValue)
 }

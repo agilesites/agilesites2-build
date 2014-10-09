@@ -1,17 +1,10 @@
-val v = "1.9-M10"
+val v = "1.9-M11"
 
-val libDeps = Seq(
-   "org.scalatest" %% "scalatest" % "2.2.0" % "test",
-   "org.jsoup" % "jsoup" % "1.7.3",
-   "commons-httpclient" % "commons-httpclient" % "3.1",
-   "commons-io" % "commons-io" % "2.4",
-   "org.clapper" % "scalasti_2.10" % "1.0.0",
-   "com.jcraft" % "jsch" % "0.1.51",
-   "org.scalafx" %% "scalafx" % "1.0.0-R8",
-   "org.scalafx" %% "scalafxml-core" % "0.2") 
-
-// dependencies need to preload in the local repo
 val tomcat = config("tomcat")
+
+val jfx = config("jfx")
+
+
 
 val tomcatVersion = "7.0.52"
 
@@ -26,7 +19,18 @@ def tomcatDeps(tomcatConfig: String) = Seq(
     "org.apache.tomcat.embed" % "tomcat-embed-jasper" % tomcatVersion % tomcatConfig,
     "org.hsqldb" % "hsqldb" % hsqlVersion % tomcatConfig)
 
-val btsettings = bintrayPublishSettings ++ Seq(
+val libDeps = Seq(
+   "org.scalatest" %% "scalatest" % "2.2.0" % "test",
+   "org.jsoup" % "jsoup" % "1.7.3",
+   "commons-httpclient" % "commons-httpclient" % "3.1",
+   "commons-io" % "commons-io" % "2.4",
+   "org.clapper" % "scalasti_2.10" % "1.0.0",
+   "com.jcraft" % "jsch" % "0.1.51",
+   "org.scalafx" %% "scalafx" % "1.0.0-R8",
+   "org.scalafx" %% "scalafxml-core" % "0.2") 
+
+
+val btSettings = bintrayPublishSettings ++ Seq(
 	bintray.Keys.bintrayOrganization in bintray.Keys.bintray := Some("sciabarra"),
 	bintray.Keys.repository in bintray.Keys.bintray := "sbt-plugins",
 	licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
@@ -34,15 +38,30 @@ val btsettings = bintrayPublishSettings ++ Seq(
 	publishArtifact in packageDoc := false,
 	publishArtifact in Test := false)
 
-val mysettings = Seq(name := "agilesites2-build",
+val mySettings = Seq(name := "agilesites2-build",
 	organization := "com.sciabarra",
 	sbtPlugin := true,
 	version := v,
 	scalaVersion := "2.10.4",
 	scalacOptions ++= Seq("-deprecation", "-feature"),
 	libraryDependencies ++= libDeps ++ tomcatDeps("tomcat"))
+	
+val genSettings = Seq(
+	fork in jfx := true,
+	mainClass in jfx := Some("agilesites.generator.gui.Main"),
+	unmanagedJars in jfx <<= unmanagedJars in Compile,
+	unmanagedJars in Compile <+= Def.task {
+  val javaHome = new File(System.getProperty("java.home"))
+  val jfxJar = new File(javaHome, "lib/jfxrt.jar")
+  if (!jfxJar.exists)
+     throw new RuntimeException("JavaFX not detected (needs Java runtime 7u06 or later): " + jfxJar.getPath) // '.getPath' = full filename
+  Attributed.blank(jfxJar)
+})
 
 val root = project.in(file(".")).
-	configs(tomcat).
-	settings(btsettings: _*).
-	settings(mysettings : _*)
+	configs(tomcat, jfx).
+	settings(btSettings: _*).
+	settings(mySettings : _*).
+	settings(genSettings : _*)
+	
+addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)

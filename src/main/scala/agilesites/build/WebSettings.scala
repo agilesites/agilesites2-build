@@ -15,24 +15,26 @@ import agilesites.build.util.WebUtil
 trait WebSettings extends Utils with WebUtil {
   this: Plugin with ConfigSettings =>
 
-  def fingerPrintMap(files: Seq[File], prefixLen: Int): Seq[(Regex, (String, String))] =
+  def fingerPrintMap(staticPrefix: String, files: Seq[File], prefixLen: Int): Seq[(Regex, (String, String))] =
     for (file <- files) yield {
       // normalize filename
       val normfile = deprefixNomalizeFile(file, prefixLen)
       // get md5 of it
       val md5sum = md5(file)
       // chreate a mapping from the normal to the finger printed version
-      val hashedfile = assetHashedFilePath(normfile, md5sum)
+      val hashedfile = staticPrefix + assetHashedFilePath(normfile, md5sum)
       val fileAndHash = s"/${normfile}\n${md5sum}"
-      (new Regex(Pattern.quote(normfile)), fileAndHash -> hashedfile)
 
+      val re = new Regex(s"(\\.\\./)*\\Q${normfile}\\E")
+      val r = ( re, fileAndHash -> hashedfile)
+      //println(r)
+      r
     }
 
   def replaceWithMap(src: File, replacements: Seq[(Regex, (String, String))]) = {
     def rep(x: String, y: Tuple2[Regex, Tuple2[String, String]]) = y._1.replaceAllIn(x, y._2._2)
     replacements.foldLeft(readFile(src))(rep _)
   }
-
 
   lazy val asWebFolder = taskKey[File]("AgileSites assets folder ")
 
@@ -48,13 +50,14 @@ trait WebSettings extends Utils with WebUtil {
     val src = asWebFolder.value
     val tgt = (resourceManaged in Compile).value
     val log = streams.value.log
+    val pref = asStaticPrefix.value
 
     val nsrc = src.getPath.length
     val ntgt = tgt.getPath.length
     val files = Seq(src).descendantsExcept(asWebIncludeFilter.value, asWebExcludeFilter.value).get.filter(_.isFile)
     val toFingerPrint = asWebFingerPrintFilter.value
 
-    val fpMap = fingerPrintMap(files, nsrc)
+    val fpMap = fingerPrintMap(pref, files, nsrc)
     //println(fpMap)
     val destlist = for (file <- files if file.isFile) yield {
       val subfile = file.getPath.substring(nsrc)
