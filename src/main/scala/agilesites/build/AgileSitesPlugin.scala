@@ -2,7 +2,8 @@ package agilesites.build
 
 import sbt._
 import Keys._
-import agilesites.generator.GeneratorSettings
+import agilesites.generator.GeneratorPlugin
+import agilesites.wem.WemPlugin
 
 object AgileSitesPlugin
   extends Plugin
@@ -14,7 +15,8 @@ object AgileSitesPlugin
   with DeploySettings
   with ScaffoldSettings
   with WebSettings
-  with GeneratorSettings {
+  with GeneratorPlugin
+  with WemPlugin {
 
   override lazy val projectSettings =
     configSettings ++
@@ -25,5 +27,6 @@ object AgileSitesPlugin
       deploySettings ++
       scaffoldSettings ++
       webSettings ++
-      generatorSettings
+      generatorPlugin ++
+      wemPlugin
 }

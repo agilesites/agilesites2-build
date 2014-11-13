@@ -1,10 +1,8 @@
-val v = "1.9-M11"
+val v = "1.9-M12-SNAPSHOT"
 
 val tomcat = config("tomcat")
 
 val jfx = config("jfx")
-
-
 
 val tomcatVersion = "7.0.52"
 
@@ -27,8 +25,8 @@ val libDeps = Seq(
    "org.clapper" % "scalasti_2.10" % "1.0.0",
    "com.jcraft" % "jsch" % "0.1.51",
    "org.scalafx" %% "scalafx" % "1.0.0-R8",
-   "org.scalafx" %% "scalafxml-core" % "0.2") 
-
+   "org.scalafx" %% "scalafxml-core" % "0.2",
+   "net.databinder.dispatch" %% "dispatch-core" % "0.11.2") 
 
 val btSettings = bintrayPublishSettings ++ Seq(
 	bintray.Keys.bintrayOrganization in bintray.Keys.bintray := Some("sciabarra"),
@@ -51,11 +49,11 @@ val genSettings = Seq(
 	mainClass in jfx := Some("agilesites.generator.gui.Main"),
 	unmanagedJars in jfx <<= unmanagedJars in Compile,
 	unmanagedJars in Compile <+= Def.task {
-  val javaHome = new File(System.getProperty("java.home"))
-  val jfxJar = new File(javaHome, "lib/jfxrt.jar")
-  if (!jfxJar.exists)
-     throw new RuntimeException("JavaFX not detected (needs Java runtime 7u06 or later): " + jfxJar.getPath) // '.getPath' = full filename
-  Attributed.blank(jfxJar)
+  	val javaHome = new File(System.getProperty("java.home"))
+  	val jfxJar = new File(javaHome, "lib/jfxrt.jar")
+  	if (!jfxJar.exists)
+    	 throw new RuntimeException("JavaFX not detected (needs Java runtime 7u06 or later): " + jfxJar.getPath) // '.getPath' = full filename
+  	Attributed.blank(jfxJar)
 })
 
 val root = project.in(file(".")).

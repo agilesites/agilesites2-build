@@ -2,12 +2,11 @@ package agilesites.generator
 
 import sbt._
 import Keys._
+import agilesites.build.ConfigSettings
 
-trait CommonSettings { this: Plugin =>
-
-  // Keys
-  lazy val asConfig = config("as").hide
-  
+trait CommonSettings { 
+  this: Plugin with ConfigSettings =>
+    
   lazy val asJfxJar = taskKey[Seq[File]]("classpath generator")
 
   // Utils
@@ -31,6 +30,6 @@ trait CommonSettings { this: Plugin =>
     Seq(jfxJar)
   }
 
-  val commonSettings = Seq(ivyConfigurations += asConfig, asJfxJarTask)
+  val commonSettings = Seq(asJfxJarTask)
 
 }

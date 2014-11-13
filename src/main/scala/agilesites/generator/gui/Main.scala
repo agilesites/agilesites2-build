@@ -8,7 +8,7 @@ object Main extends JFXApp {
   
   stage = parameters.raw.headOption.getOrElse("hello") match {
     
-  	case "Downloader" => DownloaderStage
+  	//case "Downloader" => DownloaderStage
     
     //case "Worker" => WorkerStage
     
