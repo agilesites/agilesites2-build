@@ -82,9 +82,9 @@ trait UtilSettings extends Utils {
 
   val asGenerateVersionClass = Def.task {
     val vclass = name.value.replace('-', '_')    
-    val vfile = (sourceManaged in Compile).value / "wcs" / "version" / (vclass + ".java")
+    val vfile = (sourceManaged in Compile).value / "agilesites" / "version" / (vclass + ".java")
     val date = new java.util.Date()
-    IO.write(vfile, s"""package wcs.version;
+    IO.write(vfile, s"""package agilesites.version;
 public class ${vclass} { public static void main(String[] args) {
   System.out.println("Jar: ${name.value}\\nVersion: ${version.value}\\nTimestamp: ${date.getTime().toString}\\nDate: ${date.toString}\\n");
 } }""", Charset.forName("UTF-8"), false)
@@ -96,6 +96,6 @@ public class ${vclass} { public static void main(String[] args) {
     asProperties := Seq("agilesites.properties"),
     asPropertyMapTask, sitesHelloTask,
     //artifactName := name.value + "-" + version.value,
-    packageOptions in (Compile, packageBin) += Package.ManifestAttributes( java.util.jar.Attributes.Name.MAIN_CLASS -> s"wcs.version.${name.value.replace('-', '_')}" ),
+    packageOptions in (Compile, packageBin) += Package.ManifestAttributes( java.util.jar.Attributes.Name.MAIN_CLASS -> s"agilesites.version.${name.value.replace('-', '_')}" ),
     sourceGenerators in Compile += asGenerateVersionClass.taskValue)
 }

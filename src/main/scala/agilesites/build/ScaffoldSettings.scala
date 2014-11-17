@@ -11,7 +11,7 @@ trait ScaffoldSettings {
   lazy val asTemplatePath = SettingKey[String]("AgileSites Generator Templates")
 
   lazy val asGenerate = inputKey[Unit](
-    """|
+      """|
          |Usage:
          | wcs-generate <template_name>
          |

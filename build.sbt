@@ -1,4 +1,4 @@
-val v = "1.9-M12-SNAPSHOT"
+val v = "2.0-SNAPSHOT"
 
 val tomcat = config("tomcat")
 
@@ -9,21 +9,26 @@ val tomcatVersion = "7.0.52"
 val hsqlVersion = "1.8.0.10"
 
 def tomcatDeps(tomcatConfig: String) = Seq(
-    "org.apache.tomcat" % "tomcat-catalina" % tomcatVersion % tomcatConfig,
-    "org.apache.tomcat" % "tomcat-dbcp" % tomcatVersion % tomcatConfig,
+    "org.apache.tomcat"       % "tomcat-catalina" % tomcatVersion % tomcatConfig,
+    "org.apache.tomcat"       % "tomcat-dbcp" % tomcatVersion % tomcatConfig,
     "org.apache.tomcat.embed" % "tomcat-embed-logging-log4j" % tomcatVersion % tomcatConfig,
     "org.apache.tomcat.embed" % "tomcat-embed-core" % tomcatVersion % tomcatConfig,
     "org.apache.tomcat.embed" % "tomcat-embed-core" % tomcatVersion % tomcatConfig,
     "org.apache.tomcat.embed" % "tomcat-embed-jasper" % tomcatVersion % tomcatConfig,
-    "org.hsqldb" % "hsqldb" % hsqlVersion % tomcatConfig)
+    //"commons-httpclient" 	  % "commons-httpclient" % "3.1",
+    //"commons-codec"      	  % "commons-codec" % "1.3",
+    //"commons-fileupload" 	  % "commons-fileupload" % "1.2",
+    //"commons-io"         	  % "commons-io" % "1.3.2",    
+    "org.apache.httpcomponents" % "httpclient" % "4.3.4",
+    "org.hsqldb" 			  % "hsqldb" % hsqlVersion % tomcatConfig)
 
 val libDeps = Seq(
    "org.scalatest" %% "scalatest" % "2.2.0" % "test",
-   "org.jsoup" % "jsoup" % "1.7.3",
-   "commons-httpclient" % "commons-httpclient" % "3.1",
-   "commons-io" % "commons-io" % "2.4",
    "org.clapper" % "scalasti_2.10" % "1.0.0",
+   "org.jsoup" % "jsoup" % "1.7.3",
    "com.jcraft" % "jsch" % "0.1.51",
+   "commons-io" % "commons-io" % "2.4",
+   "commons-httpclient" % "commons-httpclient" % "3.1",
    "org.scalafx" %% "scalafx" % "1.0.0-R8",
    "org.scalafx" %% "scalafxml-core" % "0.2",
    "net.databinder.dispatch" %% "dispatch-core" % "0.11.2") 
@@ -42,7 +47,7 @@ val mySettings = Seq(name := "agilesites2-build",
 	version := v,
 	scalaVersion := "2.10.4",
 	scalacOptions ++= Seq("-deprecation", "-feature"),
-	libraryDependencies ++= libDeps ++ tomcatDeps("tomcat"))
+	libraryDependencies ++= libDeps ++ tomcatDeps("tomcat") ++ tomcatDeps("compile"))
 	
 val genSettings = Seq(
 	fork in jfx := true,
@@ -61,5 +66,5 @@ val root = project.in(file(".")).
 	settings(btSettings: _*).
 	settings(mySettings : _*).
 	settings(genSettings : _*)
-	
+
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)

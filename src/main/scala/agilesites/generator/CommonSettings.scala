@@ -21,7 +21,6 @@ trait CommonSettings {
   }
 
   // Tasks
-
   val asJfxJarTask = asJfxJar := {
     val javaHome = file(System.getProperty("java.home"))
     val jfxJar = javaHome / "lib" / "jfxrt.jar"

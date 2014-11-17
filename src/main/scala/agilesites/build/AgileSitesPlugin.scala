@@ -23,10 +23,10 @@ object AgileSitesPlugin
       utilSettings ++
       toolsSettings ++
       tomcatSettings ++
-      setupSettings ++
       deploySettings ++
       scaffoldSettings ++
       webSettings ++
       generatorPlugin ++
+      setupSettings ++
       wemPlugin
 }

@@ -14,8 +14,7 @@ trait RestSettings {
   lazy val login = taskKey[String]("WEM login")
   lazy val get = inputKey[Unit]("WEM get")
 
-  // Utils
-
+ 
   // Tasks
   val getTask = get := {
     val args = Def.spaceDelimited("<args>").parsed
