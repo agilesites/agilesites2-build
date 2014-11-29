@@ -6,11 +6,11 @@ import Keys._
 trait ConfigSettings {
   this: Plugin with UtilSettings =>
 
-   // Keys
+  // Keys
   lazy val asConfig = config("as")
-  lazy val asCoreConfig = config("as-core")
-  lazy val asApiConfig = config("as-api")
-
+  
+  lazy val agilesitesConfig = config("agilesites")
+  
   // Keys
   val asSites = settingKey[String]("Sites Enabled under AgileSites")
   val asUploadTarget = settingKey[Option[String]]("Upload Target")
@@ -37,7 +37,7 @@ trait ConfigSettings {
   val satellitePassword = settingKey[String]("Satellite password")
 
   val configSettings = Seq(
-    ivyConfigurations ++= Seq(asConfig, asCoreConfig, asApiConfig),
+    ivyConfigurations ++= Seq(asConfig, agilesitesConfig),
     asSites := asPropertyMap.value.getOrElse("as.sites", ""),
     asStatics := asPropertyMap.value.getOrElse("as.static.ext", "js,json,css,map,gif,png,jpg,jpeg,ico"),
     asStaticPrefix := asPropertyMap.value.getOrElse("as.static.prefix", "/cs/Satellite/"),

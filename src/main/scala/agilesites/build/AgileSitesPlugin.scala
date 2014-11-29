@@ -26,7 +26,7 @@ object AgileSitesPlugin
       deploySettings ++
       scaffoldSettings ++
       webSettings ++
-      generatorPlugin ++
       setupSettings ++
+      generatorPlugin ++
       wemPlugin
 }

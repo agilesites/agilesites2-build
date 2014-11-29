@@ -37,7 +37,7 @@ public class SitesServer {
 
 		if (args.length == 2 && args[0].equals("stop")) {
 			try {
-				Socket sock = new Socket("127.0.0.1", Integer.parseInt(args[1]));
+				Socket sock = new Socket("127.0.0.1", Integer.parseInt(args[1])+1);
 				sock.getInputStream().read();
 				sock.close();
 				System.out.println("Shutdown request accepted.");

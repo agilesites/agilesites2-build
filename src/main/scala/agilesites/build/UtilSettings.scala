@@ -81,7 +81,7 @@ trait UtilSettings extends Utils {
   //lazy val asGenerateVersionClass = taskKey[Seq[File]]("Generate a Version Class")
 
   val asGenerateVersionClass = Def.task {
-    val vclass = name.value.replace('-', '_')    
+    val vclass = name.value.replace('-', '_').replace('.','_')    
     val vfile = (sourceManaged in Compile).value / "agilesites" / "version" / (vclass + ".java")
     val date = new java.util.Date()
     IO.write(vfile, s"""package agilesites.version;

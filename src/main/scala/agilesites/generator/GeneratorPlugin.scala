@@ -7,8 +7,12 @@ import agilesites.build.ConfigSettings
 
 trait GeneratorPlugin
   extends CommonSettings
-  with InstallerSettings {
+  with InstallerSettings
+  with SpoonSettings {
   this: Plugin with ConfigSettings =>
 
-  val generatorPlugin = commonSettings ++ installerSettings
+  val generatorPlugin =
+    commonSettings ++
+      installerSettings ++
+      spoonSettings
 }

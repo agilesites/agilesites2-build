@@ -39,6 +39,8 @@ public class SilentSatellite {
 		File outputIniFile = new File(args[3]);
 		baseIni.load(new FileReader(baseIniFile));
 		//baseIni.setProperty("CSInstallDBDSN", "csDataSource");
+		baseIni.setProperty("CSHostName", host); // for satellite
+		baseIni.setProperty("CSPort", port); // for satellite
 		baseIni.setProperty("CASHostNameActual", host);
 		baseIni.setProperty("CSInstallDirectory",
 				fix(new File(baseFile, "satellite")));

@@ -128,10 +128,7 @@ trait TomcatSettings extends Utils {
     "org.apache.tomcat" % "tomcat-jsp-api" % tomcatVersion % tomcatConfig,
     "org.apache.tomcat" % "tomcat-dbcp" % tomcatVersion % tomcatConfig,
     "org.hsqldb" % "hsqldb" % hsqlVersion % tomcatConfig, // database
-    "commons-httpclient" % "commons-httpclient" % "3.1",  // proxy servlet
-    "commons-codec"      % "commons-codec" % "1.3",
-    "commons-fileupload" % "commons-fileupload" % "1.2",
-    "commons-io"         % "commons-io" % "1.3.2")
+    "org.apache.httpcomponents" % "httpclient" % "4.3.4")
 
   val tomcatSettings = Seq(ivyConfigurations += config("tomcat"),
     libraryDependencies ++= tomcatDeps("tomcat") ++ tomcatDeps("provided"),

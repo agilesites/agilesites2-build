@@ -1,4 +1,4 @@
-val v = "2.0-SNAPSHOT"
+val v = "2.0-M1-SNAPSHOT"
 
 val tomcat = config("tomcat")
 
@@ -15,12 +15,13 @@ def tomcatDeps(tomcatConfig: String) = Seq(
     "org.apache.tomcat.embed" % "tomcat-embed-core" % tomcatVersion % tomcatConfig,
     "org.apache.tomcat.embed" % "tomcat-embed-core" % tomcatVersion % tomcatConfig,
     "org.apache.tomcat.embed" % "tomcat-embed-jasper" % tomcatVersion % tomcatConfig,
+    "org.apache.httpcomponents" % "httpclient" % "4.3.4",
+    "org.hsqldb" 			  % "hsqldb" % hsqlVersion % tomcatConfig)
+
     //"commons-httpclient" 	  % "commons-httpclient" % "3.1",
     //"commons-codec"      	  % "commons-codec" % "1.3",
     //"commons-fileupload" 	  % "commons-fileupload" % "1.2",
     //"commons-io"         	  % "commons-io" % "1.3.2",    
-    "org.apache.httpcomponents" % "httpclient" % "4.3.4",
-    "org.hsqldb" 			  % "hsqldb" % hsqlVersion % tomcatConfig)
 
 val libDeps = Seq(
    "org.scalatest" %% "scalatest" % "2.2.0" % "test",
@@ -31,6 +32,7 @@ val libDeps = Seq(
    "commons-httpclient" % "commons-httpclient" % "3.1",
    "org.scalafx" %% "scalafx" % "1.0.0-R8",
    "org.scalafx" %% "scalafxml-core" % "0.2",
+   "fr.inria.gforge.spoon" % "spoon-core" % "2.3.1",
    "net.databinder.dispatch" %% "dispatch-core" % "0.11.2") 
 
 val btSettings = bintrayPublishSettings ++ Seq(

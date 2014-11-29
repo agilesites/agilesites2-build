@@ -17,10 +17,7 @@ trait InstallerSettings {
     state
   }
 
-  val installerSettings =  Seq(commands ++= Seq(installCmd))
-
-   // inConfig(asConfig) {
-  //}
+  val installerSettings = Seq(commands ++= Seq(installCmd))
 
 }
   
