@@ -1,24 +1,27 @@
 package agilesites;
 
-import java.net.ServerSocket;
+import java.net.Socket;
 
 public class CheckPort {
 
 	public static void main(String[] args) {
-		if (args.length == 0) {
-			System.out.println("usage: <port-to-check>");
+		if (args.length != 2) {
+			System.out.println("usage: <host-to-check> <port-to-check>");
+			System.exit(2);
 		} else {
-			ServerSocket serv = null;
+			Socket serv = null;
 			int result = 0;
 			try {
-				serv = new ServerSocket(Integer.parseInt(args[0]));				
+				serv = new Socket(args[0], Integer.parseInt(args[1]));				
+				System.out.println("Connection accepted.");
+				serv.close();
+			        System.exit(1);
 			} catch(Exception ex) {
 				System.out.println(ex.getMessage());
-				result = 1;
 			} finally {
 				try { serv.close(); } catch(Exception ex) { }
 			}
-			System.exit(result);
+			System.exit(0);
 		}
 	}
 

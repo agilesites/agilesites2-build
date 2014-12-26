@@ -16,7 +16,7 @@ class WaitUntil  {
      while(! found) {
          line = br.readLine();
          if(line==null) continue;
-         if(line.endsWith(args[1])) {
+         if(line.indexOf(args[1])!=-1) {
             found = true;
             System.err.println("!"+line);
          } else  {              

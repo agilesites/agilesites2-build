@@ -98,6 +98,8 @@ public class DetectConfig {
 			prp.setProperty("sites.csdt.jar", jarFile);
 			prp.setProperty("sites.version", version);
 			prp.setProperty("sites.java.home", System.getProperty("java.home"));
+			prp.setProperty("sites.server",
+					iniFile.getProperty("CSInstallAppServerType"));
 
 			FileWriter fw = new FileWriter("agilesites.properties");
 			prp.store(fw, "Detected by AgileSites installer on "
