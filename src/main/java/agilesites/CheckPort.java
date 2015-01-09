@@ -10,7 +10,6 @@ public class CheckPort {
 			System.exit(2);
 		} else {
 			Socket serv = null;
-			int result = 0;
 			try {
 				serv = new Socket(args[0], Integer.parseInt(args[1]));				
 				System.out.println("Connection accepted.");

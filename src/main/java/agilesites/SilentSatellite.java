@@ -16,9 +16,9 @@ public class SilentSatellite {
 	public static void main(String[] args) throws FileNotFoundException,
 			IOException {
 
-		if (args.length < 4) {
+		if (args.length < 5) {
 			System.out
-					.println("usage: <base> <base-ini> <install-ini> <output-ini> [host] [port]");
+					.println("usage: <base> <base-ini> <install-ini> <output-ini> <cs> [host] [port]");
 			System.exit(0);
 		}
 		
@@ -26,8 +26,8 @@ public class SilentSatellite {
 		String port = "8181";
 		//String db = "HSQLDB";
 		
-		if(args.length>=5) host = args[4];
-		if(args.length>=6) port = args[5];
+		if(args.length>=6) host = args[5];
+		if(args.length>=7) port = args[6];
 	
 		System.out.println("host="+host);
 		System.out.println("port="+port);
@@ -37,6 +37,7 @@ public class SilentSatellite {
 		File baseIniFile = new File(args[1]);		
 		File installIniFile = new File(args[2]);
 		File outputIniFile = new File(args[3]);
+		String cs = args[4];
 		baseIni.load(new FileReader(baseIniFile));
 		//baseIni.setProperty("CSInstallDBDSN", "csDataSource");
 		baseIni.setProperty("CSHostName", host); // for satellite
@@ -59,8 +60,8 @@ public class SilentSatellite {
 		//baseIni.setProperty("CSInstallDatabaseType", db);
 
 		// those are to make happy the configurator
-		baseIni.setProperty("CSConnectString", "http://"+host+":"+port+"/cs");
-		baseIni.setProperty("CSInstallAppName", "fwadmin");
+		baseIni.setProperty("CSConnectString", cs /*"http://"+host+":"+port+"/cs"*/);
+		baseIni.setProperty("CSInstallAppName", "ss");
 		baseIni.setProperty("CSInstallAppServerPath", fix(baseFile));
 
 		outputIniFile.delete();
