@@ -16,6 +16,9 @@ public class DetectConfig {
 	String url = null;
 	String user = "fwadmin";
 	String password = "xceladmin";
+	String publicPort;
+	String localHttpPort;
+	String localAjpPort;
 
 	private void scan(File file) {
 		for (File son : file.listFiles()) {
@@ -29,19 +32,20 @@ public class DetectConfig {
 				try {
 					iniFile.load(new FileReader(son.getAbsolutePath()));
 
-					if (iniFile.getProperty("CSInstallAppServerType")
-							.startsWith("tomcat")) {
-						webApp = iniFile.getProperty("CSInstallAppServerPath");
-						if (!webApp.endsWith("/"))
-							webApp = webApp + "/";
-						webApp = webApp + "webapps"
-								+ iniFile.getProperty("sCgiPath");
-					}
+					webApp = iniFile.getProperty("CSInstallAppServerPath");
+					if (!webApp.endsWith("/"))
+						webApp = webApp + "/";
+					webApp = webApp + "webapps"
+							+ iniFile.getProperty("sCgiPath");
 
 					url = iniFile.getProperty("CSConnectString");
 					if (url != null && url.endsWith("/"))
 						url = url.substring(0, url.length() - 1);
 
+					publicPort = iniFile.getProperty("CSInstallWebServerPort");
+					localHttpPort = iniFile.getProperty("AsLocalHttpPort", publicPort);
+					localAjpPort = iniFile.getProperty("AsLocalAjpPort", "-1");
+					
 				} catch (Exception e) {
 					iniFile = null;
 					e.printStackTrace();
@@ -83,16 +87,12 @@ public class DetectConfig {
 					iniFile.getProperty("CSFTAppServerRoot"));
 			prp.setProperty("sites.shared",
 					iniFile.getProperty("CSInstallSharedDirectory"));
-			prp.setProperty("sites.port",
-					iniFile.getProperty("CSInstallWebServerPort"));
-			prp.setProperty(
-					"sites.port.kill",
-					(Integer.parseInt(iniFile
-							.getProperty("CSInstallWebServerPort")) + 1) + "");
-			prp.setProperty(
-					"sites.port.debug",
-					(Integer.parseInt(iniFile
-							.getProperty("CSInstallWebServerPort")) - 1) + "");
+			
+			prp.setProperty("sites.port",publicPort);
+			prp.setProperty("sites.local.port",localHttpPort);
+			prp.setProperty("sites.local.ajp",localAjpPort);
+			
+		
 			prp.setProperty("sites.host", iniFile.getProperty("hostname"));
 			prp.setProperty("sites.webapp", webApp);
 			prp.setProperty("sites.csdt.jar", jarFile);

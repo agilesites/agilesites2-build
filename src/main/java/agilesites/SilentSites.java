@@ -19,19 +19,35 @@ public class SilentSites {
 
 		if (args.length < 4) {
 			System.out
-					.println("usage: <base> <base-ini> <install-ini> <output-ini> [host] [port] [dbtype] [appserver]");
+					.println("usage: <base> <base-ini> <install-ini> <output-ini> [host] [port][:ajpLocalPort][:httpLocalPort] [dbtype] [appserver]");
 			System.exit(0);
 		}
 
 		String host = "localhost";
 		String port = "8181";
+		String httpLocalPort = port;
+		String ajpLocalPort = "-1";
 		String db = "HSQLDB";
 		String svr = "tomcat5";
 
 		if (args.length > 4)
 			host = args[4];
-		if (args.length > 5)
-			port = args[5];
+		if (args.length > 5) {
+			String[] ports = args[5].split(":");
+			switch (ports.length) {
+			case 0:
+				httpLocalPort = port = ports[0];
+				ajpLocalPort = "-1";
+			case 1:
+				httpLocalPort = port = ports[0];
+				ajpLocalPort = ports[1];
+			default:
+				port = ports[0];
+				httpLocalPort = ports[2];
+				ajpLocalPort = ports[1];
+			}
+		}
+
 		if (args.length > 6)
 			db = args[6];
 		if (args.length > 7)
@@ -39,6 +55,9 @@ public class SilentSites {
 
 		System.out.println("host=" + host);
 		System.out.println("port=" + port);
+		System.out.println("httpport=" + httpLocalPort);
+		System.out.println("ajpport=" + ajpLocalPort);
+		
 		System.out.println("db=" + db);
 		System.out.println("svr=" + svr);
 
@@ -66,6 +85,10 @@ public class SilentSites {
 		baseIni.setProperty("CASHostNameLocal", host);
 		baseIni.setProperty("CSInstallDatabaseType", db);
 
+		// extra configuration for agilesites installer
+		baseIni.setProperty("AsLocalHttpPort", httpLocalPort);
+		baseIni.setProperty("AsLocalAjpPort", ajpLocalPort);
+
 		// disable
 		baseIni.setProperty("CommerceConnector", "false");
 		baseIni.setProperty("Avisports", "false");
@@ -78,22 +101,27 @@ public class SilentSites {
 		}
 
 		// those are to make happy the configurator
-		baseIni.setProperty("CSConnectString", "http://" + host + ":" + port
+		baseIni.setProperty("CSConnectString", "http://" + host + 
+				(port.equals("80") ? "" : ":" + port)
 				+ "/cs");
 		baseIni.setProperty("CSInstallAppName", "fwadmin");
-
+		
+		
 		// handle weblogic
 		baseIni.setProperty("CSInstallAppServerType", svr);
 		if (svr.equals("wls92")) {
 			baseIni.setProperty("CSInstallAppServerType", svr);
 			baseIni.setProperty("CSInstallWLWebAppName", "cs");
-			baseIni.setProperty("CSInstallAppServerPath", fix(new File(baseFile, "wlserver")));
-			baseIni.setProperty("CSInstallWLDomainPath", fix(new File(baseFile, "wlsdomain")));
+			baseIni.setProperty("CSInstallAppServerPath", fix(new File(
+					baseFile, "wlserver")));
+			baseIni.setProperty("CSInstallWLDomainPath", fix(new File(baseFile,
+					"wlsdomain")));
 			baseIni.setProperty("CSInstallAdminDomainName", "wlsdomain");
 			baseIni.setProperty("CSInstallbManual", "true");
-			baseIni.setProperty("CSManualDeployPath", fix(new File(baseFile, "webapps")));
+			baseIni.setProperty("CSManualDeployPath", fix(new File(baseFile,
+					"webapps")));
 		} else {
-			baseIni.setProperty("CSInstallAppServerPath", fix(baseFile));		
+			baseIni.setProperty("CSInstallAppServerPath", fix(baseFile));
 		}
 
 		outputIniFile.delete();

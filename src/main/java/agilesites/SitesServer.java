@@ -6,9 +6,18 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import org.apache.catalina.Context;
+import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 
 public class SitesServer {
+
+	private static void exit(int n) {
+		try {
+			System.exit(n);
+		} catch (Exception ex) {
+			throw new Error("Exiting with " + n);
+		}
+	}
 
 	private static String proxyHost;
 
@@ -31,33 +40,79 @@ public class SitesServer {
 	public static void main(String[] args) throws Exception {
 
 		if (args.length < 2) {
-			System.out.println("usage: [<host>:]<port> <base> | stop");
-			System.exit(0);
+			System.out.println("usage: <port> <base> [ajpport] [host] | stop");
+			exit(0);
 		}
 
 		if (args.length == 2 && args[0].equals("stop")) {
 			try {
-				Socket sock = new Socket("127.0.0.1", Integer.parseInt(args[1])+1);
+				Socket sock = new Socket("127.0.0.1",
+						Integer.parseInt(args[1]) + 1);
 				sock.getInputStream().read();
 				sock.close();
 				System.out.println("Shutdown request accepted.");
-				System.exit(0);
 			} catch (Exception ex) {
 				System.out.println("Server not running.");
-				System.exit(0);
+
 			}
+			exit(0);
+		}
+
+		int port = 8181;
+		try {
+			port = Integer.parseInt(args[0]);
+		} catch (Exception ex) {
+			System.out.println("bad port" + args[0]);
+			exit(0);
 		}
 
 		String base = args[1];
-		String hostname = "localhost";
-		int port = 8181;
-		int pos = args[0].indexOf(":");
-		if (pos == -1) {
-			port = Integer.parseInt(args[0]);
-		} else {
-			hostname = args[0].substring(0, pos);
-			port = Integer.parseInt(args[0].substring(pos + 1));
+		if (!new File(base).isDirectory()) {
+			System.out.println("no directory " + args[1]);
+			exit(0);
 		}
+
+		int ajpport = -1;
+		if (args.length > 2)
+			try {
+				ajpport = Integer.parseInt(args[2]);
+				if (ajpport == port) {
+					System.out.println("ajp port conflicts with main port");
+					exit(1);
+				}
+				if (ajpport == port + 1) {
+					System.out.println("ajp port conflicts with shutdown port");
+					exit(1);
+				}
+				if (ajpport == port - 1) {
+					System.out.println("ajp port conflicts with debug port");
+					exit(1);
+
+				}
+			} catch (Exception ex) {
+				System.out.println("bad ajp port format" + args[2]);
+				exit(1);
+			}
+
+		String hostname = "localhost";
+		if (args.length > 3)
+			hostname = args[3];
+
+		/*
+		 * handle args[0] in format [host:][port][:ajpbport]
+		 * 
+		 * 
+		 * String[] tokens = args[0].split(":");
+		 * 
+		 * switch (tokens.length) { case 0: port = Integer.parseInt(args[0]);
+		 * break; case 1: if (Character.isDigit(args[0].charAt(0))) { port =
+		 * Integer.parseInt(tokens[0]); ajpport = Integer.parseInt(tokens[1]); }
+		 * else { hostname = tokens[0]; port = Integer.parseInt(tokens[1]); }
+		 * break;
+		 * 
+		 * case 2: hostname = tokens[0]; port = Integer.parseInt(tokens[1]);
+		 * ajpport = Integer.parseInt(tokens[2]); break; }
+		 */
 
 		final Tomcat tomcat = new Tomcat();
 		tomcat.setPort(port);
@@ -70,12 +125,14 @@ public class SitesServer {
 		File webapps = new File(base, "webapps");
 		proxyHost = hostname;
 		proxyPort = port;
+
 		if (new File(webapps, "ss").isDirectory())
 			proxyPath = "/ss/Satellite";
 		else
 			proxyPath = "/cs/Satellite";
 
-		System.out.printf("*** %s:%d ***\n", hostname, port);
+		System.out.printf("*** %s:%d:%d ***\n", hostname, port, ajpport);
+
 		for (File filepath : webapps.listFiles()) {
 			if (!filepath.isDirectory())
 				continue;
@@ -116,9 +173,15 @@ public class SitesServer {
 					} catch (Exception ex) {
 					}
 				}
-				System.exit(0);
+				exit(0);
 			}
 		}.start();
+
+		if (ajpport != -1) {
+			Connector c = new Connector("AJP/1.3");
+			c.setPort(ajpport);
+			tomcat.getService().addConnector(c);
+		}
 		tomcat.start();
 		tomcat.getServer().await();
 	}
