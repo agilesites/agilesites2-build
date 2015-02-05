@@ -27,7 +27,9 @@ public class ConfigureSatellite {
 		Properties prp = new Properties();
 		prp.load(new FileReader(satellitePrp));
 		prp.setProperty("host", url.getHost());
-		prp.setProperty("port", ""+url.getPort());
+		int port = url.getPort();
+		if(port==-1) port = 80;
+		prp.setProperty("port", ""+port);
 		prp.setProperty("protocol", url.getProtocol());
 		String path = url.getPath();
 		if(!path.endsWith("/")) path=path+"/";

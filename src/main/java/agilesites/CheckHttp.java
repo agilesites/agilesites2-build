@@ -57,21 +57,14 @@ public class CheckHttp {
 			}
 
 		// check local http
-		/* disabled as not needed
-		wait = true;
-		while (wait) {
-			URL localUrl = new URL("http", "127.0.0.1",
-					Integer.parseInt(httpLocalPort), "/cs/HelloCS");
-			System.out.println("checking for " + localUrl);
-			HttpURLConnection huc = (HttpURLConnection) localUrl
-					.openConnection();
-			huc.setRequestMethod("GET");
-			huc.connect();
-			if (huc.getResponseCode() == 200)
-				wait = false;
-			Thread.sleep(1000);
-		}
-		*/
+		/*
+		 * disabled as not needed wait = true; while (wait) { URL localUrl = new
+		 * URL("http", "127.0.0.1", Integer.parseInt(httpLocalPort),
+		 * "/cs/HelloCS"); System.out.println("checking for " + localUrl);
+		 * HttpURLConnection huc = (HttpURLConnection) localUrl
+		 * .openConnection(); huc.setRequestMethod("GET"); huc.connect(); if
+		 * (huc.getResponseCode() == 200) wait = false; Thread.sleep(1000); }
+		 */
 
 		// check remote http
 		wait = true;
@@ -79,11 +72,16 @@ public class CheckHttp {
 			URL url = new URL("http", host, Integer.parseInt(port),
 					"/cs/HelloCS");
 			System.out.println("checking for " + url);
-			HttpURLConnection huc = (HttpURLConnection) url.openConnection();
-			huc.setRequestMethod("GET");
-			huc.connect();
-			if (huc.getResponseCode() == 200)
-				wait = false;
+			try {
+				HttpURLConnection huc = (HttpURLConnection) url
+						.openConnection();
+				huc.setRequestMethod("GET");
+				huc.connect();
+				if (huc.getResponseCode() == 200)
+					wait = false;
+			} catch (Exception ex) {
+				System.out.println("cannot connect to " + url);
+			}
 			Thread.sleep(1000);
 		}
 	}

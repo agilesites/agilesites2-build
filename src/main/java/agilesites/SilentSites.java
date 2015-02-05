@@ -38,13 +38,16 @@ public class SilentSites {
 			case 0:
 				httpLocalPort = port = ports[0];
 				ajpLocalPort = "-1";
+				break;
 			case 1:
 				httpLocalPort = port = ports[0];
 				ajpLocalPort = ports[1];
+				break;
 			default:
 				port = ports[0];
 				httpLocalPort = ports[2];
 				ajpLocalPort = ports[1];
+				break;
 			}
 		}
 
@@ -105,7 +108,6 @@ public class SilentSites {
 				(port.equals("80") ? "" : ":" + port)
 				+ "/cs");
 		baseIni.setProperty("CSInstallAppName", "fwadmin");
-		
 		
 		// handle weblogic
 		baseIni.setProperty("CSInstallAppServerType", svr);
