@@ -63,7 +63,7 @@ val genSettings = Seq(
   	Attributed.blank(jfxJar)
 })
 
-val root = project.in(file(".")).
+val plugin = project.in(file(".")).
 	configs(tomcat, jfx).
 	settings(btSettings: _*).
 	settings(mySettings : _*).
