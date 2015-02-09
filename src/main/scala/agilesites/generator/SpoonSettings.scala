@@ -1,13 +1,10 @@
 package agilesites.generator
 
-import sbt._
 import sbt.Keys._
-import agilesites.build.ConfigSettings
-import agilesites.build.UtilSettings
-import sbt.ConfigKey.configurationToKey
+import sbt._
 
 trait SpoonSettings {
-  this: Plugin with CommonSettings =>
+  this: AutoPlugin with CommonSettings =>
 
   def spoonCmd = Command.args("spoon", "<args>") { (state, args) =>
 

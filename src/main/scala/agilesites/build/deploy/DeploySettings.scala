@@ -1,13 +1,12 @@
-package agilesites.build
+package agilesites.build.deploy
 
+import agilesites.build.{AgileSitesConfig, SitesConfig}
+import agilesites.build.util.{UtilSettings, Utils}
+import sbt.Keys._
 import sbt._
-import Keys._
-
-import agilesites.build.util.ScpTo
-import agilesites.build.util.Utils
 
 trait DeploySettings {
-  this: Plugin with ConfigSettings with UtilSettings with Utils =>
+  this: AutoPlugin with SitesConfig with AgileSitesConfig with UtilSettings with Utils =>
 
   // package jar task - build the jar and copy it  to destination 
   lazy val asPackage = taskKey[Unit]("AgileSites package jar")
@@ -19,10 +18,10 @@ trait DeploySettings {
         val targetUri = new java.net.URI(url)
         val proto = targetUri.getScheme
         if (proto == "file") {
-        	val f = file(targetUri.getPath)
-        	f.getParentFile.mkdirs()
-        	IO.copyFile(jar, f)
-        	log.info("+++ " + f)
+          val f = file(targetUri.getPath)
+          f.getParentFile.mkdirs()
+          IO.copyFile(jar, f)
+          log.info("+++ " + f)
         } else if (proto == "scp") {
           val Array(user, pass) = targetUri.getUserInfo.split(":")
           val host = targetUri.getHost
@@ -94,13 +93,13 @@ trait DeploySettings {
         map(extractClassAndIndex(_)). // list of Some(index, class) or Nome
         flatMap(x => x). // remove None
         groupBy(_._1). // group by (index, (index, List(class)) 
-        map { x => (x._1, x._2 map (_._2)) }; // lift to (index, List(class))
+        map { x => (x._1, x._2 map (_._2))}; // lift to (index, List(class))
 
     //println(groupIndexed)
 
     val l = for ((subfile, lines) <- groupIndexed) yield {
       val file = dstDir / subfile
-      val body = lines mkString ("# generated - do not edit\n", "\n", "\n# by AgileSites build\n")
+      val body = lines mkString("# generated - do not edit\n", "\n", "\n# by AgileSites build\n")
       writeFile(file, body, s.log)
       file
     }
@@ -119,6 +118,7 @@ trait DeploySettings {
       log.info(httpCall("Setup", "&sites=%s".format(asSites.value), url, sitesUser.value, sitesPassword.value))
     }
   }
+
 
   val deploySettings = Seq(asPackageTask, asDeployTask,
     (resourceGenerators in Compile) ++= Seq(generateIndexTask.taskValue))

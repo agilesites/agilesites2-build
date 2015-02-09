@@ -1,42 +1,14 @@
-package agilesites.build
+package agilesites.build.tool
 
-import sbt._
-import Keys._
-import agilesites.build.util.TagWrapperGenerator
-import agilesites.build.util.Utils
-import agilesites.build.util.ScpTo
 import java.io.File
 
+import agilesites.build.{AgileSitesConfig, SitesConfig}
+import agilesites.build.util.UtilSettings
+import sbt.Keys._
+import sbt._
+
 trait ToolsSettings {
-  this: Plugin with UtilSettings with ConfigSettings =>
-
-  lazy val sitesTagWrapperGen = inputKey[Unit]("Generate Tag Wrappers")
-  lazy val sitesTagWrapperGenTask = sitesTagWrapperGen := {
-
-    val args: Seq[String] = Def.spaceDelimited("<arg>").parsed
-    if (args.size == 0)
-      println("usage: siteTagWrapperGen <sites-webapp-folder>")
-    else {
-      val tldDir = file(args.head) / "WEB-INF" / "futuretense_cs"
-      if (!tldDir.isDirectory)
-        println("no tld founds in " + tldDir)
-      else {
-        val dstDir = (if (args.size == 1) (javaSource in Compile).value else file(args(1))) / "wcs" / "core" / "tag"
-        for {
-          tld <- tldDir.listFiles
-          if tld.getName.endsWith(".tld")
-        } yield {
-          val src = tld.getAbsolutePath
-          val clsj = TagWrapperGenerator.tld2class(src)
-          val dstj = file(dstDir / clsj + ".java")
-          val bodyj = TagWrapperGenerator(src)
-          IO.write(dstj, bodyj)
-          println("+++ " + dstj)
-          dstj
-        }
-      }
-    }
-  }
+  this: AutoPlugin with UtilSettings with SitesConfig with AgileSitesConfig  =>
 
   // find the default workspace from sites
   def defaultWorkspace(sites: String) = normalizeSiteName(sites.split(",").head)
@@ -56,19 +28,19 @@ trait ToolsSettings {
     val args = Def.spaceDelimited("<arg>").parsed
     val log = streams.value.log
     if (args.length == 0) {
-      println(s"""usage: cman <cmd> [<dir>] [<options>....]])
-	         |<cmd> one of view, setup, import, import_all, export, export_all
-	         |<dir> defaults to "core" under sites/export/populate
-	  	     |<options> can be: 
-	         |-b base URL (defaults to ${sitesUrl.value}/CatalogManager)
-	         |-u user name (defaults to ${sitesUser.value})
-	         |-p password (defaults to ${sitesPassword.value})
-	         |-s server name (optional)
-	         |-t catalog name (can be repeated, export only)
-	         |-f file to import
-	         |-c catalog data directory (optional)
-	         |-a ACL list (optional)
-	         |-i ini file(s) to merge (optional)
+      println( s"""usage: cman <cmd> [<dir>] [<options>....]])
+|<cmd> one of view, setup, import, import_all, export, export_all
+|<dir> defaults to "core" under sites/export/populate
+|<options> can be:
+|-b base URL (defaults to ${sitesUrl.value}/CatalogManager)
+|-u user name (defaults to ${sitesUser.value})
+|-p password (defaults to ${sitesPassword.value})
+|-s server name (optional)
+|-t catalog name (can be repeated, export only)
+|-f file to import
+|-c catalog data directory (optional)
+|-a ACL list (optional)
+|-i ini file(s) to merge (optional)
           """.stripMargin)
     } else {
 
@@ -112,7 +84,7 @@ trait ToolsSettings {
         }
 
       println(opts)
-      
+
       Fork.java(ForkOptions(
         runJVMOptions = Seq("-cp", cp),
         workingDirectory = Some(baseDirectory.value)),
@@ -158,20 +130,20 @@ trait ToolsSettings {
       Run.run("com.fatwire.csdt.client.main.CSDT",
         seljars, args.drop(1), streams.value.log)(runner.value)
     } else if (args.size == 0) {
-      println("""usage: csdt <cmd> <selector> ... [#<workspace>[#]] [!<from-sites>] [^<to-sites>]
-                       | <workspace> is a substring of available workspaces, use #workspace# for an exact match
-                       |   default workspace is: %s
-                       |   available workspaces are: %s
-                       | <from-sites> and <to-sites> is a comma separated list of sites defined, 
-                       |   <from-sites> defaults to <workspace>, 
-                       |   <to-sites> defaults to <from-sites> 
-                       | <cmd> is one of 'listcs', 'listds', 'import', 'export', 'mkws'
-                       | <selector> check developer tool documentation for complete syntax
-                       |    you can use <AssetType>[:<id>] or a special form,
-                       |    the special form are
-                       |      @SITE @ASSET_TYPE @ALL_ASSETS @STARTMENU @TREETAB
-                       |  and also additional @ALL for all of them
-                       |""".stripMargin.format(defaultSite, workspaces.mkString("'", "', '", "'")))
+      println( """usage: csdt <cmd> <selector> ... [#<workspace>[#]] [!<from-sites>] [^<to-sites>]
+                 | <workspace> is a substring of available workspaces, use #workspace# for an exact match
+                 |   default workspace is: %s
+                 |   available workspaces are: %s
+                 | <from-sites> and <to-sites> is a comma separated list of sites defined,
+                 |   <from-sites> defaults to <workspace>,
+                 |   <to-sites> defaults to <from-sites>
+                 | <cmd> is one of 'listcs', 'listds', 'import', 'export', 'mkws'
+                 | <selector> check developer tool documentation for complete syntax
+                 |    you can use <AssetType>[:<id>] or a special form,
+                 |    the special form are
+                 |      @SITE @ASSET_TYPE @ALL_ASSETS @STARTMENU @TREETAB
+                 |  and also additional @ALL for all of them
+                 | """.stripMargin.format(defaultSite, workspaces.mkString("'", "', '", "'")))
     } else if (workspace.size == 0)
       println("workspace " + workspaceSearch + " not found - create it with mkws <workspace>")
     else if (workspace.size > 1)
@@ -180,11 +152,12 @@ trait ToolsSettings {
 
       def processArgs(args: Seq[String]) = {
         if (args.size == 0 || args.size == 1) {
-          println("""please specify what you want to export or use @ALL to export all
-                       | you can use <AssetType>[:<id>] or a special form,
-                       | the special form are
-                       |   @SITE @ASSET_TYPE @ALL_ASSETS @STARTMENU @TREETAB @ROLE
-                       |  and also additional @ALL meaning  all of them""".stripMargin)
+          println(
+            """please specify what you want to export or use @ALL to export all
+              | you can use <AssetType>[:<id>] or a special form,
+              | the special form are
+              |   @SITE @ASSET_TYPE @ALL_ASSETS @STARTMENU @TREETAB @ROLE
+              |  and also additional @ALL meaning  all of them""".stripMargin)
           Seq()
         } else if (args.size == 2 && args(1) == "@ALL") {
           Seq("@SITE", "@ASSET_TYPE", "@ALL_ASSETS", "@STARTMENU", "@TREETAB", "@ROLE")
@@ -238,7 +211,9 @@ trait ToolsSettings {
     }
   }
 
-  val toolsSettings = Seq(sitesTagWrapperGenTask, cmovTask, csdtTask,
+
+
+  val toolsSettings = Seq(cmovTask, csdtTask,
     csdtHome := baseDirectory.value / "sites" / "home" / "csdt" / "csdt-client",
     cmovClasspathTask,
     csdtClasspath := (csdtHome.value ** "*.jar").get)

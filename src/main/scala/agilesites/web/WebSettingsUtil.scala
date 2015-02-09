@@ -1,9 +1,8 @@
-package agilesites.build.util
+package agilesites.web
 
-import java.util.Formatter
-import java.io.File
+import java.io.{File, FileInputStream}
 import java.security.MessageDigest
-import java.io.FileInputStream
+import java.util.Formatter
 
 trait WebUtil {
 

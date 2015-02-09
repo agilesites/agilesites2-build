@@ -31,14 +31,14 @@ class InfoStage(message: String) extends PrimaryStage {
     //layoutY = 420
     spacing = 20
     style = "-fx-background-color: #336699;"
-    content = List(
+    children = List(
       new Button {
         text = "<< Prev"
         //onAction = handle { anim.playFromStart() }
         //disable <== anim.status =!= Status.STOPPED
       },
       new HBox {
-        hgrow = Priority.ALWAYS
+        hgrow = Priority.Always
       },
       new Button {
         text = "Next >>"

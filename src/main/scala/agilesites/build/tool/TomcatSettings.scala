@@ -1,12 +1,14 @@
-package agilesites.build
+package agilesites.build.tool
 
-import sbt._
-import Keys._
-import agilesites.build.util.Utils
 import java.io.File
 
+import agilesites.build.{SitesConfig, AgileSitesConfig}
+import agilesites.build.util.Utils
+import sbt.Keys._
+import sbt._
+
 trait TomcatSettings extends Utils {
-  this: Plugin with ConfigSettings =>
+  this: AutoPlugin with SitesConfig with AgileSitesConfig =>
 
   lazy val tomcatEmbeddedClasspath = taskKey[Seq[File]]("tomcat classpath")
   val tomcatEmbeddedClasspathTask = tomcatEmbeddedClasspath <<= (update) map {
@@ -15,7 +17,6 @@ trait TomcatSettings extends Utils {
 
   def tomcatEmbedded(base: File, port: Int, classpath: Seq[File], debug: Boolean) = {
 
-    import java.io._
     import java.io.File.pathSeparator
 
     val classpathExt = classpath ++ Seq(file("bin"), file("bin") / "setup.jar", file("home") / "bin")
@@ -130,7 +131,8 @@ trait TomcatSettings extends Utils {
     "org.hsqldb" % "hsqldb" % hsqlVersion % tomcatConfig, // database
     "org.apache.httpcomponents" % "httpclient" % "4.3.4")
 
-  val tomcatSettings = Seq(ivyConfigurations += config("tomcat"),
+  val tomcatSettings = Seq(
+    ivyConfigurations += config("tomcat"),
     libraryDependencies ++= tomcatDeps("tomcat") ++ tomcatDeps("provided"),
     tomcatEmbeddedClasspathTask, sitesServerTask)
 }

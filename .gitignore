@@ -5,4 +5,5 @@
 .worksheet/
 .settings/
 target/
-1.9
+.idea/
+*.iml

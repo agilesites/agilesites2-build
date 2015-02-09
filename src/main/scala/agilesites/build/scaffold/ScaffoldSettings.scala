@@ -1,12 +1,10 @@
-package agilesites.build
+package agilesites.build.scaffold
 
+import sbt.Keys._
 import sbt._
-import Keys._
-import scala.io.Source
-import agilesites.build.util.G8Helpers
 
 trait ScaffoldSettings {
-  this: Plugin =>
+  this: AutoPlugin =>
 
   lazy val asTemplatePath = SettingKey[String]("AgileSites Generator Templates")
 
@@ -29,8 +27,8 @@ trait ScaffoldSettings {
          |It will ask for the variable values, and generate the correct code.
          |""".stripMargin)
 
-  import complete._
-  import complete.DefaultParsers._
+  import sbt.complete.DefaultParsers._
+  import sbt.complete._
 
   val parser: Def.Initialize[State => Parser[String]] =
     (baseDirectory) { (b) =>

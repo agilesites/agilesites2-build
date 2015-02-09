@@ -7,7 +7,7 @@ import dispatch._
 import dispatch.Defaults._
 
 trait RestSettings {
-  this: Plugin with ConfigSettings =>
+  this: AutoPlugin with SitesConfig =>
 
   // Keys
   lazy val wemConfig = config("wem").hide
@@ -40,5 +40,4 @@ trait RestSettings {
     inConfig(wemConfig) {
       Seq(loginTask, getTask)
     }
-
 }

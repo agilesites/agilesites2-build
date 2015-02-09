@@ -1,25 +1,26 @@
-package agilesites.build
+package agilesites.build.deploy
 
-import sbt._
-import Keys._
 import agilesites.Configure
+import agilesites.build.{AgileSitesConfig, SitesConfig}
+import sbt.Keys._
+import sbt._
 
 trait SetupSettings {
-  this: Plugin with ConfigSettings =>
+  this: AutoPlugin with SitesConfig with AgileSitesConfig =>
 
   // configure futurentense.ini
-  lazy val configure = taskKey[Unit]("AgileSites Configure") in asConfig
+  lazy val asConfigure = taskKey[Unit]("AgileSites Configure")
   
-  lazy val configureTask = configure := {
+  lazy val asConfigureTask = asConfigure := {
     val cfg = new Configure(sitesHome.value, sitesShared.value, sitesWebapp.value)
     cfg.registerAssembler
     cfg.configure
   }
 
   // copy jars to destination folders
-  lazy val copyJars = taskKey[Unit]("AgileSites Copy Jars") in asConfig
+  lazy val asCopyJars = taskKey[Unit]("AgileSites Copy Jars")
   
-  lazy val copyJarsTask = copyJars := {
+  lazy val asCopyJarsTask = asCopyJars := {
     val coreDir = file(sitesWebapp.value) / "WEB-INF" / "lib"
 
     val apiDir = file(sitesShared.value) / "agilesites" / "lib"
@@ -47,5 +48,5 @@ trait SetupSettings {
     }
   }
 
-  val setupSettings = Seq(configureTask, copyJarsTask)  
+  val setupSettings = Seq(asConfigureTask, asCopyJarsTask)
 }

@@ -2,10 +2,10 @@ package agilesites.generator
 
 import sbt._
 import Keys._
-import agilesites.build.ConfigSettings
+import agilesites.build.AgileSitesConfig
 
 trait CommonSettings { 
-  this: Plugin with ConfigSettings =>
+  this: AutoPlugin with AgileSitesConfig =>
     
   lazy val asJfxJar = taskKey[Seq[File]]("classpath generator")
 

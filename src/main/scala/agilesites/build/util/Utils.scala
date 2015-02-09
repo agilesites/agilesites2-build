@@ -1,7 +1,6 @@
 package agilesites.build.util
 
-import java.io.File
-import java.io.FileReader
+import java.io.{File, FileReader}
 import java.net.URL
 
 import sbt._
@@ -37,11 +36,11 @@ trait Utils {
     file.getParentFile.mkdirs
     val w = new java.io.FileWriter(file)
     w.write(body)
-    w.close
+    w.close()
   }
 
   // is an html file?
-  def isHtml(f: File) = !(("\\.html?$".r findFirstIn f.getName.toLowerCase).isEmpty)
+  def isHtml(f: File) = ("\\.html?$".r findFirstIn f.getName.toLowerCase).nonEmpty
 
   // is not a .less file?
   def notLess(f: File) = !f.getName.endsWith(".less")
@@ -49,23 +48,23 @@ trait Utils {
   // copy files from a src dir to a target dir recursively 
   // filter files to copy
   def recursiveCopy(src: File, tgt: File, log: Logger)(sel: File => Boolean) = {
-    val nsrc = src.getPath.length
-    val cplist = (src ** "*").get.filterNot(_.isDirectory).filter(sel) map {
+    val nSrc = src.getPath.length
+    val cpList = (src ** "*").get.filterNot(_.isDirectory).filter(sel) map {
       x =>
-        val dest = tgt / x.getPath.substring(nsrc)
+        val dest = tgt / x.getPath.substring(nSrc)
         (x, dest)
     }
     if (log != null)
-      log.info(s"copying #${cplist.size} files")
-    IO.copy(cplist).toSeq
+      log.info(s"copying #${cpList.size} files")
+    IO.copy(cpList).toSeq
   }
 
   // write an index of the files in a subdirectory in the target file
   def recursiveIndex(srcDir: File, tgtFile: File, log: sbt.Logger)(sel: File => Boolean) = {
-    val plen = srcDir.getAbsolutePath().size
+    val pLen = srcDir.getAbsolutePath.size
     val body = (srcDir ** "*").
       filter(_.isFile).filter(sel).get.
-      map(_.getAbsolutePath.substring(plen).replace(File.separatorChar, '/')).
+      map(_.getAbsolutePath.substring(pLen).replace(File.separatorChar, '/')).
       mkString("\n")
     writeFile(tgtFile, body, log)
     tgtFile
@@ -75,7 +74,7 @@ trait Utils {
   def httpCallRaw(req: String) = {
     val scan = new java.util.Scanner(new URL(req).openStream(), "UTF-8")
     val res = scan.useDelimiter("\\A").next()
-    scan.close
+    scan.close()
     //">>>%s\n%s<<<%s\n" format(req,res,req)
     res
   }
@@ -87,7 +86,7 @@ trait Utils {
     val siteList = if (sites == null) {
       List("")
     } else {
-      (sites split (",") map { s => "&site=" + s }).toList
+      (sites split (",") map { s => "&site=" + s}).toList
     }
 
     //println(siteList)
@@ -102,6 +101,38 @@ trait Utils {
   }
 
   // name says it all  
-  def normalizeSiteName(s: String) = s.toLowerCase.replaceAll("""[^a-z0-9]+""", "")
+  def normalizeSiteName(s: String) = s.toLowerCase.replaceAll( """[^a-z0-9]+""", "")
 
+
+  // check is sites is running
+  def helloSites(url: String) = {
+    try {
+      val res = httpCallRaw(url + "/HelloCS")
+      val rePrp = """(\d+\.\d+)\..*""".r
+      val rePrp(javaVersion) = System.getProperty("java.version")
+      val reWeb = """(?s).*java\.version=(\d+\.\d+)\..*""".r
+      res match {
+        case reWeb(sitesVersion) =>
+          if (javaVersion != sitesVersion) {
+            println( """*** WebCenter Sites use java %s and AgileSites uses java %s
+                       |*** They are different major versions of Java.
+                       |*** The compiler may generate incompatible bytecode
+                       |*** Please set JAVA_HOME and use the same major java version for both
+                       |***""".format(sitesVersion, javaVersion).stripMargin)
+            None
+          } else {
+            println("WebCenter Sites running with java " + sitesVersion)
+            Some(javaVersion)
+          }
+        case _ =>
+          //println(" no match ")
+          println("WebCenter Sites running")
+          Some("unknown")
+      }
+    } catch {
+      case ex: Throwable =>
+        println("WebCenter Sites NOT running")
+        None
+    }
+  }
 }

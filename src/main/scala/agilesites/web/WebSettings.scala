@@ -1,19 +1,16 @@
-package agilesites.build
+package agilesites.web
 
-import sbt._
-import Keys._
 import java.io.File
+
+import agilesites.build.AgileSitesConfig
 import agilesites.build.util.Utils
+import sbt.Keys._
+import sbt._
+
 import scala.util.matching.Regex
-import java.security.MessageDigest
-import java.io.FileInputStream
-import java.math.BigInteger
-import java.util.Formatter
-import java.util.regex.Pattern
-import agilesites.build.util.WebUtil
 
 trait WebSettings extends Utils with WebUtil {
-  this: Plugin with ConfigSettings =>
+  this: AutoPlugin with AgileSitesConfig  =>
 
   def fingerPrintMap(staticPrefix: String, files: Seq[File], prefixLen: Int): Seq[(Regex, (String, String))] =
     for (file <- files) yield {
@@ -77,6 +74,7 @@ trait WebSettings extends Utils with WebUtil {
       dest
     }
     println()
+
     // write the index too
     val sitename = normalizeSiteName(asSites.value.split(",").head)
     val assetIndexFile = tgt / sitename / "assets.txt"

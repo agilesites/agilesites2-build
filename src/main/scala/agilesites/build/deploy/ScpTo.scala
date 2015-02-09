@@ -8,18 +8,11 @@
  * 'file2' on 'remotehost'.
  *
  */
-package agilesites.build.util
+package agilesites.build.deploy
 
-import java.io.File
-import java.io.FileInputStream
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
+import java.io.{File, FileInputStream, InputStream}
 
-import com.jcraft.jsch.Channel
-import com.jcraft.jsch.ChannelExec
-import com.jcraft.jsch.JSch
-import com.jcraft.jsch.Session
+import com.jcraft.jsch.{ChannelExec, JSch}
 
 object ScpTo {
 
