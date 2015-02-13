@@ -1,0 +1,18 @@
+<project name="localrepository" default="install" xmlns:ivy="antlib:org.apache.ivy.ant">
+ <target name="install" description="--> install modules to localreporsitory">
+<!--
+  <property name="ivy.default.ivy.user.dir" value="${user.dir}"/>
+-->
+  <ivy:settings file="ivysettings.xml"/>
+   <ivy:install 
+   organisation="org.scala-sbt" 
+   module="sbt" 
+   revision="0.13.7" transitive="true" overwrite="true" 
+   from="public" to="local" />
+   
+   <ivy:install organisation="org.scala-lang" module="jline" 
+   revision="2.10.4" transitive="true" overwrite="true" 
+   from="public" to="local" />
+   
+ </target>
+</project>

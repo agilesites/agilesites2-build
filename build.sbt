@@ -1,4 +1,4 @@
-val v = "2.0-M1-SNAPSHOT"
+val v = "2.0-M1"
 
 val tomcat = config("tomcat")
 

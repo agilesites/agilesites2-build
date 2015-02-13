@@ -1,0 +1,17 @@
+<ivysettings>
+    <settings defaultResolver="public" defaultConflictManager="all"/>
+    <resolvers>
+      <chain name="public">
+        <ibiblio name='central' m2compatible='true'/>
+        <ivyrep name="typesafe" 
+          ivyroot="http://repo.typesafe.com/typesafe/ivy-releases/" 
+          artroot="http://repo.typesafe.com/typesafe/ivy-releases/" 
+          ivypattern="[organisation]/[module]/ivys/ivy-[revision].xml"
+          artpattern="[organization]/[module]/[revision]/[type]s/[artifact](-[classifier]).[ext]"/>
+      </chain>
+      <filesystem name="local">
+          <ivy pattern="${user.home}/Local/AgileSitesInstaller/repo/[organisation]/[module]/[revision]/ivys/ivy.xml"/>
+          <artifact pattern="${user.home}/Local/AgileSitesInstaller/repo/[organization]/[module]/[revision]/[type]s/[artifact](-[classifier]).[ext]"/>
+      </filesystem>
+    </resolvers>
+</ivysettings>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<shortcuts>
+    <skipIfNotSupported/>
+    <defaultCurrentUser/>
+    <programGroup defaultName="AgileSites2" location="applications"/>
+    <shortcut applications="no" commandLine="sites-server.bat"
+        description="WebCenter Sites with AgileSites" desktop="yes"
+        initialState="minimized" name="Sites" programGroup="yes"
+        startMenu="no" startup="no"
+        target="$INSTALL_PATH/sites-server.bat" workingDirectory="$INSTALL_PATH"/>
+    <shortcut applications="no"
+        description="WebCenter Sites with debugging" desktop="yes"
+        initialState="minimized" name="Sites (debug)" programGroup="yes"
+        startMenu="no" startup="no"
+        target="$INSTALL_PATH/sites-server-debug.bat" workingDirectory="$INSTALL_PATH"/>
+</shortcuts>
