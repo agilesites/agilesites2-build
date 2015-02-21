@@ -35,11 +35,11 @@ public class SilentSites {
 		if (args.length > 5) {
 			String[] ports = args[5].split(":");
 			switch (ports.length) {
-			case 0:
+			case 1:
 				httpLocalPort = port = ports[0];
 				ajpLocalPort = "-1";
 				break;
-			case 1:
+			case 2:
 				httpLocalPort = port = ports[0];
 				ajpLocalPort = ports[1];
 				break;
