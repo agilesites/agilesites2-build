@@ -32,7 +32,7 @@ val libDeps = Seq(
    "com.jcraft"              % "jsch"            % "0.1.51",
    "commons-io"              % "commons-io"      % "2.4",
    "fr.inria.gforge.spoon"   % "spoon-core"      % "2.3.1",
-   "commons-httpclient" % "commons-httpclient"   % "3.1")
+   "commons-httpclient"      % "commons-httpclient"   % "3.1")
 
 val btSettings = bintrayPublishSettings ++ Seq(
 	bintray.Keys.bintrayOrganization in bintray.Keys.bintray := Some("sciabarra"),
@@ -60,7 +60,7 @@ val genSettings = Seq(
   	if (!jfxJar.exists)
     	 throw new RuntimeException("JavaFX not detected (needs Java runtime 7u06 or later): " + jfxJar.getPath) // '.getPath' = full filename
   	Attributed.blank(jfxJar)
-   } )
+   })
 
 val plugin = project.in(file(".")).
 	configs(tomcat, jfx).

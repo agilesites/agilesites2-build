@@ -1,17 +1,46 @@
 <ivysettings>
-    <settings defaultResolver="public" defaultConflictManager="all"/>
+    <settings 
+      defaultResolver="public" 
+      defaultConflictManager="all"/>
+
+ <!-- <caches defaultCacheDir="${user.dir}/cache"/> 
+   <property name="m2-pattern" value="${user.home}/.m2/repository/[organisation]/[module]/[revision]/[module]-[revision](-[classifier]).[ext]" override="false" />
+ 
+-->
+
     <resolvers>
-      <chain name="public">
-        <ibiblio name='central' m2compatible='true'/>
-        <ivyrep name="typesafe" 
-          ivyroot="http://repo.typesafe.com/typesafe/ivy-releases/" 
-          artroot="http://repo.typesafe.com/typesafe/ivy-releases/" 
+     <chain name="public">
+
+       <ivyrep name="typesafe"
+          ivyroot="http://repo.typesafe.com/typesafe/ivy-releases/"
+          artroot="http://repo.typesafe.com/typesafe/ivy-releases/"
           ivypattern="[organisation]/[module]/ivys/ivy-[revision].xml"
           artpattern="[organization]/[module]/[revision]/[type]s/[artifact](-[classifier]).[ext]"/>
-      </chain>
-      <filesystem name="local">
-          <ivy pattern="${user.home}/Local/AgileSitesInstaller/repo/[organisation]/[module]/[revision]/ivys/ivy.xml"/>
-          <artifact pattern="${user.home}/Local/AgileSitesInstaller/repo/[organization]/[module]/[revision]/[type]s/[artifact](-[classifier]).[ext]"/>
-      </filesystem>
-    </resolvers>
+        <ibiblio name='central' m2compatible='true'/>
+
+<!--
+        <ivyrep name="local-ivy2"
+          ivyroot="file://${user.home}/.ivy2/local"
+          artroot="file://${user.home}/.ivy2/local"
+          ivypattern="[organisation]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/ivys/ivy.xml"
+          artpattern="[organisation]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]"/>
+-->
+<!--
+    <url name="local-maven2" m2compatible="true">
+      <artifact pattern="file:${user.home}/.m2/repository/[organisation]/[module]/[revision]/[module]-[revision].[ext]"/>
+    </url>
+           <filesystem name="local-maven2" m2compatible="true" >
+               <artifact pattern="${m2-pattern}"/>
+               <ivy pattern="${m2-pattern}"/>
+           </filesystem>
+-->
+   </chain>
+
+   <filesystem name="local">
+        <ivy pattern="${user.home}/Local/AgileSitesInstaller/repo/local/[organisation]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]"/>
+        <artifact pattern="${user.home}/Local/AgileSitesInstaller/repo/local/[organisation]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]"/>
+   </filesystem>
+
+  </resolvers>
+
 </ivysettings>

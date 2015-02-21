@@ -1,7 +1,7 @@
 package agilesites.build
 
-import agilesites.build.util.UtilSettings
 import sbt._
+import agilesites.build.util.UtilSettings
 
 /**
  * Created by msciab on 08/02/15.
