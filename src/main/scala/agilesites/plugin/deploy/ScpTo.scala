@@ -8,7 +8,7 @@
  * 'file2' on 'remotehost'.
  *
  */
-package agilesites.build.deploy
+package agilesites.plugin.deploy
 
 import java.io.{File, FileInputStream, InputStream}
 

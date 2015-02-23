@@ -2,23 +2,12 @@ package agilesites.generator
 
 import sbt._
 import Keys._
-import agilesites.build.AgileSitesConfig
+import agilesites.plugin.AgileSitesConfig
 
 trait CommonSettings { 
   this: AutoPlugin with AgileSitesConfig =>
     
   lazy val asJfxJar = taskKey[Seq[File]]("classpath generator")
-
-  // Utils
-  def exec(args: Seq[String], home: File, cp: Seq[File]) = {
-
-    //for (p <- cp)
-     // println(p)
-
-    Fork.java(ForkOptions(
-      runJVMOptions = "-cp" :: cp.map(_.getAbsolutePath).mkString(java.io.File.pathSeparator) :: Nil,
-      workingDirectory = Some(home)), args)
-  }
 
   // Tasks
   val asJfxJarTask = asJfxJar := {

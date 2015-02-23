@@ -1,7 +1,7 @@
-package agilesites.build.deploy
+package agilesites.plugin.deploy
 
-import agilesites.build.{AgileSitesConfig, SitesConfig}
-import agilesites.build.util.{UtilSettings, Utils}
+import agilesites.plugin.{AgileSitesConfig, SitesConfig}
+import agilesites.util.{UtilSettings, Utils}
 import sbt.Keys._
 import sbt._
 

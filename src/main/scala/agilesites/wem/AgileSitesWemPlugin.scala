@@ -1,9 +1,9 @@
 package agilesites.wem
 
-import agilesites.build.{SitesConfig, AgileSitesConfig}
-import agilesites.build.util.UtilSettings
 import sbt._
 import Keys._
+import agilesites.util.UtilSettings
+import agilesites.plugin.{SitesConfig, AgileSitesConfig}
 
 object AgileSitesWemPlugin
   extends AutoPlugin

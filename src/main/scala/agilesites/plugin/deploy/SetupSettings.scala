@@ -1,20 +1,21 @@
-package agilesites.build.deploy
+package agilesites.plugin.deploy
 
-import agilesites.Configure
-import agilesites.build.{AgileSitesConfig, SitesConfig}
-import sbt.Keys._
 import sbt._
+import sbt.Keys._
+import agilesites.plugin.{AgileSitesConfig, SitesConfig}
 
 trait SetupSettings {
   this: AutoPlugin with SitesConfig with AgileSitesConfig =>
 
   // configure futurentense.ini
   lazy val asConfigure = taskKey[Unit]("AgileSites Configure")
-  
+
   lazy val asConfigureTask = asConfigure := {
-    val cfg = new Configure(sitesHome.value, sitesShared.value, sitesWebapp.value)
+    /*
+    val cfg = new Configurator(sitesHome.value, sitesShared.value, sitesWebapp.value)
     cfg.registerAssembler
     cfg.configure
+    */
   }
 
   // copy jars to destination folders

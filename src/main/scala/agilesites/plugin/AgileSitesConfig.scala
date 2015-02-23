@@ -1,6 +1,6 @@
-package agilesites.build
+package agilesites.plugin
 
-import agilesites.build.util.UtilSettings
+import agilesites.util.UtilSettings
 import sbt._
 
 /**

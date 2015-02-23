@@ -1,10 +1,10 @@
 package agilesites.generator
 
-import agilesites.build.util.UtilSettings
 import sbt._
 import sbt.Keys._
 import sbt.ConfigKey.configurationToKey
-import agilesites.build.AgileSitesConfig
+import agilesites.plugin.AgileSitesConfig
+import agilesites.util.UtilSettings
 
 object AgileSitesGeneratorPlugin
   extends AutoPlugin

@@ -1,9 +1,9 @@
-package agilesites.build.tool
+package agilesites.plugin.tool
 
 import java.io.File
 
-import agilesites.build.{SitesConfig, AgileSitesConfig}
-import agilesites.build.util.Utils
+import agilesites.plugin.{SitesConfig, AgileSitesConfig}
+import agilesites.util.Utils
 import sbt.Keys._
 import sbt._
 

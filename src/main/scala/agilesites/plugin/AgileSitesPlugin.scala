@@ -1,11 +1,12 @@
-package agilesites.build
+package agilesites.plugin
 
+import agilesites.gui.GuiSettings
+import agilesites.plugin.deploy.{DeploySettings, SetupSettings}
+import agilesites.plugin.scaffold.ScaffoldSettings
+import agilesites.plugin.tool.{TomcatSettings, ToolsSettings}
+import agilesites.util.{UtilSettings, VersionSettings}
 import sbt._
 import sbt.plugins.JvmPlugin
-import agilesites.build.scaffold.ScaffoldSettings
-import agilesites.build.deploy.{SetupSettings, DeploySettings}
-import agilesites.build.tool.{ToolsSettings,TomcatSettings}
-import agilesites.build.util.{UtilSettings, VersionSettings}
 
 object AgileSitesPlugin
   extends AutoPlugin
@@ -13,6 +14,7 @@ object AgileSitesPlugin
   with VersionSettings
   with SitesConfig
   with AgileSitesConfig
+  with GuiSettings
   with ToolsSettings
   with TomcatSettings
   with SetupSettings
@@ -27,7 +29,8 @@ object AgileSitesPlugin
     versionSettings ++
       utilSettings ++
       sitesConfig ++
-      agileSitesConfig
+      agileSitesConfig ++
+      guiSettings
 
   //override lazy val buildSettings = versionBuildSettings
 

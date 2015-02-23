@@ -1,11 +1,12 @@
 package agilesites.generator
 
+import agilesites.util.UtilSettings
 import sbt._
 import sbt.Keys._
-import agilesites.build.AgileSitesConfig
+import agilesites.plugin.AgileSitesConfig
 
 trait InstallerSettings {
-  this: AutoPlugin with CommonSettings =>
+  this: AutoPlugin with UtilSettings =>
 
   def installCmd = Command.args("install", "<args>") { (state, args) =>
 

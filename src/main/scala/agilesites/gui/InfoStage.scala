@@ -1,4 +1,4 @@
-package agilesites.generator.gui
+package agilesites.gui
 
 import scalafx.Includes._
 import scalafx.application.JFXApp
@@ -7,9 +7,11 @@ import scalafx.scene.layout._
 import scalafx.scene.control._
 import scalafx.scene.web.WebView
 import scalafx.application.Platform
-import java.util.zip.ZipEntry
 import scalafx.stage.Stage
+import scalafx.scene.text.{FontWeight, Font}
+
 import scalafx.application.JFXApp.PrimaryStage
+import java.util.zip.ZipEntry
 
 class InfoStage(message: String) extends PrimaryStage {
 
@@ -17,7 +19,10 @@ class InfoStage(message: String) extends PrimaryStage {
   resizable = false
   scene = new Scene(640, 480) {
     root = new BorderPane {
-      center = Label(message) 
+      center =  new Label {
+        text = message
+        font = Font.font("Courier", FontWeight.Bold, 16)
+      }
       //bottom = createNavigation
     }
   }
@@ -44,7 +49,6 @@ class InfoStage(message: String) extends PrimaryStage {
         text = "Next >>"
         //onAction = handle { anim.pause() }
         //disable <== anim.status =!= Status.RUNNING
-
       })
 
   }

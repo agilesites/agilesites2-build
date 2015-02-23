@@ -1,8 +1,8 @@
-package agilesites.build.scaffold
+package agilesites.plugin.scaffold
 
 import java.io.File
 
-import agilesites.build.scaffold.Dialog._
+import agilesites.plugin.scaffold.Dialog._
 import org.apache.commons.io.Charsets.UTF_8
 import org.apache.commons.io.FileUtils
 
@@ -98,7 +98,7 @@ object G8Helpers {
     val Local = """^file://(\S+)$""".r
   }
 
-  import agilesites.build.scaffold.G8Helpers.Regs._
+  import agilesites.plugin.scaffold.G8Helpers.Regs._
 
   private def applyT(fetch: File => (Map[String, String], Stream[File], File, Option[File]), isScaffolding: Boolean = false)(tmpl: File, outputFolder: File, arguments: Seq[String] = Nil) = {
     val (defaults, templates, templatesRoot, scaffoldsRoot) = fetch(tmpl)
@@ -296,7 +296,7 @@ object G8Helpers {
 }
 
 class StringRenderer extends org.clapper.scalasti.AttributeRenderer[String] {
-  import agilesites.build.scaffold.G8._
+  import agilesites.plugin.scaffold.G8._
   def toString(value: String): String = value
 
   override def toString(value: String, formatName: String): String = {

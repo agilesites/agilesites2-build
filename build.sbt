@@ -49,24 +49,26 @@ val mySettings = Seq(name := "agilesites2-build",
 	scalaVersion := "2.10.4",
 	scalacOptions ++= Seq("-deprecation", "-feature"),
 	libraryDependencies ++= libDeps ++ tomcatDeps("tomcat") ++ tomcatDeps("compile"))
-	
-val genSettings = Seq(
-	fork in jfx := true,
-	mainClass in jfx := Some("Main"),
-	unmanagedJars in jfx <<= unmanagedJars in Compile,
-	unmanagedJars in Compile <+= Def.task {
-  	val javaHome = new File(System.getProperty("java.home"))
-  	val jfxJar = new File(javaHome, "lib/jfxrt.jar")
-  	if (!jfxJar.exists)
-    	 throw new RuntimeException("JavaFX not detected (needs Java runtime 7u06 or later): " + jfxJar.getPath) // '.getPath' = full filename
-  	Attributed.blank(jfxJar)
-   })
+
+val guiSettings = Seq(
+  fork in jfx := true,
+  mainClass in jfx := Some("agilesites.gui.Main"),
+  unmanagedJars in jfx <<= unmanagedJars in Compile,
+  unmanagedJars in Compile <+= Def.task {
+    val javaHome = new File(System.getProperty("java.home"))
+    val jfxJar = new File(javaHome, "lib/jfxrt.jar")
+    if (!jfxJar.exists)
+        throw new RuntimeException("JavaFX not detected (needs Java runtime 7u06 or later): " + jfxJar.getPath) // '.getPath' = full filename
+    Attributed.blank(jfxJar)
+  })
 
 val plugin = project.in(file(".")).
 	configs(tomcat, jfx).
 	settings(btSettings: _*).
 	settings(mySettings : _*).
-	settings(genSettings : _*)
+  settings(guiSettings: _*)
+
+resolvers += Resolver.sonatypeRepo("releases")
 
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
 

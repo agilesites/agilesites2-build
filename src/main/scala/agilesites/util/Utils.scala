@@ -1,4 +1,4 @@
-package agilesites.build.util
+package agilesites.util
 
 import java.io.{File, FileReader}
 import java.net.URL
@@ -134,5 +134,21 @@ trait Utils {
         println("WebCenter Sites NOT running")
         None
     }
+  }
+
+  // Utils
+  def exec(args: Seq[String], home: File, cp: Seq[File]) = {
+
+    val javaHome = new File(System.getProperty("java.home"))
+    val jfxJar = new File(javaHome, "lib/jfxrt.jar")
+
+    if (!jfxJar.exists)
+      throw new RuntimeException("JavaFX not detected (needs Java runtime 7u06 or later): " + jfxJar.getPath)
+
+    val xcp = jfxJar +:cp
+
+    Fork.java(ForkOptions(
+      runJVMOptions = "-cp" :: xcp.map(_.getAbsolutePath).mkString(java.io.File.pathSeparator) :: Nil,
+      workingDirectory = Some(home)), args)
   }
 }

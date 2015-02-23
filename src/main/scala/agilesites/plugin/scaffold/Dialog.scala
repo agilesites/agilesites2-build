@@ -1,4 +1,4 @@
-package agilesites.build.scaffold
+package agilesites.plugin.scaffold
 
 import javax.swing._
 

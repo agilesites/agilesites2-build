@@ -2,8 +2,8 @@ package agilesites.web
 
 import java.io.File
 
-import agilesites.build.AgileSitesConfig
-import agilesites.build.util.Utils
+import agilesites.plugin.AgileSitesConfig
+import agilesites.util.Utils
 import sbt.Keys._
 import sbt._
 

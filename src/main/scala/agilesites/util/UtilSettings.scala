@@ -1,10 +1,9 @@
-package agilesites.build.util
+package agilesites.util
 
 import java.util.Properties
 
-import sbt.Keys._
 import sbt._
-
+import sbt.Keys._
 import scala.collection.JavaConverters._
 
 /**

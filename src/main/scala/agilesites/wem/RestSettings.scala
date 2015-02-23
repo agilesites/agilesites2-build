@@ -2,7 +2,7 @@ package agilesites.wem
 
 import sbt._
 import sbt.Keys._
-import agilesites.build._
+import agilesites.plugin._
 import dispatch._
 import dispatch.Defaults._
 

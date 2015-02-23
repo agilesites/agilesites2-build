@@ -1,7 +1,7 @@
 package agilesites.web
 
-import agilesites.build.{AgileSitesConfig, SitesConfig}
-import agilesites.build.util.UtilSettings
+import agilesites.plugin.{AgileSitesConfig, SitesConfig}
+import agilesites.util.UtilSettings
 import sbt._
 
 object AgileSitesWebPlugin
