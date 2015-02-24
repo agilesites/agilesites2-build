@@ -1,4 +1,4 @@
-package agilesites.plugin.scaffold
+package agilesites.deploy
 
 import sbt.Keys._
 import sbt._

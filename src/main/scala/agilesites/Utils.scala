@@ -1,4 +1,4 @@
-package agilesites.util
+package agilesites
 
 import java.io.{File, FileReader}
 import java.net.URL
@@ -90,7 +90,6 @@ trait Utils {
     }
 
     //println(siteList)
-
     val out = for (site <- siteList) yield {
       val req = "%s/ContentServer?pagename=AAAgile%s&username=%s&password=%s%s%s"
         .format(url, op, user, pass, option, site)

@@ -1,8 +1,7 @@
-package agilesites.plugin.scaffold
+package agilesites.deploy
 
 import java.io.File
 
-import agilesites.plugin.scaffold.Dialog._
 import org.apache.commons.io.Charsets.UTF_8
 import org.apache.commons.io.FileUtils
 
@@ -98,10 +97,10 @@ object G8Helpers {
     val Local = """^file://(\S+)$""".r
   }
 
-  import agilesites.plugin.scaffold.G8Helpers.Regs._
-
   private def applyT(fetch: File => (Map[String, String], Stream[File], File, Option[File]), isScaffolding: Boolean = false)(tmpl: File, outputFolder: File, arguments: Seq[String] = Nil) = {
     val (defaults, templates, templatesRoot, scaffoldsRoot) = fetch(tmpl)
+
+    import agilesites.deploy.G8Helpers.Regs._
 
     val parameters = arguments.headOption.map { _ =>
       (defaults /: arguments) {
@@ -190,7 +189,7 @@ object G8Helpers {
         if (fixed.contains(k))
           (k, v)
         else {
-          val in = inputDialog(k, v)
+          val in = Dialog.inputDialog(k, v)
           //println(in)
           val r = in match {
             case Some(thing) => (k, thing)
@@ -224,7 +223,7 @@ object G8Helpers {
             Some(true)
           } else {
             println()
-            optionsDialog(
+            Dialog.optionsDialog(
               "Already exists " + out.getCanonicalPath,
               Array("Override", "Append", "Skip")) match {
                 case 0 => Some(false)
@@ -296,7 +295,6 @@ object G8Helpers {
 }
 
 class StringRenderer extends org.clapper.scalasti.AttributeRenderer[String] {
-  import agilesites.plugin.scaffold.G8._
   def toString(value: String): String = value
 
   override def toString(value: String, formatName: String): String = {
@@ -308,18 +306,18 @@ class StringRenderer extends org.clapper.scalasti.AttributeRenderer[String] {
     case "upper" | "uppercase" => value.toUpperCase
     case "lower" | "lowercase" => value.toLowerCase
     case "cap" | "capitalize" => value.capitalize
-    case "decap" | "decapitalize" => decapitalize(value)
-    case "start" | "start-case" => startCase(value)
-    case "word" | "word-only" => wordOnly(value)
-    case "Camel" | "upper-camel" => upperCamel(value)
-    case "camel" | "lower-camel" => lowerCamel(value)
-    case "hyphen" | "hyphenate" => hyphenate(value)
-    case "norm" | "normalize" => normalize(value)
-    case "snake" | "snake-case" => snakeCase(value)
-    case "packaged" | "package-dir" => packageDir(value)
-    case "random" | "generate-random" => addRandomId(value)
-    case "deprefix" => deprefix(value)
-    case "ndeprefix" => ndeprefix(value)
+    case "decap" | "decapitalize" => G8.decapitalize(value)
+    case "start" | "start-case" => G8.startCase(value)
+    case "word" | "word-only" => G8.wordOnly(value)
+    case "Camel" | "upper-camel" => G8.upperCamel(value)
+    case "camel" | "lower-camel" => G8.lowerCamel(value)
+    case "hyphen" | "hyphenate" => G8.hyphenate(value)
+    case "norm" | "normalize" => G8.normalize(value)
+    case "snake" | "snake-case" => G8.snakeCase(value)
+    case "packaged" | "package-dir" => G8.packageDir(value)
+    case "random" | "generate-random" => G8.addRandomId(value)
+    case "deprefix" => G8.deprefix(value)
+    case "ndeprefix" => G8.ndeprefix(value)
     case _ => value
   }
 }

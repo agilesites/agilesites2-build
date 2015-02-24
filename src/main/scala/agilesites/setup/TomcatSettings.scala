@@ -1,16 +1,17 @@
-package agilesites.plugin.tool
+package agilesites.setup
 
 import java.io.File
-
-import agilesites.plugin.{SitesConfig, AgileSitesConfig}
-import agilesites.util.Utils
+import agilesites.Utils
 import sbt.Keys._
 import sbt._
 
 trait TomcatSettings extends Utils {
-  this: AutoPlugin with SitesConfig with AgileSitesConfig =>
+  this: AutoPlugin  =>
+
+  import agilesites.config.AgileSitesConfigPlugin.autoImport._
 
   lazy val tomcatEmbeddedClasspath = taskKey[Seq[File]]("tomcat classpath")
+
   val tomcatEmbeddedClasspathTask = tomcatEmbeddedClasspath <<= (update) map {
     report => report.select(configurationFilter("tomcat"))
   }
@@ -22,24 +23,29 @@ trait TomcatSettings extends Utils {
     val classpathExt = classpath ++ Seq(file("bin"), file("bin") / "setup.jar", file("home") / "bin")
 
     val cp = classpathExt.map(_.getAbsolutePath).mkString(pathSeparator)
-    val temp = base / "temp"
-    val bin = base / "bin"
-    temp.mkdirs
+    val temp = (base / "temp")
+    val bin = (base / "bin")
+    temp.mkdirs()
 
     val debugSeq = if (debug)
       "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000" :: Nil
     else Nil
 
     val opts = "-cp" :: cp ::
+      "-Djava.net.preferIPv4Stack=true" ::
       "-Djava.io.tmpdir=" + (temp.getAbsolutePath) ::
+      "-Dfile.encoding=UTF-8" :: "-Duser.timezone=UTC" ::
+      "-Dnet.sf.ehcache.enableShutdownHook=true" ::
+      "-Dorg.owasp.esapi.resources=$BASE/bin" ::
       "-Xms256m" :: "-Xmx1024m" :: "-XX:MaxPermSize=256m" ::
-      s"-Dorg.owasp.esapi.resources=${bin}" :: debugSeq
+      s"-Dorg.owasp.esapi.resources=${bin.getAbsolutePath}" :: debugSeq
 
     val args = Seq(port.toString, base.getAbsolutePath)
 
     val cmd = opts ++ args
 
     println(opts)
+
     val forkOpt = ForkOptions(
       runJVMOptions = opts,
       envVars = Map("CATALINA_HOME" -> base.getAbsolutePath),
@@ -48,10 +54,8 @@ trait TomcatSettings extends Utils {
   }
 
 
-  lazy val sitesServer = inputKey[Unit]("Launch Local Sites")
-
   lazy val sitesServerTask = sitesServer := {
-    
+
     val args: Seq[String] = Def.spaceDelimited("<arg>").parsed
     val classpath = tomcatEmbeddedClasspath.value
     val port = sitesPort.value.toInt
@@ -119,6 +123,7 @@ trait TomcatSettings extends Utils {
   //val tomcatConfig = "tomcat"
   val tomcatVersion = "7.0.52"
   val hsqlVersion = "1.8.0.10"
+
   def tomcatDeps(tomcatConfig: String) = Seq(
     //"org.apache.tomcat" % "tomcat-catalina" % tomcatVersion % tomcatConfig,
     "org.apache.tomcat.embed" % "tomcat-embed-core" % tomcatVersion % tomcatConfig,

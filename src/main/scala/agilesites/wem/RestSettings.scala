@@ -2,17 +2,15 @@ package agilesites.wem
 
 import sbt._
 import sbt.Keys._
-import agilesites.plugin._
+import agilesites.deploy._
 import dispatch._
 import dispatch.Defaults._
 
 trait RestSettings {
-  this: AutoPlugin with SitesConfig =>
+  this: AutoPlugin  =>
 
-  // Keys
-  lazy val wemConfig = config("wem").hide
-  lazy val login = taskKey[String]("WEM login")
-  lazy val get = inputKey[Unit]("WEM get")
+  import agilesites.wem.AgileSitesWemPlugin.autoImport._
+  import agilesites.config.AgileSitesConfigPlugin.autoImport._
 
   // Tasks
   val getTask = get := {

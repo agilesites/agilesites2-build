@@ -1,20 +1,27 @@
 package agilesites.wem
 
+import agilesites.config.AgileSitesConfigPlugin
+import sbt.Keys._
 import sbt._
-import Keys._
-import agilesites.util.UtilSettings
-import agilesites.plugin.{SitesConfig, AgileSitesConfig}
 
 object AgileSitesWemPlugin
   extends AutoPlugin
-  with UtilSettings
-  with AgileSitesConfig
-  with SitesConfig
   with RestSettings {
 
-  // configurations
-  lazy val asConfig = config("as")
+  override def requires = AgileSitesConfigPlugin
 
-  override val buildSettings = Seq(
-    ivyConfigurations ++= Seq(asConfig)) ++ restSettings
+  object autoImport {
+    lazy val asConfig = config("as")
+    // Keys
+    lazy val wemConfig = config("wem").hide
+    lazy val login = taskKey[String]("WEM login")
+    lazy val get = inputKey[Unit]("WEM get")
+
+  }
+
+  import autoImport._
+
+  override val projectSettings =
+    Seq(ivyConfigurations ++= Seq(asConfig)) ++
+      restSettings
 }

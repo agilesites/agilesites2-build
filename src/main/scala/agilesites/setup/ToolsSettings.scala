@@ -1,14 +1,16 @@
-package agilesites.plugin.tool
+package agilesites.setup
 
 import java.io.File
 
-import agilesites.plugin.{AgileSitesConfig, SitesConfig}
-import agilesites.util.UtilSettings
+import agilesites.Utils
+import agilesites.config.{AgileSitesConfigPlugin, UtilSettings}
 import sbt.Keys._
 import sbt._
 
-trait ToolsSettings {
-  this: AutoPlugin with UtilSettings with SitesConfig with AgileSitesConfig  =>
+trait ToolsSettings extends Utils {
+  this: AutoPlugin   =>
+
+  import agilesites.config.AgileSitesConfigPlugin.autoImport._
 
   // find the default workspace from sites
   def defaultWorkspace(sites: String) = normalizeSiteName(sites.split(",").head)
@@ -106,10 +108,12 @@ trait ToolsSettings {
     val url = sitesUrl.value
     val user = sitesUser.value
     val password = sitesPassword.value
-    val sites = asSites.value
     val seljars = csdtClasspath.value
     val log = streams.value.log
     val envision = file(sitesEnvisionDir.value)
+
+
+    val sites = sitesFocus.value
     val defaultSite = sites.split(",").head
 
     val defaultWorkspace = envision / defaultSite

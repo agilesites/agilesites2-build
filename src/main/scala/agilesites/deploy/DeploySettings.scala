@@ -1,12 +1,15 @@
-package agilesites.plugin.deploy
+package agilesites.deploy
 
-import agilesites.plugin.{AgileSitesConfig, SitesConfig}
-import agilesites.util.{UtilSettings, Utils}
+import agilesites.Utils
+import agilesites.config.UtilSettings
 import sbt.Keys._
 import sbt._
 
-trait DeploySettings {
-  this: AutoPlugin with SitesConfig with AgileSitesConfig with UtilSettings with Utils =>
+trait DeploySettings extends Utils {
+  this: AutoPlugin   =>
+
+  import agilesites.config.AgileSitesConfigPlugin.autoImport._
+  import agilesites.deploy.AgileSitesDeployPlugin.autoImport._
 
   // package jar task - build the jar and copy it  to destination 
   lazy val asPackage = taskKey[Unit]("AgileSites package jar")
@@ -115,10 +118,9 @@ trait DeploySettings {
       log.error(s"Sites must be up and running as s{url}.")
     } else {
       asPackage.value
-      log.info(httpCall("Setup", "&sites=%s".format(asSites.value), url, sitesUser.value, sitesPassword.value))
+      log.info(httpCall("Setup", "&sites=%s".format(sitesFocus.value), url, sitesUser.value, sitesPassword.value))
     }
   }
-
 
   val deploySettings = Seq(asPackageTask, asDeployTask,
     (resourceGenerators in Compile) ++= Seq(generateIndexTask.taskValue))

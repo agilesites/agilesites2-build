@@ -1,9 +1,9 @@
-package agilesites.util
+package agilesites.config
 
 import java.nio.charset.Charset
 
-import sbt._
 import sbt.Keys._
+import sbt._
 
 /**
  * Generate versioning informations

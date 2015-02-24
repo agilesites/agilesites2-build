@@ -1,29 +1,22 @@
 package agilesites.setup
 
-import agilesites.gui.GuiSettings
+import agilesites.config.{AgileSitesConfigPlugin, UtilSettings}
 import sbt._
-import agilesites.plugin.deploy.{DeploySettings, SetupSettings}
-import agilesites.plugin.tool.{TomcatSettings, ToolsSettings}
-import agilesites.util.{UtilSettings, VersionSettings}
-import sbt.plugins.JvmPlugin
 
 object AgileSitesSetupPlugin
   extends AutoPlugin
-  with UtilSettings
-  with InstallerSettings {
+  with InstallerSettings
+  with TomcatSettings
+  with ToolsSettings {
 
-  override def requires = JvmPlugin
+  override def requires = AgileSitesConfigPlugin
 
   object autoImport {
 
-    val repositoryTarget = settingKey[File]("Where to deploy the repository")
-
-    val repositoryBuild = taskKey[Unit]("collect and deploy")
-
   }
 
-  import autoImport._
+  import agilesites.config.AgileSitesConfigPlugin.autoImport._
 
-  override lazy val projectSettings = installerSettings
+  override lazy val projectSettings = installerSettings ++ tomcatSettings ++ toolsSettings
 
 }

@@ -1,11 +1,12 @@
-package agilesites.plugin.deploy
+package agilesites.setup
 
-import sbt._
 import sbt.Keys._
-import agilesites.plugin.{AgileSitesConfig, SitesConfig}
+import sbt._
 
 trait SetupSettings {
-  this: AutoPlugin with SitesConfig with AgileSitesConfig =>
+  this: AutoPlugin  =>
+
+  import agilesites.config.AgileSitesConfigPlugin.autoImport._
 
   // configure futurentense.ini
   lazy val asConfigure = taskKey[Unit]("AgileSites Configure")

@@ -1,16 +1,17 @@
 package agilesites.web
 
 import java.io.File
-
-import agilesites.plugin.AgileSitesConfig
-import agilesites.util.Utils
+import agilesites.Utils
 import sbt.Keys._
 import sbt._
 
 import scala.util.matching.Regex
 
 trait WebSettings extends Utils with WebUtil {
-  this: AutoPlugin with AgileSitesConfig  =>
+  this: AutoPlugin  =>
+
+  import AgileSitesWebPlugin.autoImport._
+  import agilesites.config.AgileSitesConfigPlugin.autoImport._
 
   def fingerPrintMap(staticPrefix: String, files: Seq[File], prefixLen: Int): Seq[(Regex, (String, String))] =
     for (file <- files) yield {
@@ -33,26 +34,17 @@ trait WebSettings extends Utils with WebUtil {
     replacements.foldLeft(readFile(src))(rep _)
   }
 
-  lazy val asWebFolder = taskKey[File]("AgileSites assets folder ")
 
-  lazy val asWebIncludeFilter = taskKey[FileFilter]("Web Assets to include")
-
-  lazy val asWebExcludeFilter = taskKey[FileFilter]("Web Assets to exclude")
-
-  lazy val asWebFingerPrintFilter = taskKey[FileFilter]("Web Assets to finger print")
-
-  lazy val asWebPackage = taskKey[Seq[java.io.File]]("package web asset with finger printing")
-
-  val asWebPackageTask = asWebPackage := {
-    val src = asWebFolder.value
+  val webPackageTask = webPackage := {
+    val src = webFolder.value
     val tgt = (resourceManaged in Compile).value
     val log = streams.value.log
-    val pref = asStaticPrefix.value
+    val pref = webStaticPrefix.value
 
     val nsrc = src.getPath.length
     val ntgt = tgt.getPath.length
-    val files = Seq(src).descendantsExcept(asWebIncludeFilter.value, asWebExcludeFilter.value).get.filter(_.isFile)
-    val toFingerPrint = asWebFingerPrintFilter.value
+    val files = Seq(src).descendantsExcept(webIncludeFilter.value, webExcludeFilter.value).get.filter(_.isFile)
+    val toFingerPrint = webFingerPrintFilter.value
 
     val fpMap = fingerPrintMap(pref, files, nsrc)
     //println(fpMap)
@@ -76,7 +68,7 @@ trait WebSettings extends Utils with WebUtil {
     println()
 
     // write the index too
-    val sitename = normalizeSiteName(asSites.value.split(",").head)
+    val sitename = normalizeSiteName(sitesFocus.value.split(",").head)
     val assetIndexFile = tgt / sitename / "assets.txt"
     val assetIndexBody = fpMap.map(_._2._1).mkString("\n")
     //destlist.map(_.getPath.substring(ntgt).replace(File.separator, "/")).mkString("\n")
@@ -86,10 +78,5 @@ trait WebSettings extends Utils with WebUtil {
     destlist ++ Seq(assetIndexFile)
   }
 
-  val webSettings = Seq(
-    asWebFolder := baseDirectory.value / "src" / "main" / "assets",
-    asWebIncludeFilter := AllPassFilter,
-    asWebExcludeFilter := NothingFilter,
-    asWebFingerPrintFilter := GlobFilter("*.css") | GlobFilter("*.html") | GlobFilter("*.js"),
-    asWebPackageTask)
+  val webSettings = Seq(webPackageTask)
 }
