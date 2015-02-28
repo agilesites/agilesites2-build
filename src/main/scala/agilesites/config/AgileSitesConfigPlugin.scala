@@ -1,6 +1,6 @@
 package agilesites.config
 
-import sbt._
+import sbt._, Keys._
 import sbt.plugins.JvmPlugin
 
 object AgileSitesConfigPlugin
@@ -59,7 +59,7 @@ object AgileSitesConfigPlugin
 
     // installation properties
     sitesDirectory := file(utilPropertyMap.value.getOrElse("sites.directory",
-      System.getProperty("java.home") + java.io.File.separator + "sites" )),
+      (baseDirectory.value  /  "sites" ).getAbsolutePath)),
     sitesHome := utilPropertyMap.value.getOrElse("sites.home",
       (sitesDirectory.value / "home").getAbsolutePath),
     sitesShared := utilPropertyMap.value.getOrElse("sites.shared",

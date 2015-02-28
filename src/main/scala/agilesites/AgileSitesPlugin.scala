@@ -25,9 +25,21 @@ object AgileSitesPlugin
     val cp = ex.currentUnit.classpath
 
     exec("agilesites.gui.Main" +: args, state.configuration.baseDirectory, cp)
+    state
+  }
+
+  def downloadCmd = Command.command("download") { state =>
+
+    import AgileSitesConfigPlugin.autoImport._
+    val extracted: Extracted = Project.extract(state)
+    val dir = extracted.get(sitesDirectory)
+
+    exec(Seq("agilesites.gui.Main", "download", dir.getAbsolutePath),
+      state.configuration.baseDirectory,
+      extracted.currentUnit.classpath)
 
     state
   }
 
-  override lazy val projectSettings = Seq(commands ++= Seq(guiCmd))
+  override lazy val projectSettings = Seq(commands ++= Seq(guiCmd, downloadCmd))
 }

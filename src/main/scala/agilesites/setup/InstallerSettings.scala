@@ -1,26 +1,27 @@
 package agilesites.setup
 
-import sbt._
+import java.io.{File, PipedInputStream, PipedOutputStream}
+
 import agilesites.Utils
-import java.io.{PipedInputStream, PipedOutputStream}
+import sbt._
 
 /**
  * Created by msciab on 19/02/15.
  */
 trait InstallerSettings extends Utils {
-  this: AutoPlugin  with TomcatSettings =>
+  this: AutoPlugin with TomcatSettings =>
 
   import agilesites.config.AgileSitesConfigPlugin.autoImport._
   import agilesites.setup.AgileSitesSetupPlugin.autoImport._
 
   def initFolders(base: File): Unit = {
 
-    val data      = base / "shared" / "data"
-    val metaInf   = base / "webapps" / "cs" / "META-INF"
+    val data = base / "shared" / "data"
+    val metaInf = base / "webapps" / "cs" / "META-INF"
     val omInstall = base / "home" / "ominstallinfo"
-    val temp      = base / "temp"
-    val logs      = base / "logs"
-    val work      = base / "work"
+    val temp = base / "temp"
+    val logs = base / "logs"
+    val work = base / "work"
 
     data.mkdirs()
     metaInf.mkdirs()
@@ -61,17 +62,20 @@ trait InstallerSettings extends Utils {
     // prepare input and the process
     val po = new PipedOutputStream
     val pi = new PipedInputStream(po)
-    val csi = Process(Seq("bash", "csInstall.sh", "-silent"),
+    val csi = Process(
+      if (File.pathSeparatorChar == ':')
+        Seq("bash", "csInstall.sh", "-silent")
+      else Seq("cmd", "/c", "csInstall.bat", "-silent"),
       Some(base / "Sites"), "JAVA_HOME" -> System.getProperty("java.home"))
 
     // run the installer until the "press ENTER message"
     var stream = (csi #< pi).lines_!
 
     while (stream.head.indexOf("press ENTER.") == -1) {
-      println(">"+stream.head)
+      println(">" + stream.head)
       stream = stream.tail
     }
-    println("!"+stream.head)
+    println("!" + stream.head)
     println("======================")
     (stream, po)
   }
@@ -113,7 +117,7 @@ trait InstallerSettings extends Utils {
     //stream.foreach(println)
     val re = "(Install failed|Installation Finished Successfully)".r
     var str = stream
-    while ( re.findFirstIn(str.head).isEmpty ) {
+    while (re.findFirstIn(str.head).isEmpty) {
       println(str.head)
       str = str.tail
     }
