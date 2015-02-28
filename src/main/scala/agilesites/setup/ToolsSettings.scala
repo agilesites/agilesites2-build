@@ -11,6 +11,7 @@ trait ToolsSettings extends Utils {
   this: AutoPlugin   =>
 
   import agilesites.config.AgileSitesConfigPlugin.autoImport._
+  import agilesites.setup.AgileSitesSetupPlugin.autoImport._
 
   // find the default workspace from sites
   def defaultWorkspace(sites: String) = normalizeSiteName(sites.split(",").head)

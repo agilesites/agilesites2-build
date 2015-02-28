@@ -33,7 +33,8 @@ trait Utils {
     //println("*** %s%s****\n".format(file.toString, body))
     if (log != null)
       log.debug("+++ %s".format(file.toString))
-    file.getParentFile.mkdirs
+    if (file.getParentFile != null)
+      file.getParentFile.mkdirs
     val w = new java.io.FileWriter(file)
     w.write(body)
     w.close()
@@ -144,7 +145,7 @@ trait Utils {
     if (!jfxJar.exists)
       throw new RuntimeException("JavaFX not detected (needs Java runtime 7u06 or later): " + jfxJar.getPath)
 
-    val xcp = jfxJar +:cp
+    val xcp = jfxJar +: cp
 
     Fork.java(ForkOptions(
       runJVMOptions = "-cp" :: xcp.map(_.getAbsolutePath).mkString(java.io.File.pathSeparator) :: Nil,

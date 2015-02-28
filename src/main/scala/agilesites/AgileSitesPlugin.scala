@@ -12,11 +12,12 @@ object AgileSitesPlugin
   extends AutoPlugin
   with Utils {
 
-  override def requires = AgileSitesConfigPlugin &&
-    AgileSitesDeployPlugin &&
-    AgileSitesSetupPlugin &&
-    AgileSitesWebPlugin &&
-    AgileSitesWemPlugin
+  override def requires =
+    AgileSitesConfigPlugin &&
+      AgileSitesDeployPlugin &&
+      AgileSitesSetupPlugin &&
+      AgileSitesWebPlugin &&
+      AgileSitesWemPlugin
 
   def guiCmd = Command.args("gui", "<args>") { (state, args) =>
 

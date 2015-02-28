@@ -1,26 +1,29 @@
 val v = "2.0-M1"
 
-val tomcat = config("tomcat")
+val tomcatConfig = config("tomcat")
 
 val jfx = config("jfx")
 
-val tomcatVersion = "7.0.52"
+//val tomcatVersion = "7.0.52"
+//val hsqlVersion = "1.8.0.10"
+//val setupVersion = "2.0-M1"
 
-val hsqlVersion = "1.8.0.10"
+//def tomcatDeps(tomcatConfig: String) = Seq(
+//   "org.apache.httpcomponents"  % "httpclient"                 % "4.3.4",
+//    "org.apache.tomcat"         % "tomcat-catalina"            % tomcatVersion % tomcatConfig,
+//    "org.apache.tomcat"         % "tomcat-dbcp"                % tomcatVersion % tomcatConfig,
+//    "org.apache.tomcat.embed"   % "tomcat-embed-logging-log4j" % tomcatVersion % tomcatConfig,
+//    "org.apache.tomcat.embed"   % "tomcat-embed-core"          % tomcatVersion % tomcatConfig,
+//    "org.apache.tomcat.embed"   % "tomcat-embed-core"          % tomcatVersion % tomcatConfig,
+//    "org.apache.tomcat.embed"   % "tomcat-embed-jasper"        % tomcatVersion % tomcatConfig,
+//    "org.hsqldb"                % "hsqldb"                     % hsqlVersion   % tomcatConfig,
+//    "com.sciabarra"             % "agilesites2-setup"          % setupVersion  % tomcatConfig)
+//
+//    //"commons-httpclient" 	  % "commons-httpclient" % "3.1",
+//    //"commons-codec"      	  % "commons-codec" % "1.3",
+//    //"commons-fileupload" 	  % "commons-fileupload" % "1.2",
+//    //"commons-io"         	  % "commons-io" % "1.3.2",
 
-def tomcatDeps(tomcatConfig: String) = Seq(
-    "org.apache.tomcat"         % "tomcat-catalina"            % tomcatVersion % tomcatConfig,
-    "org.apache.tomcat"         % "tomcat-dbcp"                % tomcatVersion % tomcatConfig,
-    "org.apache.tomcat.embed"   % "tomcat-embed-logging-log4j" % tomcatVersion % tomcatConfig,
-    "org.apache.tomcat.embed"   % "tomcat-embed-core"          % tomcatVersion % tomcatConfig,
-    "org.apache.tomcat.embed"   % "tomcat-embed-core"          % tomcatVersion % tomcatConfig,
-    "org.apache.tomcat.embed"   % "tomcat-embed-jasper"        % tomcatVersion % tomcatConfig,
-    "org.apache.httpcomponents" % "httpclient"                 % "4.3.4",
-    "org.hsqldb"                % "hsqldb"                     % hsqlVersion % tomcatConfig )
-    //"commons-httpclient" 	  % "commons-httpclient" % "3.1",
-    //"commons-codec"      	  % "commons-codec" % "1.3",
-    //"commons-fileupload" 	  % "commons-fileupload" % "1.2",
-    //"commons-io"         	  % "commons-io" % "1.3.2",    
 
 val libDeps = Seq(
    "org.scalatest"           %% "scalatest"      % "2.2.0" % "test",
@@ -48,13 +51,14 @@ val mySettings = Seq(name := "agilesites2-build",
 	version := v,
 	scalaVersion := "2.10.4",
 	scalacOptions ++= Seq("-deprecation", "-feature"),
-	libraryDependencies ++= libDeps ++ tomcatDeps("tomcat") ++ tomcatDeps("compile"))
+  ivyConfigurations += tomcatConfig,
+	libraryDependencies ++= libDeps )//++ tomcatDeps("tomcat") ++ tomcatDeps("compile"))
 
 val guiSettings = Seq(
-  fork in jfx := true,
-  mainClass in jfx := Some("agilesites.gui.Main"),
-  unmanagedJars in jfx <<= unmanagedJars in Compile,
-  unmanagedJars in Compile <+= Def.task {
+    fork in jfx := true,
+    mainClass in jfx := Some("agilesites.gui.Main"),
+    unmanagedJars in jfx <<= unmanagedJars in Compile,
+    unmanagedJars in Compile <+= Def.task {
     val javaHome = new File(System.getProperty("java.home"))
     val jfxJar = new File(javaHome, "lib/jfxrt.jar")
     if (!jfxJar.exists)
@@ -63,7 +67,6 @@ val guiSettings = Seq(
   })
 
 val plugin = project.in(file(".")).
-	configs(tomcat, jfx).
 	settings(btSettings: _*).
 	settings(mySettings : _*).
   settings(guiSettings: _*)

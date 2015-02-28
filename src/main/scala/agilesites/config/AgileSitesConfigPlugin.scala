@@ -18,10 +18,10 @@ object AgileSitesConfigPlugin
     // read all the properties in a single property map
     lazy val utilPropertyMap = settingKey[Map[String, String]]("AgileSites Property Map")
 
-    val sitesFocus = settingKey[String]("Sites' sites currently under focus")
-    val sitesInstallFolder = settingKey[File]("Sites installation folder")
+    val sitesFocus = settingKey[String]("Sites's sites currently under focus")
 
     val sitesVersion = settingKey[String]("Sites or Fatwire Version Number")
+    val sitesDirectory = settingKey[File]("Sites installation folder")
     val sitesHome = settingKey[String]("Sites Home Directory")
     val sitesShared = settingKey[String]("Sites Shared Directory")
     val sitesWebapp = settingKey[String]("Sites Webapp Directory")
@@ -37,15 +37,14 @@ object AgileSitesConfigPlugin
     val sitesPopulateDir = settingKey[String]("Sites Populate Dir")
     val sitesEnvisionDir = settingKey[String]("Sites Envision Dir")
 
+
     val satelliteWebapp = settingKey[String]("Sites Satellite Directory")
     val satelliteHome = settingKey[String]("Sites Satellite Home Directory")
     val satelliteUrl = settingKey[String]("Sites Satellite Url Directory")
     val satelliteUser = settingKey[String]("Satellite user ")
     val satellitePassword = settingKey[String]("Satellite password")
 
-    val sitesInstall = taskKey[Unit]("Sites installation task")
-    val sitesHello = taskKey[Option[String]]("Sites Hello")
-    val sitesServer = inputKey[Unit]("Launch Local Sites")
+    val sitesHello = taskKey[Option[String]]("Hello World, Sites!")
 
   }
 
@@ -55,20 +54,25 @@ object AgileSitesConfigPlugin
 
     utilProperties := Seq("agilesites.properties"),
 
+    // focus on which site?
     sitesFocus := utilPropertyMap.value.getOrElse("sites.focus", "Demo"),
 
+    // installation properties
+    sitesDirectory := file(utilPropertyMap.value.getOrElse("sites.directory",
+      System.getProperty("java.home") + java.io.File.separator + "sites" )),
+    sitesHome := utilPropertyMap.value.getOrElse("sites.home",
+      (sitesDirectory.value / "home").getAbsolutePath),
+    sitesShared := utilPropertyMap.value.getOrElse("sites.shared",
+      (sitesDirectory.value / "shared").getAbsolutePath),
+    sitesWebapp := utilPropertyMap.value.getOrElse("sites.webapp",
+      (sitesDirectory.value / "webapps" / "cs").getAbsolutePath),
+
+    // versions
     sitesVersion := utilPropertyMap.value.getOrElse("sites.version", "11.1.1.8.0"),
     sitesUser := utilPropertyMap.value.getOrElse("sites.user", "fwadmin"),
     sitesPassword := utilPropertyMap.value.getOrElse("sites.password", "xceladmin"),
     sitesAdminUser := utilPropertyMap.value.getOrElse("sites.admin.user", "ContentServer"),
     sitesAdminPassword := utilPropertyMap.value.getOrElse("sites.admin.password", "password"),
-
-    sitesHome := utilPropertyMap.value.getOrElse("sites.home",
-      (sitesInstallFolder.value / "home").getAbsolutePath),
-    sitesShared := utilPropertyMap.value.getOrElse("sites.shared",
-      (sitesInstallFolder.value / "shared").getAbsolutePath),
-    sitesWebapp := utilPropertyMap.value.getOrElse("sites.webapp",
-      (sitesInstallFolder.value / "webapps" / "cs").getAbsolutePath),
 
     sitesPort := utilPropertyMap.value.getOrElse("sites.port", "11880"),
     sitesHost := utilPropertyMap.value.getOrElse("sites.host", "localhost"),
@@ -86,6 +90,7 @@ object AgileSitesConfigPlugin
     satellitePassword := utilPropertyMap.value.getOrElse("satellite.password", "password"),
     satelliteUrl := utilPropertyMap.value.getOrElse("satellite.url",
       s"http://${sitesHost.value}:${sitesPort.value}/ss"),
+
     sitesHello := {
       helloSites(sitesUrl.value)
     }) ++ utilSettings ++ versionSettings
