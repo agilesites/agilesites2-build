@@ -1,4 +1,4 @@
-val v = "2.0-M1-SNAPSHOT"
+val v = scala.io.Source.fromFile(file("version.txt")).getLines.next.trim
 
 val tomcatConfig = config("tomcat")
 
