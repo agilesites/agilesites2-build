@@ -80,7 +80,6 @@ trait InstallerSettings extends Utils {
     (stream, po)
   }
 
-
   def stopTomcat(port: Int): Unit = {
     try {
       println("*** stopping Local Sites Server ***")
@@ -139,7 +138,6 @@ trait InstallerSettings extends Utils {
     var (stream, po) = installSitesPre(base)
     // switch to hsqldb
     agilesites.SwitchDb.main(Array(sitesHome.value, "HSQLDB"))
-
     // unzip csdt
     agilesites.Unzip.main(Array((base / "Sites" / "csdt.zip").getAbsolutePath, sitesHome.value))
 

@@ -1,22 +1,20 @@
 package agilesites.deploy
 
 import agilesites.Utils
-import agilesites.config.UtilSettings
 import sbt.Keys._
 import sbt._
 
 trait DeploySettings extends Utils {
-  this: AutoPlugin   =>
+  this: AutoPlugin =>
 
   import agilesites.config.AgileSitesConfigPlugin.autoImport._
   import agilesites.deploy.AgileSitesDeployPlugin.autoImport._
 
   // package jar task - build the jar and copy it  to destination 
-  lazy val asPackage = taskKey[Unit]("AgileSites package jar")
   val asPackageTask = asPackage := {
     val jar = (Keys.`package` in Compile).value
     val log = streams.value.log
-    asUploadTarget.value match {
+    asPackageTarget.value match {
       case Some(url) =>
         val targetUri = new java.net.URI(url)
         val proto = targetUri.getScheme
@@ -38,12 +36,11 @@ trait DeploySettings extends Utils {
           log.error("unknown protocol for asUploadTarget")
         }
       case None =>
-        val destdir = file(sitesShared.value) / "agilesites"
-        val destjar = file(sitesShared.value) / "agilesites" / jar.getName
-
-        destdir.mkdir
-        IO.copyFile(jar, destjar)
-        log.info("+++ " + destjar.getAbsolutePath)
+        val destDir = file(sitesShared.value) / "agilesites"
+        val destJar = file(sitesShared.value) / "agilesites" / jar.getName
+        destDir.mkdir
+        IO.copyFile(jar, destJar)
+        log.info("+++ " + destJar.getAbsolutePath)
     }
   }
 
@@ -86,10 +83,21 @@ trait DeploySettings extends Utils {
     }
   }
 
+  val asCopyStaticsTask = asCopyStatics := {
+    val base = baseDirectory.value
+    val tgt = sitesWebapp.value
+    val s = streams.value
+    val src = base / "src" / "main" / "static"
+    s.log.debug(" from" + src)
+    val l = recursiveCopy(src, file(tgt), s.log)(x => true)
+    println("*** copied " + (l.size) + " static files")
+  }
+
   // generate index classes from sources
   val generateIndexTask = Def.task {
-    val (analysis, dstDir, s) =
-      ((compile in Compile).value, (resourceManaged in Compile).value, streams.value)
+    val analysis = (compile in Compile).value
+    val dstDir = (resourceManaged in Compile).value
+    val s = streams.value
 
     val groupIndexed =
       analysis.apis.allInternalSources. // all the sources
@@ -109,20 +117,31 @@ trait DeploySettings extends Utils {
     l.toSeq
   }
 
+  val copyHtmlTask = Def.task {
+    val base = baseDirectory.value
+    val dstDir = (resourceManaged in Compile).value
+    val s = streams.value
+
+    val srcDir = base / "src" / "main" / "static"
+    s.log.debug("copyHtml from" + srcDir)
+    recursiveCopy(srcDir, dstDir, s.log)(isHtml)
+  }
+
   // copy resources to the webapp task
-  lazy val asDeploy = taskKey[Unit]("Sites deploy")
   val asDeployTask = asDeploy := {
     val log = streams.value.log
     val url = sitesUrl.value
     if (sitesHello.value.isEmpty) {
-      log.error(s"Sites must be up and running as s{url}.")
+      log.error(s"Sites must be up and running as ${url}.")
     } else {
       asPackage.value
+      asCopyStatics.value
       log.info(httpCall("Setup", "&sites=%s".format(sitesFocus.value), url, sitesUser.value, sitesPassword.value))
     }
   }
 
-  val deploySettings = Seq(asPackageTask, asDeployTask,
-    (resourceGenerators in Compile) ++= Seq(generateIndexTask.taskValue))
+  val deploySettings = Seq(asPackageTask, asDeployTask, asCopyStaticsTask,
+    asPackageTarget := utilPropertyMap.value.get("as.package.target"),
+    (resourceGenerators in Compile) ++= Seq(generateIndexTask.taskValue, copyHtmlTask.taskValue))
 
 }
