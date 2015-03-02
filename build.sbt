@@ -5,7 +5,7 @@ val tomcatConfig = config("tomcat")
 val jfx = config("jfx")
 
 val libDeps = Seq(
-   "com.sciabarra"           % "agilesites2-setup" % "2.0-M1-SNAPSHOT",
+   "com.sciabarra"           % "agilesites2-setup" % v,
    "org.scalatest"           %% "scalatest"      % "2.2.0" % "test",
    "org.clapper"             %% "scalasti"       % "1.0.0",
    "org.scalafx"             %% "scalafx"        % "2.2.76-R11",
