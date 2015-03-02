@@ -10,7 +10,8 @@ object AgileSitesSetupPlugin
   extends AutoPlugin
   with InstallerSettings
   with TomcatSettings
-  with ToolsSettings {
+  with ToolsSettings
+  with SetupSettings {
 
   override def requires = AgileSitesConfigPlugin
 
@@ -20,9 +21,10 @@ object AgileSitesSetupPlugin
   val pluginVersion = "2.0-M1"
 
   object autoImport {
-
-    lazy val tomcatClasspath = taskKey[Seq[File]]("tomcat classpath")
-    lazy val install = taskKey[Unit]("Sites installation task")
+    lazy val tomcatClasspath = taskKey[Seq[File]]("Tomcat Classpath")
+    lazy val sitesInstall = taskKey[Unit]("Sites installation task")
+    lazy val asInstall = taskKey[Unit]("AgileSites installation task")
+    lazy val asSetup = taskKey[Unit]("AgileSites Setup (Offline)")
     lazy val server = inputKey[Unit]("Launch Local Sites")
   }
 
@@ -31,6 +33,5 @@ object AgileSitesSetupPlugin
   override lazy val projectSettings = Seq(
     tomcatClasspath <<= (update) map {
       report => report.select(configurationFilter("tomcat"))
-    }) ++ installerSettings ++ tomcatSettings ++ toolsSettings
-
+    }) ++ tomcatSettings ++ toolsSettings ++ setupSettings ++ installerSettings
 }

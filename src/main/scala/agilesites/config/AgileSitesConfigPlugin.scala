@@ -34,9 +34,8 @@ object AgileSitesConfigPlugin
     val sitesPort = settingKey[String]("Sites Port")
 
     val sitesHost = settingKey[String]("Sites Host")
-    val sitesPopulateDir = settingKey[String]("Sites Populate Dir")
-    val sitesEnvisionDir = settingKey[String]("Sites Envision Dir")
-
+    val sitesPopulate = settingKey[String]("Sites Populate Dir")
+    val sitesEnvision = settingKey[String]("Sites Envision Dir")
 
     val satelliteWebapp = settingKey[String]("Sites Satellite Directory")
     val satelliteHome = settingKey[String]("Sites Satellite Home Directory")
@@ -66,6 +65,10 @@ object AgileSitesConfigPlugin
       (sitesDirectory.value / "shared").getAbsolutePath),
     sitesWebapp := utilPropertyMap.value.getOrElse("sites.webapp",
       (sitesDirectory.value / "webapps" / "cs").getAbsolutePath),
+    sitesPopulate := utilPropertyMap.value.getOrElse("sites.populate",
+      (baseDirectory.value / "export" / "populate").getAbsolutePath),
+    sitesEnvision := utilPropertyMap.value.getOrElse("sites.envision",
+      (baseDirectory.value / "export" / "envision").getAbsolutePath),
 
     // versions
     sitesVersion := utilPropertyMap.value.getOrElse("sites.version", "11.1.1.8.0"),
@@ -74,14 +77,10 @@ object AgileSitesConfigPlugin
     sitesAdminUser := utilPropertyMap.value.getOrElse("sites.admin.user", "ContentServer"),
     sitesAdminPassword := utilPropertyMap.value.getOrElse("sites.admin.password", "password"),
 
-    sitesPort := utilPropertyMap.value.getOrElse("sites.port", "11880"),
+    sitesPort := utilPropertyMap.value.getOrElse("sites.port", "11800"),
     sitesHost := utilPropertyMap.value.getOrElse("sites.host", "localhost"),
     sitesUrl := utilPropertyMap.value.getOrElse("sites.url",
       s"http://${sitesHost.value}:${sitesPort.value}/cs"),
-    sitesPopulateDir := utilPropertyMap.value.getOrElse("sites.populate",
-      (file(sitesHome.value) / "export" / "populate").getAbsolutePath),
-    sitesEnvisionDir := utilPropertyMap.value.getOrElse("sites.envision",
-      (file(sitesHome.value) / "export" / "envision").getAbsolutePath),
 
     satelliteWebapp := utilPropertyMap.value.getOrElse("satellite.webapp",
       (file(sitesWebapp.value).getParentFile / "ss").getAbsolutePath),

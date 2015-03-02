@@ -125,7 +125,7 @@ trait InstallerSettings extends Utils {
     println("======================")
   }
 
-  lazy val installTask = install := {
+  lazy val sitesInstallTask = sitesInstall := {
     val base = sitesDirectory.value
     if (!(base / "Sites" / "install.ini").exists())
       throw new Exception(s"there is not WebCenter Sites installer in the ${base} folder")
@@ -139,13 +139,17 @@ trait InstallerSettings extends Utils {
     var (stream, po) = installSitesPre(base)
     // switch to hsqldb
     agilesites.SwitchDb.main(Array(sitesHome.value, "HSQLDB"))
+
+    // unzip csdt
+    agilesites.Unzip.main(Array((base / "Sites" / "csdt.zip").getAbsolutePath, sitesHome.value))
+
     //startServer
     startTomcat(base, file(sitesHome.value), sitesPort.value.toInt, tomcatClasspath.value)
     // wait the start complete
-    sitesHello.value.nonEmpty
+    helloSites(sitesUrl.value)
     // complete the installation
     installSitesPost(stream, po)
   }
 
-  val installerSettings = Seq(installTask)
+  val installerSettings = Seq(sitesInstallTask)
 }

@@ -28,7 +28,7 @@ object AgileSitesPlugin
     state
   }
 
-  def downloadCmd = Command.command("download") { state =>
+  def downloadCmd = Command.command("sitesDownload") { state =>
 
     import AgileSitesConfigPlugin.autoImport._
     val extracted: Extracted = Project.extract(state)

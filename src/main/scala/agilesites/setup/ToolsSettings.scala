@@ -3,15 +3,13 @@ package agilesites.setup
 import java.io.File
 
 import agilesites.Utils
-import agilesites.config.{AgileSitesConfigPlugin, UtilSettings}
 import sbt.Keys._
 import sbt._
 
 trait ToolsSettings extends Utils {
-  this: AutoPlugin   =>
+  this: AutoPlugin =>
 
   import agilesites.config.AgileSitesConfigPlugin.autoImport._
-  import agilesites.setup.AgileSitesSetupPlugin.autoImport._
 
   // find the default workspace from sites
   def defaultWorkspace(sites: String) = normalizeSiteName(sites.split(",").head)
@@ -32,23 +30,23 @@ trait ToolsSettings extends Utils {
     val log = streams.value.log
     if (args.length == 0) {
       println( s"""usage: cman <cmd> [<dir>] [<options>....]])
-|<cmd> one of view, setup, import, import_all, export, export_all
-|<dir> defaults to "core" under sites/export/populate
-|<options> can be:
-|-b base URL (defaults to ${sitesUrl.value}/CatalogManager)
-|-u user name (defaults to ${sitesUser.value})
-|-p password (defaults to ${sitesPassword.value})
-|-s server name (optional)
-|-t catalog name (can be repeated, export only)
-|-f file to import
-|-c catalog data directory (optional)
-|-a ACL list (optional)
-|-i ini file(s) to merge (optional)
+                  |<cmd> one of view, setup, import, import_all, export, export_all
+                  |<dir> defaults to "core" under sites/export/populate
+                  |<options> can be:
+                  |-b base URL (defaults to ${sitesUrl.value}/CatalogManager)
+                                                               |-u user name (defaults to ${sitesUser.value})
+                                                                                                              |-p password (defaults to ${sitesPassword.value})
+                                                                                                                                                                |-s server name (optional)
+                                                                                                                                                                |-t catalog name (can be repeated, export only)
+                                                                                                                                                                |-f file to import
+                                                                                                                                                                |-c catalog data directory (optional)
+                                                                                                                                                                |-a ACL list (optional)
+                                                                                                                                                                |-i ini file(s) to merge (optional)
           """.stripMargin)
     } else {
 
       val cp = (Seq(file("bin").getAbsoluteFile) ++ cmovClasspath.value).mkString(java.io.File.pathSeparator)
-      val coreJar = (fullClasspath in Compile).value.files.filter(_.getName.startsWith("agilesites2-core")).head
+      val coreJar = update.value.matching({ x: ModuleID => x.name.startsWith("agilesites2-core")}).head
 
       if (sitesHello.value.isEmpty)
         throw new Exception(s"Web Center Sites must be online as s{sitesUrl.value}.")
@@ -56,7 +54,7 @@ trait ToolsSettings extends Utils {
       val cmd = if (args(0) == "setup") {
         if (coreJar.exists()) {
           log.info(s"extracting aaagile")
-          val populateDir = file(sitesPopulateDir.value)
+          val populateDir = file(sitesPopulate.value)
           IO.delete(populateDir / "aaagile")
           IO.unzip(coreJar, populateDir, GlobFilter("aaagile/*"))
           if ((populateDir / "aaagile").exists())
@@ -73,8 +71,8 @@ trait ToolsSettings extends Utils {
         else {
           val set = args.toSet
           val dir =
-            if (args.length > 1) file(sitesPopulateDir.value) / args(1)
-            else file(sitesPopulateDir.value) / "aaagile"
+            if (args.length > 1) file(sitesPopulate.value) / args(1)
+            else file(sitesPopulate.value) / "aaagile"
 
           println(dir, dir.isDirectory())
           if (!dir.isDirectory)
@@ -111,8 +109,7 @@ trait ToolsSettings extends Utils {
     val password = sitesPassword.value
     val seljars = csdtClasspath.value
     val log = streams.value.log
-    val envision = file(sitesEnvisionDir.value)
-
+    val envision = file(sitesEnvision.value)
 
     val sites = sitesFocus.value
     val defaultSite = sites.split(",").head
@@ -216,10 +213,8 @@ trait ToolsSettings extends Utils {
     }
   }
 
-
-
   val toolsSettings = Seq(cmovTask, csdtTask,
-    csdtHome := baseDirectory.value / "sites" / "home" / "csdt" / "csdt-client",
     cmovClasspathTask,
+    csdtHome := file(sitesHome.value) / "csdt-client",
     csdtClasspath := (csdtHome.value ** "*.jar").get)
 }

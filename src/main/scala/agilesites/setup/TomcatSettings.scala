@@ -10,7 +10,6 @@ import sbt._
 trait TomcatSettings extends Utils {
   this: AutoPlugin =>
 
-
   def tomcatOpts(base: File, home: File, port: Int, classpath: Seq[File], debug: Boolean) = {
 
     val bin = base / "bin"
