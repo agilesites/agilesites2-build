@@ -4,6 +4,8 @@ val tomcatConfig = config("tomcat")
 
 val jfx = config("jfx")
 
+val jfxJar = file(System.getProperty("java.home")) / "lib" / "jfxrt.jar"
+
 val libDeps = Seq(
    "com.sciabarra"           % "agilesites2-setup" % v,
    "org.scalatest"           %% "scalatest"      % "2.2.0" % "test",
@@ -38,13 +40,7 @@ val guiSettings = Seq(
     fork in jfx := true,
     mainClass in jfx := Some("agilesites.gui.Main"),
     unmanagedJars in jfx <<= unmanagedJars in Compile,
-    unmanagedJars in Compile <+= Def.task {
-      val javaHome = new File(System.getProperty("java.home"))
-      val jfxJar = new File(javaHome, "lib/jfxrt.jar")
-      if (!jfxJar.exists)
-        throw new RuntimeException("JavaFX not detected (needs Java runtime 7u06 or later): " + jfxJar.getPath) 
-      Attributed.blank(jfxJar)
-    })
+    unmanagedJars in Compile += Attributed.blank(jfxJar) )
 
 val plugin = project.in(file(".")).
   settings(btSettings: _*).
@@ -56,3 +52,5 @@ resolvers += Resolver.sonatypeRepo("releases")
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
 
 net.virtualvoid.sbt.graph.Plugin.graphSettings
+
+scalacOptions += "-target:jvm-1.6"
