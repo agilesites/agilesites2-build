@@ -34,14 +34,8 @@ trait ToolsSettings extends Utils {
                   |<dir> defaults to "core" under sites/export/populate
                   |<options> can be:
                   |-b base URL (defaults to ${sitesUrl.value}/CatalogManager)
-                                                               |-u user name (defaults to ${sitesUser.value})
-                                                                                                              |-p password (defaults to ${sitesPassword.value})
-                                                                                                                                                                |-s server name (optional)
-                                                                                                                                                                |-t catalog name (can be repeated, export only)
-                                                                                                                                                                |-f file to import
-                                                                                                                                                                |-c catalog data directory (optional)
-                                                                                                                                                                |-a ACL list (optional)
-                                                                                                                                                                |-i ini file(s) to merge (optional)
+                  |-u user name (defaults to ${sitesUser.value})
+                  |-p password (defaults to ${sitesPassword.value})
           """.stripMargin)
     } else {
 
