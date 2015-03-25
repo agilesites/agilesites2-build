@@ -1,7 +1,7 @@
 package agilesites.deploy
 
-import agilesites.config.AgileSitesConfigPlugin
 import sbt._
+import agilesites.config.AgileSitesConfigPlugin
 
 object AgileSitesDeployPlugin
   extends AutoPlugin

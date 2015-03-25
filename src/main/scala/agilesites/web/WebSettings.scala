@@ -34,7 +34,6 @@ trait WebSettings extends Utils with WebUtil {
     replacements.foldLeft(readFile(src))(rep _)
   }
 
-
   val webPackageTask = webPackage := {
     val src = webFolder.value
     val tgt = (resourceManaged in Compile).value

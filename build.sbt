@@ -7,7 +7,7 @@ val jfx = config("jfx")
 val jfxJar = file(System.getProperty("java.home")) / "lib" / "jfxrt.jar"
 
 val libDeps = Seq(
-   "com.sciabarra"           % "agilesites2-setup" % v,
+   "com.sciabarra"           % "agilesites2-setup_2.10" %  "2.0-M3",
    "org.scalatest"           %% "scalatest"      % "2.2.0" % "test",
    "org.clapper"             %% "scalasti"       % "1.0.0",
    "org.scalafx"             %% "scalafx"        % "2.2.76-R11",
@@ -54,3 +54,5 @@ addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.fu
 net.virtualvoid.sbt.graph.Plugin.graphSettings
 
 scalacOptions += "-target:jvm-1.6"
+
+javacOptions ++= Seq("-source", "1.6", "-target", "1.6")

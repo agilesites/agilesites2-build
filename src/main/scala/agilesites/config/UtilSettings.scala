@@ -21,12 +21,13 @@ trait UtilSettings extends Utils {
     for (prpFileName <- utilProperties.value) {
       val prpFile = file(prpFileName)
       if (!prpFile.exists) {
-        System.out.println("not found property file " + prpFile)
+        //System.out.println("not found property file " + prpFile)
       } else {
-        System.out.println("loading " + prpFile)
+        System.out.println(">>> " + prpFile)
         prp.load(new java.io.FileInputStream(prpFile))
       }
     }
+
     val map = prp.asScala.toMap
     for ((k, v) <- map)
       println(s"${k}=${v}")

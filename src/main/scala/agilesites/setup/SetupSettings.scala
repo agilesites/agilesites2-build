@@ -105,7 +105,7 @@ trait SetupSettings extends Utils {
     val webapp = sitesWebapp.value
     val version = sitesVersion.value
     val destLib = file(webapp) / "WEB-INF" / "lib"
-    val addJars = update.value.matching({ x: ModuleID => coreFilter(x.name) })
+    val addJars = update.value.matching({ x: ModuleID => coreFilter(x.name)})
     val removeJars = destLib.listFiles.filter(x => coreFilter(x.getName))
     setupCopyJars(destLib, addJars, removeJars)
   }
@@ -120,7 +120,7 @@ trait SetupSettings extends Utils {
     destLib.mkdirs()
 
     // jars to include when performing a setup
-    val addJars = update.value.matching({ x: ModuleID => apiFilter(x.name) })
+    val addJars = update.value.matching({ x: ModuleID => apiFilter(x.name)})
     //println(addJars)
 
     // jars to remove when performing a setup
@@ -180,73 +180,26 @@ trait SetupSettings extends Utils {
                |**** You need to complete installation with "asDeploy".""".stripMargin)
   }
 
-
-  /*
-
-  // select jars for the setup online
-  lazy val asInstallTomcatStop = taskKey[Unit]("stop tomcat")
-  lazy val asInstallTomcatStopTask = asInstallTomcatStop := {
-    stopTomcat(sitesPort.value.toInt)
-  }
-
-  lazy val asTomcatStart = taskKey[Unit]("start tomcat")
-  lazy val asTomcatStartTask = asTomcatStart := {
-    // starting tomcat
-    startTomcat(sitesDirectory.value, file(sitesHome.value), sitesPort.value.toInt, tomcatClasspath.value)
-    // wait the start complete
-    helloSites(sitesUrl.value)
-  }
-*/
-
-  //lazy val asInstallTask = Def.taskDyn {
-  //  server.fullInput("stop").evaluated andFinally asSetup andFinally server.fullInput("start") andFinally cmov.fullInput("setup")
-  //}
-
-
-  /*
-
-  lazy val asInstall = taskKey[Unit]("start tomcat")
-
-  lazy val asInstall1 = Def.task {
-    server.fullInput("stop")
-  }
-  lazy val asInstall2 = Def.task {
-    asSetup.value
-  }
-
-  lazy val asInstall3 = Def.task {
-    server.fullInput("start")
-  }
-
-  lazy val asInstall4 = Def.task {
-    cmov.fullInput("setup")
-  }
-
-  lazy val asInstallTask = asInstall := (asInstall1 andFinally asInstall2 andFinally asInstall3 andFinally asInstall4).taskValue
-
-  */
-
-  lazy val asInstall = taskKey[Unit]("start tomcat")
-
-  lazy val asInstallBody = Def.task {
-    println(">>> stoppping server")
-    server.fullInput("stop")
-  } andFinally Def.task {
-    println(">>> installing libs")
-    asSetup.value
-  } andFinally Def.task {
-    println(">>> starting server")
-    server.fullInput("start")
-  } andFinally Def.task {
-    println(">>> importing elements")
-    cmov.fullInput("setup")
-  }
-
+  lazy val asInstallStop = taskKey[Unit]("stop tomcat")
+  lazy val asInstallStart = taskKey[Unit]("start tomcat")
+  lazy val asInstallImport = taskKey[Unit]("import elements")
 
   val setupSettings = Seq(asSetupTask,
     asSetupServletRequestTask,
     asSetupFutureTenseIniTask,
     asSetupCopyJarsWebTask,
     asSetupCopyJarsLibTask,
-    asInstall := asInstallBody.value)
+    asInstallStop := {
+      System.out.println("stop")
+      server.fullInput("stop").value
+    },
+    asInstallStart := {
+      System.out.println("start")
+      server.fullInput("start").value
+    },
+    asInstallImport := {
+      System.out.println("import")
+      cmov.fullInput("setup").value
+    },
+    asInstall := Def.sequential(server.toTask(" stop"), asSetup, server.toTask(" start"), cmov.toTask(" setup")).value)
 }

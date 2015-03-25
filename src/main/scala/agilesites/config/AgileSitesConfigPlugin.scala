@@ -18,6 +18,7 @@ object AgileSitesConfigPlugin
     // read all the properties in a single property map
     lazy val utilPropertyMap = settingKey[Map[String, String]]("AgileSites Property Map")
 
+    val sitesHello = taskKey[Option[String]]("Hello World, Sites!")
     val sitesFocus = settingKey[String]("Sites's sites currently under focus")
 
     val sitesVersion = settingKey[String]("Sites or Fatwire Version Number")
@@ -43,7 +44,11 @@ object AgileSitesConfigPlugin
     val satelliteUser = settingKey[String]("Satellite user ")
     val satellitePassword = settingKey[String]("Satellite password")
 
-    val sitesHello = taskKey[Option[String]]("Hello World, Sites!")
+    val weblogicUrl = settingKey[String]("Weblogic Url")
+    val weblogicTargets = settingKey[String]("Weblogic Target")
+    val weblogicUser = settingKey[String]("Weblogic User")
+    val weblogicPassword = settingKey[String]("Weblogic Password")
+    val weblogicServer = settingKey[File]("Weblogic Server")
 
   }
 
@@ -51,7 +56,7 @@ object AgileSitesConfigPlugin
 
   override lazy val projectSettings = Seq(
 
-    utilProperties := Seq("agilesites.properties"),
+    utilProperties := Seq("agilesites.properties.dist", "agilesites.properties", "agilesites.properties.local"),
 
     // focus on which site?
     sitesFocus := utilPropertyMap.value.getOrElse("sites.focus", "Demo"),
@@ -90,8 +95,13 @@ object AgileSitesConfigPlugin
     satelliteUrl := utilPropertyMap.value.getOrElse("satellite.url",
       s"http://${sitesHost.value}:${sitesPort.value}/ss"),
 
+    weblogicUser := utilPropertyMap.value.getOrElse("weblogic.user", "weblogic"),
+    weblogicPassword := utilPropertyMap.value.getOrElse("weblogic.password", "password"),
+    weblogicUrl := utilPropertyMap.value.getOrElse("weblogic.url", "t3://localhost:7001"),
+    weblogicServer := file(utilPropertyMap.value.getOrElse("weblogic.server", "wlserver")),
+    weblogicTargets := utilPropertyMap.value.getOrElse("weblogic.targets", "AdminServer"),
+
     sitesHello := {
       helloSites(sitesUrl.value)
     }) ++ utilSettings ++ versionSettings
-
 }

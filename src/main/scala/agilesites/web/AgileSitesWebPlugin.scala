@@ -12,6 +12,8 @@ object AgileSitesWebPlugin
 
   override def requires = AgileSitesConfigPlugin
 
+  import agilesites.config.AgileSitesConfigPlugin.autoImport._
+
   object autoImport {
     lazy val webStatics = settingKey[String]("Statics Extensions")
     lazy val webStaticPrefix = settingKey[String]("Web Prefix for statics and fingerprinting")
@@ -20,9 +22,9 @@ object AgileSitesWebPlugin
     lazy val webExcludeFilter = taskKey[FileFilter]("Web Assets to exclude")
     lazy val webFingerPrintFilter = taskKey[FileFilter]("Web Assets to finger print")
     lazy val webPackage = taskKey[Seq[java.io.File]]("package web asset with finger printing")
+
   }
 
-  import agilesites.config.AgileSitesConfigPlugin.autoImport._
   import autoImport._
 
   override lazy val projectSettings = Seq(
