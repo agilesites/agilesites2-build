@@ -6,6 +6,8 @@ import sbt.Keys._
 import sbt._
 import java.io.File
 
+import sbt.plugins.JvmPlugin
+
 object AgileSitesSetupPlugin
   extends AutoPlugin
   with InstallerSettings
@@ -14,7 +16,7 @@ object AgileSitesSetupPlugin
   with ToolsSettings
   with SetupSettings {
 
-  override def requires = AgileSitesConfigPlugin
+  override def requires = AgileSitesConfigPlugin && JvmPlugin
 
   val tomcatConfig = "tomcat"
   val tomcatVersion = "7.0.52"
@@ -26,6 +28,8 @@ object AgileSitesSetupPlugin
     lazy val asInstall = taskKey[Unit]("AgileSites installation task")
     lazy val asSetup = taskKey[Unit]("AgileSites Setup (Offline)")
     lazy val weblogicDeploy = inputKey[Unit]("Weblogic Webapp Deploy")
+    lazy val weblogicRedeployCs = taskKey[Unit]("Weblogic Redeploy CS")
+    lazy val weblogicDeployPackage = taskKey[Unit]("Weblogic Redeploy CS")
     lazy val server = inputKey[Unit]("Launch Local Sites")
   }
 

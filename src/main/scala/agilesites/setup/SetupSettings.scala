@@ -163,8 +163,8 @@ trait SetupSettings extends Utils {
 
   val asSetupTask = asSetup := {
 
-    if (sitesHello.value.nonEmpty)
-      throw new Exception("Web Center Sites must be offline.")
+    //if (sitesHello.value.nonEmpty)
+    //  throw new Exception("Web Center Sites must be offline.")
 
     println("*** Installing AgileSites for WebCenter Sites ***");
 
@@ -180,26 +180,15 @@ trait SetupSettings extends Utils {
                |**** You need to complete installation with "asDeploy".""".stripMargin)
   }
 
-  lazy val asInstallStop = taskKey[Unit]("stop tomcat")
-  lazy val asInstallStart = taskKey[Unit]("start tomcat")
-  lazy val asInstallImport = taskKey[Unit]("import elements")
-
-  val setupSettings = Seq(asSetupTask,
+  val setupSettings = Seq(
+    asSetupTask,
     asSetupServletRequestTask,
     asSetupFutureTenseIniTask,
     asSetupCopyJarsWebTask,
     asSetupCopyJarsLibTask,
-    asInstallStop := {
-      System.out.println("stop")
-      server.fullInput("stop").value
-    },
-    asInstallStart := {
-      System.out.println("start")
-      server.fullInput("start").value
-    },
-    asInstallImport := {
-      System.out.println("import")
-      cmov.fullInput("setup").value
-    },
-    asInstall := Def.sequential(server.toTask(" stop"), asSetup, server.toTask(" start"), cmov.toTask(" setup")).value)
+    asInstall := Def.sequential(
+      server.toTask(" stop"),
+      asSetup,
+      server.toTask(" start"),
+      cmov.toTask(" setup")).value)
 }

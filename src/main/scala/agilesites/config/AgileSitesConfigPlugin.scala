@@ -26,10 +26,11 @@ object AgileSitesConfigPlugin
     val sitesHome = settingKey[String]("Sites Home Directory")
     val sitesShared = settingKey[String]("Sites Shared Directory")
     val sitesWebapp = settingKey[String]("Sites Webapp Directory")
+    val sitesWebappName = settingKey[String]("Sites Webapp Name")
 
     val sitesUrl = settingKey[String]("Sites URL")
-    val sitesUser = settingKey[String]("Sites user ")
-    val sitesPassword = settingKey[String]("Sites user password")
+    val sitesUser = settingKey[String]("Sites User ")
+    val sitesPassword = settingKey[String]("Sites Password")
     val sitesAdminUser = settingKey[String]("Sites admin user ")
     val sitesAdminPassword = settingKey[String]("Sites admin password")
     val sitesPort = settingKey[String]("Sites Port")
@@ -70,6 +71,9 @@ object AgileSitesConfigPlugin
       (sitesDirectory.value / "shared").getAbsolutePath),
     sitesWebapp := utilPropertyMap.value.getOrElse("sites.webapp",
       (sitesDirectory.value / "webapps" / "cs").getAbsolutePath),
+    sitesWebappName := utilPropertyMap.value.getOrElse("sites.webapp.name",
+      ( file(sitesWebapp.value).getName )),
+
     sitesPopulate := utilPropertyMap.value.getOrElse("sites.populate",
       (baseDirectory.value / "export" / "populate").getAbsolutePath),
     sitesEnvision := utilPropertyMap.value.getOrElse("sites.envision",

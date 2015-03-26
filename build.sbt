@@ -7,7 +7,9 @@ val jfx = config("jfx")
 val jfxJar = file(System.getProperty("java.home")) / "lib" / "jfxrt.jar"
 
 val libDeps = Seq(
-   "com.sciabarra"           % "agilesites2-setup_2.10" %  "2.0-M3",
+   "org.scalafx"             %% "scalafx" % "2.2.76-R11",
+   "org.scalafx"             %% "scalafxml-core" % "0.2.1",
+   "com.sciabarra"           % "agilesites2-setup" % "2.0-M4",
    "org.scalatest"           %% "scalatest"      % "2.2.0" % "test",
    "org.clapper"             %% "scalasti"       % "1.0.0",
    "org.scalafx"             %% "scalafx"        % "2.2.76-R11",
@@ -16,7 +18,7 @@ val libDeps = Seq(
    "org.jsoup"               % "jsoup"           % "1.7.3",
    "com.jcraft"              % "jsch"            % "0.1.51",
    "commons-io"              % "commons-io"      % "2.4",
-   "fr.inria.gforge.spoon"   % "spoon-core"      % "2.3.1",
+   //"fr.inria.gforge.spoon"   % "spoon-core"      % "2.3.1",
    "commons-httpclient"      % "commons-httpclient"   % "3.1")
 
 val btSettings = bintrayPublishSettings ++ Seq(
