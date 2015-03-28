@@ -165,7 +165,8 @@ class Downloader(
       println("downloading " + url)
 
       val conn = url.openConnection()
-      fileSize = conn.getHeaderFieldLong("Content-Length", -1)
+      fileSize = conn.
+        getHeaderFieldLong("Content-Length", -1)
       if (fileSize > 0) {
         println("size = " + fileSize.toString)
         val thread = new Thread(DownloadWorker)

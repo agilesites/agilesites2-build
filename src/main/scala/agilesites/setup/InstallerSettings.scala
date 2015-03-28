@@ -14,6 +14,39 @@ trait InstallerSettings extends Utils {
   import agilesites.config.AgileSitesConfigPlugin.autoImport._
   import agilesites.setup.AgileSitesSetupPlugin.autoImport._
 
+  def initProxies(base: File, map: Map[String, String]): Unit = {
+    val proxies = map("proxies")
+    if (proxies != null)
+      for (proxy <- proxies.split(",")) {
+        val target = map(s"proxy.${proxy}")
+        if (target != null) {
+          println(s"Proxy: ${proxy} -> ${target}")
+          val webInf = base / "webapps" / proxy / "WEB-INF"
+          webInf.mkdirs()
+          writeFile(webInf / "web.xml",
+            s"""<?xml version="1.0" encoding="UTF-8"?>
+<web-app>
+    <servlet>
+        <servlet-name>proxy</servlet-name>
+        <servlet-class>org.mitre.dsmiley.httpproxy.ProxyServlet</servlet-class>
+        <init-param>
+            <param-name>targetUri</param-name>
+            <param-value>${target}</param-value>
+        </init-param>
+        <init-param>
+            <param-name>log</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>proxy</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+</web-app>""", null)
+        }
+      }
+  }
+
   def initFolders(base: File): Unit = {
 
     val data = base / "shared" / "data"
@@ -45,6 +78,7 @@ trait InstallerSettings extends Utils {
   </Context>""", null)
 
   }
+
 
   def silentInstaller(base: File, host: String, port: String): Unit = {
     // $SETUP agilesites.SilentSites "$BASE" $BASE/misc/silentinstaller/generic_omii.ini $BASE/Sites/install.ini $BASE/Sites/omii.ini $HOST $PORT $DB
@@ -124,14 +158,23 @@ trait InstallerSettings extends Utils {
     println("======================")
   }
 
+  lazy val proxyInstallTask = proxyInstall := {
+    initProxies(sitesDirectory.value, utilPropertyMap.value)
+  }
+
   lazy val sitesInstallTask = sitesInstall := {
+
+    proxyInstall.value
+
     val base = sitesDirectory.value
+
     if (!(base / "Sites" / "install.ini").exists())
       throw new Exception(s"there is not WebCenter Sites installer in the ${base} folder")
     stopTomcat(sitesPort.value.toInt)
 
     // initialize
     initFolders(base)
+
     // configure the silent installer
     silentInstaller(base, sitesHost.value, sitesPort.value)
     // fist part of the installation
@@ -149,5 +192,5 @@ trait InstallerSettings extends Utils {
     installSitesPost(stream, po)
   }
 
-  val installerSettings = Seq(sitesInstallTask)
+  val installerSettings = Seq(proxyInstallTask, sitesInstallTask)
 }

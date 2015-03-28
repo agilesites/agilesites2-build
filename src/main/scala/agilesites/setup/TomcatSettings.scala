@@ -3,12 +3,14 @@ package agilesites.setup
 import java.io.File
 
 import agilesites.Utils
-import agilesites.config.AgileSitesConfigPlugin
 import sbt.Keys._
 import sbt._
 
 trait TomcatSettings extends Utils {
   this: AutoPlugin =>
+
+  lazy val serverStop = taskKey[Unit]("Start Local Sites")
+  lazy val serverStart = taskKey[Unit]("Stop Local Sites")
 
   def tomcatOpts(base: File, home: File, port: Int, classpath: Seq[File], debug: Boolean) = {
 
@@ -72,7 +74,7 @@ trait TomcatSettings extends Utils {
 
     //println(script)
 
-    writeFile(new File("server."+ext), script, log)
+    writeFile(new File("server." + ext), script, log)
     println("+++ created server." + ext)
   }
 
@@ -147,6 +149,11 @@ trait TomcatSettings extends Utils {
 
   }
 
-
-  val tomcatSettings = Seq(serverTask)
+  val tomcatSettings = Seq(serverTask,
+    serverStop := {
+      server.toTask(" stop").value
+    },
+    serverStart := {
+      server.toTask(" start").value
+    })
 }

@@ -1,6 +1,7 @@
 package agilesites.config
 
-import sbt._, Keys._
+import sbt.Keys._
+import sbt._
 import sbt.plugins.JvmPlugin
 
 object AgileSitesConfigPlugin
@@ -55,16 +56,20 @@ object AgileSitesConfigPlugin
 
   import agilesites.config.AgileSitesConfigPlugin.autoImport._
 
+  val profile = Option(System.getProperty("profile")).map(Seq(_)).getOrElse(Nil)
+
+  val propertyFiles = Seq("agilesites.dist.properties",
+    "agilesites.properties",
+    "agilesites.local.properties") ++ profile.map(x => s"agilesites.${x}.properties")
+
+
   override lazy val projectSettings = Seq(
-
-    utilProperties := Seq("agilesites.properties.dist", "agilesites.properties", "agilesites.properties.local"),
-
+    utilProperties := propertyFiles,
     // focus on which site?
     sitesFocus := utilPropertyMap.value.getOrElse("sites.focus", "Demo"),
-
     // installation properties
     sitesDirectory := file(utilPropertyMap.value.getOrElse("sites.directory",
-      (baseDirectory.value  /  "sites" ).getAbsolutePath)),
+      (baseDirectory.value / "sites").getAbsolutePath)),
     sitesHome := utilPropertyMap.value.getOrElse("sites.home",
       (sitesDirectory.value / "home").getAbsolutePath),
     sitesShared := utilPropertyMap.value.getOrElse("sites.shared",
@@ -72,7 +77,7 @@ object AgileSitesConfigPlugin
     sitesWebapp := utilPropertyMap.value.getOrElse("sites.webapp",
       (sitesDirectory.value / "webapps" / "cs").getAbsolutePath),
     sitesWebappName := utilPropertyMap.value.getOrElse("sites.webapp.name",
-      ( file(sitesWebapp.value).getName )),
+      (file(sitesWebapp.value).getName)),
 
     sitesPopulate := utilPropertyMap.value.getOrElse("sites.populate",
       (baseDirectory.value / "export" / "populate").getAbsolutePath),

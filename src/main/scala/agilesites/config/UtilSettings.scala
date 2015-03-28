@@ -16,7 +16,7 @@ trait UtilSettings extends Utils {
 
   import agilesites.config.AgileSitesConfigPlugin.autoImport._
 
-   lazy val utilPropertyMapTask = utilPropertyMap := {
+  lazy val utilPropertyMapTask = utilPropertyMap := {
     val prp: Properties = new Properties
     for (prpFileName <- utilProperties.value) {
       val prpFile = file(prpFileName)
@@ -37,7 +37,9 @@ trait UtilSettings extends Utils {
 
   // display a prompt with the project name
   lazy val utilShellPromptTask = shellPrompt in ThisBuild := {
-    state => Project.extract(state).currentRef.project + "> "
+    state =>
+      Project.extract(state).currentRef.project +
+        Option(System.getProperty("profile")).map("[" + _ + "]> ").getOrElse("> ")
   }
 
   val utilSettings = Seq(

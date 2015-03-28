@@ -18,18 +18,17 @@ object AgileSitesSetupPlugin
 
   override def requires = AgileSitesConfigPlugin && JvmPlugin
 
-  val tomcatConfig = "tomcat"
-  val tomcatVersion = "7.0.52"
-  val hsqlVersion = "1.8.0.10"
-
   object autoImport {
     lazy val tomcatClasspath = taskKey[Seq[File]]("Tomcat Classpath")
     lazy val sitesInstall = taskKey[Unit]("Sites installation task")
-    lazy val asInstall = taskKey[Unit]("AgileSites installation task")
-    lazy val asSetup = taskKey[Unit]("AgileSites Setup (Offline)")
+    lazy val proxyInstall = taskKey[Unit]("Proxy installation task")
+    lazy val asSetupOffline = taskKey[Unit]("AgileSites Setup (Offline)")
+    lazy val asSetupOnline = taskKey[Unit]("AgileSites Setup (Offline)")
+    lazy val asSetup = taskKey[Unit]("AgileSites installation task for local sites")
+    lazy val asSetupWeblogic = taskKey[Unit]("AgileSites installation task for Weblogic")
     lazy val weblogicDeploy = inputKey[Unit]("Weblogic Webapp Deploy")
     lazy val weblogicRedeployCs = taskKey[Unit]("Weblogic Redeploy CS")
-    lazy val weblogicDeployPackage = taskKey[Unit]("Weblogic Redeploy CS")
+    lazy val weblogicRedeployPackage = taskKey[Unit]("Weblogic Redeploy CS")
     lazy val server = inputKey[Unit]("Launch Local Sites")
   }
 

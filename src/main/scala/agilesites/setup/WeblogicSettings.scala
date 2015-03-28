@@ -56,17 +56,18 @@ trait WeblogicSettings extends Utils {
     weblogicDeployer("-name", sitesWebappName.value, "-redeploy")(url, user, password, targets, wlserver)
   }
 
-  val weblogicDeployPackageTask = weblogicDeployPackage := {
+  val weblogicRedeployPackageTask = weblogicRedeployPackage := {
 
     implicit val url = weblogicUrl.value
     implicit val user = weblogicUser.value
     implicit val password = weblogicPassword.value
     implicit val targets = weblogicTargets.value
     implicit val wlserver = weblogicServer.value
-
     val pkg = (Keys.`package` in Compile).value
+
+    weblogicDeployer("-name", Keys.name.value, "-undeploy")(url, user, password, targets, wlserver)
     weblogicDeployer("-name", Keys.name.value, "-deploy", pkg.getAbsolutePath)(url, user, password, targets, wlserver)
   }
 
-  val weblogicSettings = Seq(weblogicDeployTask, weblogicRedeployCsTask, weblogicDeployPackageTask)
+  val weblogicSettings = Seq(weblogicRedeployPackageTask, weblogicRedeployCsTask, weblogicDeployTask)
 }

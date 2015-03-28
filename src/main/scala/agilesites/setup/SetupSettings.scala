@@ -10,7 +10,7 @@ import sbt._
  * Created by msciab on 01/03/15.
  */
 trait SetupSettings extends Utils {
-  this: AutoPlugin with InstallerSettings with ToolsSettings =>
+  this: AutoPlugin with InstallerSettings with ToolsSettings with TomcatSettings =>
 
   // jars to be added to the wcs-setup
   def coreFilter(x: String) = x.startsWith("agilesites2-core")
@@ -136,7 +136,6 @@ trait SetupSettings extends Utils {
         println("- " + parentFile.getAbsolutePath)
       }
     }
-
   }
 
   // copy jars filtering and and remove
@@ -161,7 +160,7 @@ trait SetupSettings extends Utils {
 
   }
 
-  val asSetupTask = asSetup := {
+  val asSetupOfflineTask = asSetupOffline := {
 
     //if (sitesHello.value.nonEmpty)
     //  throw new Exception("Web Center Sites must be offline.")
@@ -171,24 +170,34 @@ trait SetupSettings extends Utils {
     // configuring
     asSetupServletRequest.value
     asSetupFutureTenseIni.value
+
     // installing jars
     asSetupCopyJarsWeb.value
     asSetupCopyJarsLib.value
-
     println( """**** Setup Complete.
                |**** Please restart your application server.
                |**** You need to complete installation with "asDeploy".""".stripMargin)
   }
 
+  //val asSetupOnlineTask = cmov.fullInput(" setup").parsed
+
   val setupSettings = Seq(
-    asSetupTask,
+    asSetupOfflineTask,
     asSetupServletRequestTask,
     asSetupFutureTenseIniTask,
     asSetupCopyJarsWebTask,
     asSetupCopyJarsLibTask,
-    asInstall := Def.sequential(
-      server.toTask(" stop"),
-      asSetup,
-      server.toTask(" start"),
-      cmov.toTask(" setup")).value)
+    asSetupOnline := {
+      cmov.toTask(" setup").value
+    },
+    asSetupWeblogic := Def.sequential(
+      asSetupOffline,
+      weblogicRedeployCs,
+      asSetupOnline
+    ).value,
+    asSetup := Def.sequential(
+      serverStop,
+      asSetupOffline,
+      serverStart,
+      asSetupOnline).value)
 }
