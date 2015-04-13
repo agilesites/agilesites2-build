@@ -35,8 +35,8 @@ object AgileSitesConfigPlugin
     val sitesAdminUser = settingKey[String]("Sites admin user ")
     val sitesAdminPassword = settingKey[String]("Sites admin password")
     val sitesPort = settingKey[String]("Sites Port")
-
     val sitesHost = settingKey[String]("Sites Host")
+
     val sitesPopulate = settingKey[String]("Sites Populate Dir")
     val sitesEnvision = settingKey[String]("Sites Envision Dir")
 

@@ -5,7 +5,6 @@ import Defaults._
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.xpath.XPathFactory
 import javax.xml.xpath.XPathExpression
-import javax.xml.xpath.XPathConstants
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.OutputKeys
 import javax.xml.transform.stream.StreamResult

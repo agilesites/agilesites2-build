@@ -15,9 +15,9 @@ trait InstallerSettings extends Utils {
   import agilesites.setup.AgileSitesSetupPlugin.autoImport._
 
   def initProxies(base: File, map: Map[String, String]): Unit = {
-    val proxies = map("proxies")
-    if (proxies != null)
-      for (proxy <- proxies.split(",")) {
+    val proxies = map.get("proxies")
+    if (proxies.nonEmpty)
+      for (proxy <- proxies.get.split(",")) {
         val target = map(s"proxy.${proxy}")
         if (target != null) {
           println(s"Proxy: ${proxy} -> ${target}")
@@ -55,6 +55,7 @@ trait InstallerSettings extends Utils {
     val temp = base / "temp"
     val logs = base / "logs"
     val work = base / "work"
+    val bin = base / "bin"
 
     data.mkdirs()
     metaInf.mkdirs()
@@ -62,6 +63,7 @@ trait InstallerSettings extends Utils {
     temp.mkdirs()
     logs.mkdirs()
     work.mkdirs()
+    bin.mkdirs()
 
     writeFile(metaInf / "context.xml",
       s"""<Context path="/cs">
@@ -77,8 +79,12 @@ trait InstallerSettings extends Utils {
     url="jdbc:hsqldb:${data.getAbsolutePath}/csDB"/>
   </Context>""", null)
 
+    writeFileFromResource(bin / "antisamy-esapi.xml", "/antisamy-esapi.xml", null)
+    writeFileFromResource(bin / "ehcache.xml", "/ehcache.xml", null)
+    writeFileFromResource(bin / "ESAPI.properties", "/ESAPI.properties", null)
+    writeFileFromResource(bin / "log4j.properties", "/log4j.properties", null)
+    writeFileFromResource(bin / "validation.properties", "/validation.properties", null)
   }
-
 
   def silentInstaller(base: File, host: String, port: String): Unit = {
     // $SETUP agilesites.SilentSites "$BASE" $BASE/misc/silentinstaller/generic_omii.ini $BASE/Sites/install.ini $BASE/Sites/omii.ini $HOST $PORT $DB
@@ -114,26 +120,15 @@ trait InstallerSettings extends Utils {
     (stream, po)
   }
 
-  def stopTomcat(port: Int): Unit = {
-    try {
-      println("*** stopping Local Sites Server ***")
-      def sock = new java.net.Socket("127.0.0.1", port + 1)
-      sock.getInputStream.read
-      sock.close
-      println("*** stopped Local Server Sites ***")
-    } catch {
-      case e: Throwable =>
-        // e.printStackTrace
-        println("Local Sites Server not running")
-    }
+  def stopTomcat(base: File, home: File, port: Int, cp: Seq[File]): Unit = {
+    tomcatEmbedded("stop", base, home, port, cp, false)
   }
 
   def startTomcat(base: File, home: File, port: Int, cp: Seq[File]) {
     val tomcat = new Thread() {
       override def run() {
         try {
-          //tomcatEmbedded(base, file(sitesHome.value), sitesPort.value.toInt, tomcatClasspath.value, false)
-          tomcatEmbedded(base, home, port, cp, false)
+          tomcatEmbedded("start", base, home, port, cp, false)
         } catch {
           case e: Throwable =>
             println("!!! Local Sites Server already running")
@@ -156,6 +151,12 @@ trait InstallerSettings extends Utils {
     }
     po.write('\n')
     println("======================")
+
+    try {
+      po.close
+    } catch {
+      case _: Throwable =>
+    }
   }
 
   lazy val proxyInstallTask = proxyInstall := {
@@ -170,7 +171,7 @@ trait InstallerSettings extends Utils {
 
     if (!(base / "Sites" / "install.ini").exists())
       throw new Exception(s"there is not WebCenter Sites installer in the ${base} folder")
-    stopTomcat(sitesPort.value.toInt)
+    stopTomcat(base, file(sitesHome.value), sitesPort.value.toInt, tomcatClasspath.value)
 
     // initialize
     initFolders(base)
@@ -190,6 +191,7 @@ trait InstallerSettings extends Utils {
     helloSites(sitesUrl.value)
     // complete the installation
     installSitesPost(stream, po)
+
   }
 
   val installerSettings = Seq(proxyInstallTask, sitesInstallTask)

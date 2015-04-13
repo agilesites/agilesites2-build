@@ -40,6 +40,19 @@ trait Utils {
     w.close()
   }
 
+  def writeFileFromResource(file: File, resource: String, log: sbt.Logger) = {
+
+    println(">>> %s\n".format(resource))
+
+    val is = this.getClass.getResourceAsStream(resource)
+    val sc = new java.util.Scanner(is).useDelimiter("\\A");
+
+    if(sc.hasNext())
+      writeFile(file, sc.next, log)
+    else
+      writeFile(file, "", log)
+  }
+
   // is an html file?
   def isHtml(f: File) = ("\\.html?$".r findFirstIn f.getName.toLowerCase).nonEmpty
 
@@ -92,7 +105,7 @@ trait Utils {
 
     //println(siteList)
     val out = for (site <- siteList) yield {
-      val req = "%s/ContentServer?pagename=AAAgile%s&username=%s&password=%s%s%s"
+      val req = "%s/Satellite?pagename=AAAgile%s&username=%s&password=%s%s%s"
         .format(url, op, user, pass, option, site)
       println(">>> " + req + "")
       httpCallRaw(req)

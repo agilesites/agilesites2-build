@@ -4,7 +4,7 @@ import agilesites.Utils
 import sbt.Keys._
 import sbt._
 
-trait DeploySettings extends Utils {
+trait DeploySettings extends Utils with DeployUtil {
   this: AutoPlugin =>
 
   import agilesites.config.AgileSitesConfigPlugin.autoImport._
@@ -32,6 +32,9 @@ trait DeploySettings extends Utils {
             log.error("!!! cannot upload ")
           else
             log.info("+++ uploaded " + url)
+        } else if (proto == "http") {
+          val Array(user, pass) = targetUri.getUserInfo.split(":")
+          uploadJar(new URL(url), jar, log, user, pass)
         } else {
           log.error("unknown protocol for asUploadTarget")
         }
@@ -44,44 +47,6 @@ trait DeploySettings extends Utils {
     }
   }
 
-  /**
-   * Extract the index of the classes annotated with the @Index annotation
-   */
-  def extractClassAndIndex(file: File): Option[Tuple2[String, String]] = {
-    import scala.io._
-
-    //println("***" + file)
-
-    var packageRes: Option[String] = None;
-    var indexRes: Option[String] = None;
-    var classRes: Option[String] = None;
-    val packageRe = """.*package\s+([\w\.]+)\s*;.*""".r;
-    val indexRe = """.*@Index\(\"(.*?)\"\).*""".r;
-    val classRe = """.*class\s+(\w+).*""".r;
-
-    if (file.getName.endsWith(".java") || file.getName.endsWith(".scala"))
-      for (line <- Source.fromFile(file).getLines) {
-        line match {
-          case packageRe(m) =>
-            //println(line + ":" + m)
-            packageRes = Some(m)
-          case indexRe(m) =>
-            //println(line + ":" + m)
-            indexRes = Some(m)
-          case classRe(m) =>
-            //println(line + ":" + m)
-            classRes = Some(m)
-          case _ => ()
-        }
-      }
-
-    if (packageRes.isEmpty || indexRes.isEmpty || classRes.isEmpty)
-      None
-    else {
-      val t = (indexRes.get, packageRes.get + "." + classRes.get)
-      Some(t)
-    }
-  }
 
   val asCopyStaticsTask = asCopyStatics := {
     val base = baseDirectory.value
@@ -104,7 +69,7 @@ trait DeploySettings extends Utils {
         map(extractClassAndIndex(_)). // list of Some(index, class) or Nome
         flatMap(x => x). // remove None
         groupBy(_._1). // group by (index, (index, List(class)) 
-        map { x => (x._1, x._2 map (_._2))}; // lift to (index, List(class))
+        map { x => (x._1, x._2 map (_._2)) }; // lift to (index, List(class))
 
     //println(groupIndexed)
 
@@ -140,8 +105,22 @@ trait DeploySettings extends Utils {
     }
   }
 
-  val deploySettings = Seq(asPackageTask, asDeployTask, asCopyStaticsTask,
+  // package upload
+  val asUploadTask = asUpload := {
+    uploadJar(
+      new URL(sitesUrl.value),
+      (Keys.`package` in Compile).value,
+      streams.value.log,
+      sitesUser.value,
+      sitesPassword.value)
+  }
+
+  val deploySettings = Seq(asPackageTask,
+    asDeployTask,
+    asCopyStaticsTask,
+    asUploadTask,
     asPackageTarget := utilPropertyMap.value.get("as.package.target"),
-    (resourceGenerators in Compile) ++= Seq(generateIndexTask.taskValue, copyHtmlTask.taskValue))
+    (resourceGenerators in Compile) ++= Seq(generateIndexTask.taskValue,
+      copyHtmlTask.taskValue))
 
 }

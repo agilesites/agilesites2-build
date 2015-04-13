@@ -90,7 +90,7 @@ trait ToolsSettings extends Utils {
   }
 
   lazy val csdtHome = settingKey[File]("CSDT Client Home")
-  lazy val csdtClasspath = settingKey[Seq[File]]("CSDT Client Classpath")
+  lazy val csdtClasspath = taskKey[Seq[File]]("CSDT Client Classpath")
 
   // interface to csdt from sbt
   lazy val csdt = inputKey[Unit]("Content Server Development Tool")

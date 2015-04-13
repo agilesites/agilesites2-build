@@ -12,7 +12,7 @@ trait TomcatSettings extends Utils {
   lazy val serverStop = taskKey[Unit]("Start Local Sites")
   lazy val serverStart = taskKey[Unit]("Stop Local Sites")
 
-  def tomcatOpts(base: File, home: File, port: Int, classpath: Seq[File], debug: Boolean) = {
+  def tomcatOpts(cmd: String, base: File, home: File, port: Int, classpath: Seq[File], debug: Boolean) = {
 
     val bin = base / "bin"
     val homeBin = home / "bin"
@@ -28,21 +28,26 @@ trait TomcatSettings extends Utils {
       "-Djava.net.preferIPv4Stack=true" ::
       "-Djava.io.tmpdir=" + (temp.getAbsolutePath) ::
       "-Dfile.encoding=UTF-8" :: "-Duser.timezone=UTC" ::
-      "-Dnet.sf.ehcache.enableShutdownHook=true" ::
       "-Dorg.owasp.esapi.resources=$BASE/bin" ::
       "-Xms256m" :: "-Xmx1024m" :: "-XX:MaxPermSize=256m" ::
-      s"-Dorg.owasp.esapi.resources=${bin.getAbsolutePath}" :: debugSeq
+      s"-Dorg.owasp.esapi.resources=${bin.getAbsolutePath}" ::
+      "-Dnet.sf.ehcache.enableShutdownHook=true" ::
+      debugSeq
 
-    val args = Seq("agilesites.SitesServer", port.toString, base.getAbsolutePath)
+    val args = Seq("agilesites.SitesServer") ++ (cmd match {
+      case "start" => Seq(port.toString, base.getAbsolutePath)
+      case "stop" => Seq("stop", port.toString)
+      case "status" => Seq("status", port.toString)
+    })
 
     val env = Map("CATALINA_HOME" -> base.getAbsolutePath);
 
     (opts, args, env)
   }
 
-  def tomcatEmbedded(base: File, home: File, port: Int, classpath: Seq[File], debug: Boolean) = {
+  def tomcatEmbedded(cmd: String, base: File, home: File, port: Int, classpath: Seq[File], debug: Boolean) = {
 
-    val (opts, args, env) = tomcatOpts(base, home, port, classpath, debug)
+    val (opts, args, env) = tomcatOpts(cmd: String, base, home, port, classpath, debug)
 
     //println (opts)
 
@@ -55,7 +60,7 @@ trait TomcatSettings extends Utils {
   }
 
   def tomcatScript(base: File, home: File, port: Int, classpath: Seq[File], debug: Boolean, log: Logger) = {
-    val (opts, args, env) = tomcatOpts(base, home, port, classpath, debug)
+    val (opts, args, env) = tomcatOpts("start", base, home, port, classpath, debug)
 
     val (set, ext, prefix) = if (File.pathSeparatorChar == ':')
       ("export", "sh", "#!/bin/sh")
@@ -94,58 +99,47 @@ trait TomcatSettings extends Utils {
     val cas = file("webapps") / "cas"
     val debug = args.size == 2 && args(1) == "debug"
 
-    val usage = "usage: start [debug]|stop|status|script [debug]"
+    val usage = "usage: start  [debug]|stop|status|script [debug]"
 
-    args.headOption match {
-      case None => println(usage)
+    val ftcs = file(sitesWebapp.value) / "WEB-INF" / "futuretense_cs"
+    if (!ftcs.exists())
+      println(s"Sites not installed in ${sitesWebapp.value}")
+    else
+      args.headOption match {
+        case None => println(usage)
 
-      case Some("status") =>
-        try {
-          new java.net.ServerSocket(port + 1).close
-          println("Local Sites Server not running")
-        } catch {
-          case e: Throwable =>
-            println("Local Sites Server running")
-        }
+        case Some("status") =>
+          tomcatEmbedded("status", base, home, port, classpath, debug)
 
-      case Some("stop") =>
-        try {
-          println("*** stopping Local Sites Server ***")
-          def sock = new java.net.Socket("127.0.0.1", port + 1)
-          sock.getInputStream.read
-          sock.close
-          println("*** stopped Local Server Sites ***")
-        } catch {
-          case e: Throwable =>
-            // e.printStackTrace
-            println("Local Sites Server not running")
-        }
+        case Some("stop") =>
+          tomcatEmbedded("stop", base, home, port, classpath, debug)
 
-      case Some("start") =>
-
-        val tomcat = new Thread() {
-          override def run() {
-            try {
-              println(s"*** Local Sites Server starting in port ${port}***")
-              val tomcatProcess = tomcatEmbedded(base, home, port, classpath, debug)
-            } catch {
-              case e: Throwable =>
-                //e.printStackTrace
-                println("!!! Local Sites Server already running")
+        case Some("start") =>
+          val tomcat = new Thread() {
+            override def run() {
+              try {
+                println(s"*** Local Sites Server starting in port ${port} ***")
+                val tomcatProcess = tomcatEmbedded("start", base, home, port, classpath, debug)
+              } catch {
+                case e: Throwable =>
+                  e.printStackTrace
+                  println(s"!!! Cannot start (Sites Server already running?)\nError: ${e.getMessage()}")
+              }
             }
           }
-        }
-        tomcat.start
-        Thread.sleep(3000);
-        println(" *** Waiting for Local Sites Server startup to complete ***")
-        println(httpCallRaw(url + "/HelloCS"))
+          tomcat.start
+          Thread.sleep(3000);
+          if (tomcat.isAlive()) {
+            println(" *** Waiting for Local Sites Server startup to complete ***")
+            println(httpCallRaw(url + "/HelloCS"))
+          }
 
-      case Some("script") =>
-        tomcatScript(base, home, port, classpath, debug, log)
+        case Some("script") =>
+          tomcatScript(base, home, port, classpath, debug, log)
 
-      case Some(thing) =>
-        println(usage)
-    }
+        case Some(thing) =>
+          println(usage)
+      }
 
   }
 
