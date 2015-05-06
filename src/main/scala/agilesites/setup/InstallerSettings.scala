@@ -14,14 +14,14 @@ trait InstallerSettings extends Utils {
   import agilesites.config.AgileSitesConfigPlugin.autoImport._
   import agilesites.setup.AgileSitesSetupPlugin.autoImport._
 
-  def initProxies(base: File, proxyMap: Map[String, String]): Unit = {
+  def initProxies(webapps: File, proxyMap: Map[String, String]): Unit = {
     val proxies = proxyMap.get("proxies")
     if (proxies.nonEmpty)
       for (proxy <- proxies.get.split(",")) {
         val target = proxyMap(s"proxy.${proxy}")
         if (target != null) {
           println(s"Proxy: ${proxy} -> ${target}")
-          val webInf = base / "webapps" / proxy / "WEB-INF"
+          val webInf = webapps / proxy / "WEB-INF"
           webInf.mkdirs()
           writeFile(webInf / "web.xml",
             s"""<?xml version="1.0" encoding="UTF-8"?>
@@ -160,7 +160,8 @@ trait InstallerSettings extends Utils {
   }
 
   lazy val proxyInstallTask = proxyInstall := {
-    initProxies(sitesDirectory.value, utilPropertyMap.value)
+    val webApps = file(sitesWebapp.value).getParentFile
+    initProxies(webApps, utilPropertyMap.value)
   }
 
   lazy val sitesInstallTask = sitesInstall := {
