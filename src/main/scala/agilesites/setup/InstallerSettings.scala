@@ -171,7 +171,7 @@ trait InstallerSettings extends Utils {
 
     if (!(base / "Sites" / "install.ini").exists())
       throw new Exception(s"there is not WebCenter Sites installer in the ${base} folder")
-    stopTomcat(base, file(sitesHome.value), sitesPort.value.toInt, tomcatClasspath.value)
+    stopTomcat(base, file(sitesHome.value), sitesPort.value.toInt, asTomcatClasspath.value)
 
     // initialize
     initFolders(base)
@@ -186,7 +186,7 @@ trait InstallerSettings extends Utils {
     agilesites.Unzip.main(Array((base / "Sites" / "csdt.zip").getAbsolutePath, sitesHome.value))
 
     //startServer
-    startTomcat(base, file(sitesHome.value), sitesPort.value.toInt, tomcatClasspath.value)
+    startTomcat(base, file(sitesHome.value), sitesPort.value.toInt, asTomcatClasspath.value)
     // wait the start complete
     helloSites(sitesUrl.value)
     // complete the installation
