@@ -14,11 +14,11 @@ trait InstallerSettings extends Utils {
   import agilesites.config.AgileSitesConfigPlugin.autoImport._
   import agilesites.setup.AgileSitesSetupPlugin.autoImport._
 
-  def initProxies(base: File, map: Map[String, String]): Unit = {
-    val proxies = map.get("proxies")
+  def initProxies(base: File, proxyMap: Map[String, String]): Unit = {
+    val proxies = proxyMap.get("proxies")
     if (proxies.nonEmpty)
       for (proxy <- proxies.get.split(",")) {
-        val target = map(s"proxy.${proxy}")
+        val target = proxyMap(s"proxy.${proxy}")
         if (target != null) {
           println(s"Proxy: ${proxy} -> ${target}")
           val webInf = base / "webapps" / proxy / "WEB-INF"

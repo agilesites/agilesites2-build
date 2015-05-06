@@ -89,7 +89,7 @@ trait TomcatSettings extends Utils {
   lazy val serverTask = server := {
 
     val args: Seq[String] = Def.spaceDelimited("<arg>").parsed
-    val classpath = tomcatClasspath.value
+    val classpath = asTomcatClasspath.value
     val port = sitesPort.value.toInt
     val base = sitesDirectory.value
     val home = file(sitesHome.value)

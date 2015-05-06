@@ -52,7 +52,7 @@ trait DeployUtil {
   }
 
 
-  def uploadJar(uri: URL, jar: File, log: Logger, username: String, password: String) = {
+  def uploadJar(uri: URL, jar: File, log: Logger, sites: String, username: String, password: String) = {
     val path = URLDecoder.decode(uri.getPath, "UTF-8").substring(1)
     val base = host(uri.getHost, uri.getPort)
     val req = base / path / "Satellite" <<? Map("pagename" -> "AAAgileSetup")
@@ -78,11 +78,12 @@ trait DeployUtil {
       addBodyPart(new StringPart("op", "upload")).
       addBodyPart(new StringPart("_authkey_", key)).
       addBodyPart(new StringPart("username", username)).
-      addBodyPart(new StringPart("password", password))
+      addBodyPart(new StringPart("password", password)).
+      addBodyPart(new StringPart("sites", sites))
 
     val reqFile1 = cookies.foldLeft(reqFile)(_.addCookie(_))
     val resFile = Http(reqFile1).apply.getResponseBody.trim
-    log.info(s"uploaded ${resFile}")
+    log.info(s"${resFile}")
     resFile
   }
 

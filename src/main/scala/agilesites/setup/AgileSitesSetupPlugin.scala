@@ -19,12 +19,15 @@ object AgileSitesSetupPlugin
   override def requires = AgileSitesConfigPlugin && JvmPlugin
 
   object autoImport {
-    lazy val tomcatClasspath = taskKey[Seq[File]]("Tomcat Classpath")
+    lazy val asTomcatClasspath = taskKey[Seq[File]]("Tomcat Classpath")
+    lazy val asExtraClasspath = taskKey[Seq[File]]("AgileSites Extra Classpath")
+
     lazy val sitesInstall = taskKey[Unit]("Sites installation task")
     lazy val proxyInstall = taskKey[Unit]("Proxy installation task")
     lazy val asSetupOffline = taskKey[Unit]("AgileSites Setup (Offline)")
     lazy val asSetupOnline = taskKey[Unit]("AgileSites Setup (Offline)")
     lazy val asSetup = taskKey[Unit]("AgileSites installation task for local sites")
+
     lazy val asSetupWeblogic = taskKey[Unit]("AgileSites installation task for Weblogic")
     lazy val weblogicDeploy = inputKey[Unit]("Weblogic Webapp Deploy")
     lazy val weblogicRedeployCs = taskKey[Unit]("Weblogic Redeploy CS")
@@ -35,7 +38,9 @@ object AgileSitesSetupPlugin
   import agilesites.setup.AgileSitesSetupPlugin.autoImport._
 
   override lazy val projectSettings = weblogicSettings ++ Seq(
-    tomcatClasspath <<= (update) map {
+    asTomcatClasspath <<= (update) map {
       report => report.select(configurationFilter("tomcat"))
+    }, asExtraClasspath <<= (update) map {
+      report => report.select(configurationFilter("extra"))
     }) ++ tomcatSettings ++ toolsSettings ++ setupSettings ++ installerSettings
 }

@@ -14,6 +14,7 @@ trait DeploySettings extends Utils with DeployUtil {
   val asPackageTask = asPackage := {
     val jar = (Keys.`package` in Compile).value
     val log = streams.value.log
+    val sites = sitesFocus.value
     asPackageTarget.value match {
       case Some(url) =>
         val targetUri = new java.net.URI(url)
@@ -34,7 +35,7 @@ trait DeploySettings extends Utils with DeployUtil {
             log.info("+++ uploaded " + url)
         } else if (proto == "http") {
           val Array(user, pass) = targetUri.getUserInfo.split(":")
-          uploadJar(new URL(url), jar, log, user, pass)
+          uploadJar(new URL(url), jar, log,  sites, user, pass)
         } else {
           log.error("unknown protocol for asUploadTarget")
         }
@@ -111,6 +112,7 @@ trait DeploySettings extends Utils with DeployUtil {
       new URL(sitesUrl.value),
       (Keys.`package` in Compile).value,
       streams.value.log,
+      sitesFocus.value,
       sitesUser.value,
       sitesPassword.value)
   }

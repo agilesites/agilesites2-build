@@ -121,13 +121,15 @@ trait SetupSettings extends Utils {
 
     // jars to include when performing a setup
     val addJars = update.value.matching({ x: ModuleID => apiFilter(x.name)})
+    val extraJars = asExtraClasspath.value
+
     //println(addJars)
 
     // jars to remove when performing a setup
     val removeJars = destLib.listFiles
     //println(removeJars)
 
-    setupCopyJars(destLib, addJars, removeJars)
+    setupCopyJars(destLib, addJars++extraJars, removeJars)
 
     for (file <- destLib.listFiles) {
       val parentFile = parentLib / file.getName
