@@ -48,7 +48,6 @@ trait DeploySettings extends Utils with DeployUtil {
     }
   }
 
-
   val asCopyStaticsTask = asCopyStatics := {
     val base = baseDirectory.value
     val tgt = sitesWebapp.value

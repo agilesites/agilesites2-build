@@ -21,6 +21,7 @@ object AgileSitesConfigPlugin
 
     val sitesHello = taskKey[Option[String]]("Hello World, Sites!")
     val sitesFocus = settingKey[String]("Sites's sites currently under focus")
+    val sitesStatics = settingKey[String]("Comma separated list of extensions to be considered statics")
 
     val sitesVersion = settingKey[String]("Sites or Fatwire Version Number")
     val sitesDirectory = settingKey[File]("Sites installation folder")
@@ -60,13 +61,16 @@ object AgileSitesConfigPlugin
 
   val propertyFiles = Seq("agilesites.dist.properties",
     "agilesites.properties",
-    "agilesites.local.properties") ++ profile.map(x => s"agilesites.${x}.properties")
+    "agilesites.local.properties") ++
+    profile.map(x => s"agilesites.${x}.properties")
 
 
   override lazy val projectSettings = Seq(
     utilProperties := propertyFiles,
     // focus on which site?
     sitesFocus := utilPropertyMap.value.getOrElse("sites.focus", "Demo"),
+    sitesStatics := utilPropertyMap.value.getOrElse("sites.statics", "js,css,gif,png,jpg,ico"),
+
     // installation properties
     sitesDirectory := file(utilPropertyMap.value.getOrElse("sites.directory",
       (baseDirectory.value / "sites").getAbsolutePath)),

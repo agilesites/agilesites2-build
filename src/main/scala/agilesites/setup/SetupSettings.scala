@@ -64,7 +64,7 @@ trait SetupSettings extends Utils {
       prp.setProperty("agilesites.name." + nsite, s)
     }
 
-    //prp.setProperty("agilesites.statics", statics)
+    prp.setProperty("agilesites.statics", sitesStatics.value)
 
     // store
     println("~ " + prpFile)
