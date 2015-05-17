@@ -34,8 +34,11 @@ trait DeploySettings extends Utils with DeployUtil {
           else
             log.info("+++ uploaded " + url)
         } else if (proto == "http") {
-          val Array(user, pass) = targetUri.getUserInfo.split(":")
-          uploadJar(new URL(url), jar, log,  sites, user, pass)
+          println(targetUri)
+          val info: String = targetUri.getUserInfo
+          val (user: String, pass: String) = if (info != null) info.split(":")
+          else (sitesUser.value, sitesPassword.value)
+          uploadJar(new URL(url), jar, log, sites, user, pass)
         } else {
           log.error("unknown protocol for asUploadTarget")
         }

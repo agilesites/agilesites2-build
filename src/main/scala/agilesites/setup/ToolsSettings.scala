@@ -10,6 +10,7 @@ trait ToolsSettings extends Utils {
   this: AutoPlugin =>
 
   import agilesites.config.AgileSitesConfigPlugin.autoImport._
+  import agilesites.setup.AgileSitesSetupPlugin.autoImport._
 
   // find the default workspace from sites
   def defaultWorkspace(sites: String) = normalizeSiteName(sites.split(",").head)
@@ -31,60 +32,61 @@ trait ToolsSettings extends Utils {
     if (args.length == 0) {
       println( s"""usage: cman <cmd> [<dir>] [<options>....]])
                   |<cmd> one of view, setup, import, import_all, export, export_all
-                  |<dir> defaults to "core" under sites/export/populate
+                  |<dir> defaults to  all unser ${sitesPopulate.value}
                   |<options> can be:
-                  |-b base URL (defaults to ${sitesUrl.value}/CatalogManager)
+                  |-b base URL  (defaults to ${sitesUrl.value}/CatalogManager)
                   |-u user name (defaults to ${sitesUser.value})
-                  |-p password (defaults to ${sitesPassword.value})
+                  |-p password  (defaults to ${sitesPassword.value})
           """.stripMargin)
     } else {
-
       val cp = (Seq(file("bin").getAbsoluteFile) ++ cmovClasspath.value).mkString(java.io.File.pathSeparator)
-      val coreJar = update.value.matching({ x: ModuleID => x.name.startsWith("agilesites2-core")}).head
+
+      val coreJar = update.value.matching({ x: ModuleID => x.name.startsWith("agilesites2-core") }).head
+      val populateJars = asPopulateClasspath.value.filter(!_.getName.startsWith("scala-library"))
 
       if (sitesHello.value.isEmpty)
         throw new Exception(s"Web Center Sites must be online as s{sitesUrl.value}.")
 
+      val populateDir = file(sitesPopulate.value)
       val cmd = if (args(0) == "setup") {
         if (coreJar.exists()) {
-          log.info(s"extracting aaagile")
-          val populateDir = file(sitesPopulate.value)
-          IO.delete(populateDir / "aaagile")
+          log.info(s"extracting aaagile from ${coreJar.getName}")
           IO.unzip(coreJar, populateDir, GlobFilter("aaagile/*"))
-          if ((populateDir / "aaagile").exists())
-            "import_all"
-          else
-            throw new Exception(s"cannot find aaagile dir in ${populateDir}")
-        } else
-          throw new Exception("cannot find agilesites2-core in classpath")
+        }
+        for (jar <- populateJars) {
+          log.info(s"extracting from ${jar.getName}")
+          IO.unzip(jar, populateDir)
+        }
+        IO.delete(populateDir / "META-INF")
+        "import_all"
       } else
         args(0)
 
+      val set = args.toSet
       val opts =
-        if (cmd == "view") Seq()
-        else {
-          val set = args.toSet
-          val dir =
-            if (args.length > 1) file(sitesPopulate.value) / args(1)
-            else file(sitesPopulate.value) / "aaagile"
+        Seq("-x", cmd) ++ args.drop(2) ++
+          (if (set("-b")) Seq() else Seq("-b", sitesUrl.value + "/CatalogManager")) ++
+          (if (set("-u")) Seq() else Seq("-u", sitesAdminUser.value)) ++
+          (if (set("-p")) Seq() else Seq("-p", sitesAdminPassword.value))
 
-          println(dir, dir.isDirectory())
-          if (!dir.isDirectory)
-            throw new Exception(s"not found ${dir.getAbsolutePath}")
+      val dirs =
+        if (args.length > 1)
+          (file(sitesPopulate.value) * args(1))
+        else (file(sitesPopulate.value) * "*" filter {_.isDirectory})
 
-          Seq("-d", dir.getAbsolutePath, "-x", cmd) ++ args.drop(2) ++
-            (if (set("-b")) Seq() else Seq("-b", sitesUrl.value + "/CatalogManager")) ++
-            (if (set("-u")) Seq() else Seq("-u", sitesUser.value)) ++
-            (if (set("-p")) Seq() else Seq("-p", sitesPassword.value))
+      if (cmd == "view")
+        Fork.java(ForkOptions(
+          runJVMOptions = Seq("-cp", cp),
+          workingDirectory = Some(baseDirectory.value)),
+          Seq("COM.FutureTense.Apps.CatalogMover"))
+      else
+        for (dir <- dirs.getPaths) {
+          println("*** " + dir)
+          Fork.java(ForkOptions(
+            runJVMOptions = Seq("-cp", cp),
+            workingDirectory = Some(baseDirectory.value)),
+            "COM.FutureTense.Apps.CatalogMover" +: (Seq("-d", dir) ++ opts))
         }
-
-      println(opts)
-
-      Fork.java(ForkOptions(
-        runJVMOptions = Seq("-cp", cp),
-        workingDirectory = Some(baseDirectory.value)),
-        "COM.FutureTense.Apps.CatalogMover" +: opts)
-
     }
 
   }
