@@ -35,8 +35,7 @@ object AgileSitesSetupPlugin
     lazy val weblogicRedeployCs = taskKey[Unit]("Weblogic Redeploy CS")
     lazy val weblogicRedeployPackage = taskKey[Unit]("Weblogic Redeploy CS")
     lazy val server = inputKey[Unit]("Launch Local Sites")
-
-
+    lazy val cmov = inputKey[Unit]("WCS Catalog Mover")
   }
 
   import agilesites.setup.AgileSitesSetupPlugin.autoImport._

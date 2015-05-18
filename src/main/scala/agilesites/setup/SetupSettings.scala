@@ -10,7 +10,10 @@ import sbt._
  * Created by msciab on 01/03/15.
  */
 trait SetupSettings extends Utils {
-  this: AutoPlugin with InstallerSettings with ToolsSettings with TomcatSettings =>
+  this: AutoPlugin
+    with InstallerSettings
+    with ToolsSettings
+    with TomcatSettings =>
 
   // jars to be added to the wcs-setup
   def coreFilter(x: String) = x.startsWith("agilesites2-core")

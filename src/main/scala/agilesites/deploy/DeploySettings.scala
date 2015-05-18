@@ -8,6 +8,7 @@ trait DeploySettings extends Utils with DeployUtil {
   this: AutoPlugin =>
 
   import agilesites.config.AgileSitesConfigPlugin.autoImport._
+  import agilesites.setup.AgileSitesSetupPlugin.autoImport._
   import agilesites.deploy.AgileSitesDeployPlugin.autoImport._
 
   // package jar task - build the jar and copy it  to destination 
@@ -96,17 +97,37 @@ trait DeploySettings extends Utils with DeployUtil {
   }
 
   // copy resources to the webapp task
+  /*
   val asDeployTask = asDeploy := {
     val log = streams.value.log
+    asCopyStatics.value
     val url = sitesUrl.value
     if (sitesHello.value.isEmpty) {
       log.error(s"Sites must be up and running as ${url}.")
     } else {
       asPackage.value
-      asCopyStatics.value
-      log.info(httpCall("Setup", "&sites=%s".format(sitesFocus.value), url, sitesUser.value, sitesPassword.value))
+            log.info(httpCall("Setup", "&sites=%s".format(sitesFocus.value), url, sitesUser.value, sitesPassword.value))
+
     }
-  }
+  }*/
+
+  val asPopulateTask = asPopulate :=
+    cmov.fullInput("import_all @${baseDirectory.value / \"src\" / \"main\" / \"populate\"}")
+
+
+  val asDeployTask = asDeploy := Def.sequential(
+    asCopyStatics,
+    asPackage,
+    Def.task {
+      val url = sitesUrl.value
+      val log = streams.value.log
+      if (sitesHello.value.isEmpty)
+        log.error(s"Sites must be up and running as ${url}.")
+      else
+        log.info(httpCall("Setup", "&sites=%s".format(sitesFocus.value), url, sitesUser.value, sitesPassword.value))
+    },
+    asPopulate
+  ).value
 
   // package upload
   val asUploadTask = asUpload := {

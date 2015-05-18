@@ -25,18 +25,17 @@ trait ToolsSettings extends Utils {
         (h / "wem" ** "*.jar").get
   }
 
-  lazy val cmov = inputKey[Unit]("WCS Catalog Mover")
   val cmovTask = cmov := {
     val args = Def.spaceDelimited("<arg>").parsed
     val log = streams.value.log
     if (args.length == 0) {
-      println( s"""usage: cman <cmd> [<dir>] [<options>....]])
-                  |<cmd> one of view, setup, import, import_all, export, export_all
-                  |<dir> defaults to  all unser ${sitesPopulate.value}
-                  |<options> can be:
-                  |-b base URL  (defaults to ${sitesUrl.value}/CatalogManager)
-                  |-u user name (defaults to ${sitesUser.value})
-                  |-p password  (defaults to ${sitesPassword.value})
+      println( s"""usage: cman <cmd> [<dir>...] [<options>....]])
+|<cmd> one of view, setup, import, import_all, export, export_all
+|[@]<dir> if start with @ uses all the contained dirs otherwise just the specified dir,
+|        defaults to   @${sitesPopulate.value},
+|<options> can be:
+|-b base URL  (defaults to ${sitesUrl.value}/CatalogManager)
+|-u user name (defaults to ${sitesUser.value})
           """.stripMargin)
     } else {
       val cp = (Seq(file("bin").getAbsoluteFile) ++ cmovClasspath.value).mkString(java.io.File.pathSeparator)
@@ -47,7 +46,7 @@ trait ToolsSettings extends Utils {
       if (sitesHello.value.isEmpty)
         throw new Exception(s"Web Center Sites must be online as s{sitesUrl.value}.")
 
-      val populateDir = file(sitesPopulate.value)
+      val populateDir = file(sitesPopulate.value) / "setup" / "populate"
       val cmd = if (args(0) == "setup") {
         if (coreJar.exists()) {
           log.info(s"extracting aaagile from ${coreJar.getName}")
@@ -55,7 +54,7 @@ trait ToolsSettings extends Utils {
         }
         for (jar <- populateJars) {
           log.info(s"extracting from ${jar.getName}")
-          IO.unzip(jar, populateDir)
+          IO.unzip(jar, populateDir.getParentFile, GlobFilter("populate/*"))
         }
         IO.delete(populateDir / "META-INF")
         "import_all"
@@ -69,10 +68,19 @@ trait ToolsSettings extends Utils {
           (if (set("-u")) Seq() else Seq("-u", sitesAdminUser.value)) ++
           (if (set("-p")) Seq() else Seq("-p", sitesAdminPassword.value))
 
-      val dirs =
-        if (args.length > 1)
-          (file(sitesPopulate.value) * args(1))
-        else (file(sitesPopulate.value) * "*" filter {_.isDirectory})
+      val baseDir = if (args.length > 1) args(1) else "@" + populateDir.getAbsolutePath
+      val dirs = if (baseDir.startsWith("@")) {
+        val dir = file(baseDir.substring(1))
+        if (dir.exists())
+          (dir * "*").filter(_.isDirectory).get
+        else
+          Seq()
+      } else {
+        val dir = file(baseDir)
+        if (dir.exists)
+          Seq(dir)
+        else Seq()
+      }
 
       if (cmd == "view")
         Fork.java(ForkOptions(
@@ -80,15 +88,14 @@ trait ToolsSettings extends Utils {
           workingDirectory = Some(baseDirectory.value)),
           Seq("COM.FutureTense.Apps.CatalogMover"))
       else
-        for (dir <- dirs.getPaths) {
+        for (dir <- dirs) {
           println("*** " + dir)
           Fork.java(ForkOptions(
             runJVMOptions = Seq("-cp", cp),
             workingDirectory = Some(baseDirectory.value)),
-            "COM.FutureTense.Apps.CatalogMover" +: (Seq("-d", dir) ++ opts))
+            "COM.FutureTense.Apps.CatalogMover" +: (Seq("-d", dir.getAbsolutePath) ++ opts))
         }
     }
-
   }
 
   lazy val csdtHome = settingKey[File]("CSDT Client Home")
