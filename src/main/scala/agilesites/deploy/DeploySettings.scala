@@ -111,9 +111,6 @@ trait DeploySettings extends Utils with DeployUtil {
     }
   }*/
 
-  val asPopulateTask = asPopulate :=
-    cmov.fullInput("import_all @${baseDirectory.value / \"src\" / \"main\" / \"populate\"}")
-
 
   val asDeployTask = asDeploy := Def.sequential(
     asCopyStatics,
@@ -126,7 +123,9 @@ trait DeploySettings extends Utils with DeployUtil {
       else
         log.info(httpCall("Setup", "&sites=%s".format(sitesFocus.value), url, sitesUser.value, sitesPassword.value))
     },
-    asPopulate
+    Def.task {
+      cmov.fullInput("import_all @src/main/populate")
+    }
   ).value
 
   // package upload
@@ -147,5 +146,4 @@ trait DeploySettings extends Utils with DeployUtil {
     asPackageTarget := utilPropertyMap.value.get("as.package.target"),
     (resourceGenerators in Compile) ++= Seq(generateIndexTask.taskValue,
       copyHtmlTask.taskValue))
-
 }

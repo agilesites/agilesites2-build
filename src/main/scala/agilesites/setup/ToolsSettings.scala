@@ -44,7 +44,7 @@ trait ToolsSettings extends Utils {
       val populateJars = asPopulateClasspath.value.filter(!_.getName.startsWith("scala-library"))
 
       if (sitesHello.value.isEmpty)
-        throw new Exception(s"Web Center Sites must be online as s{sitesUrl.value}.")
+        throw new Exception(s"Web Center Sites must be online as ${sitesUrl.value}.")
 
       val populateDir = file(sitesPopulate.value) / "setup" / "populate"
       val cmd = if (args(0) == "setup") {

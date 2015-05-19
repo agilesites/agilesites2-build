@@ -17,7 +17,7 @@ object AgileSitesDeployPlugin
     val asCopyStatics = taskKey[Unit]("AgileSites copy statics")
     val asDeploy = taskKey[Unit]("AgileSites deploy")
     val asUpload = taskKey[Unit]("AgileSites upload jar")
-    val asPopulate = taskKey[Unit]("AgileSites populate")
+    val asPopulate = inputKey[Unit]("AgileSites populate")
   }
 
   override lazy val projectSettings = deploySettings
