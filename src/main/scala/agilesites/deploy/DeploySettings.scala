@@ -123,9 +123,7 @@ trait DeploySettings extends Utils with DeployUtil {
       else
         log.info(httpCall("Setup", "&sites=%s".format(sitesFocus.value), url, sitesUser.value, sitesPassword.value))
     },
-    Def.task {
-      cmov.fullInput("import_all @src/main/populate")
-    }
+    asPopulate
   ).value
 
   // package upload
@@ -145,5 +143,9 @@ trait DeploySettings extends Utils with DeployUtil {
     asUploadTask,
     asPackageTarget := utilPropertyMap.value.get("as.package.target"),
     (resourceGenerators in Compile) ++= Seq(generateIndexTask.taskValue,
-      copyHtmlTask.taskValue))
+      copyHtmlTask.taskValue),
+    asPopulate := {
+      cmov.toTask(" import_all @src/main/populate").value
+    }
+  )
 }
