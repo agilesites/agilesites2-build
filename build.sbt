@@ -9,7 +9,7 @@ val jfx = config("jfx")
 val jfxJar = file(System.getProperty("java.home")) / "lib" / "jfxrt.jar"
 
 val libDeps = Seq(
-   "com.sciabarra"           % "agilesites2-setup" % "2.0.2-SNAPSHOT",
+   "com.sciabarra"           % "agilesites2-setup" % "2.0.1",
    "org.scalafx"             %% "scalafx" % "2.2.76-R11",
    "org.scalafx"             %% "scalafxml-core" % "0.2.1",
    "org.scalatest"           %% "scalatest"      % "2.2.0" % "test",
@@ -23,7 +23,6 @@ val libDeps = Seq(
    //"fr.inria.gforge.spoon"   % "spoon-core"      % "2.3.1",
    "commons-httpclient"      % "commons-httpclient"   % "3.1")
 
-/*
 val btSettings = bintrayPublishSettings ++ Seq(
 	bintray.Keys.bintrayOrganization in bintray.Keys.bintray := Some("sciabarra"),
 	bintray.Keys.repository in bintray.Keys.bintray := "sbt-plugins",
@@ -31,8 +30,8 @@ val btSettings = bintrayPublishSettings ++ Seq(
 	publishMavenStyle := false,
 	publishArtifact in packageDoc := false,
 	publishArtifact in Test := false)
-*/
 
+/*
 val publishSttings = Seq(
   publishMavenStyle := true,
   pomIncludeRepository := { _ => false },
@@ -48,6 +47,7 @@ val publishSttings = Seq(
   licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
   credentials += Credentials(Path.userHome / ".ivy2" / "credentials")
 )
+*/
 
 val mySettings = Seq(name := "agilesites2-build",
 	organization := "com.sciabarra",
@@ -65,14 +65,14 @@ val guiSettings = Seq(
     unmanagedJars in Compile += Attributed.blank(jfxJar) )
 
 val plugin = project.in(file(".")).
-  //settings(btSettings: _*).
-  settings(publishSttings : _*).
+  settings(btSettings: _*).
+  //settings(publishSttings : _*).
   settings(mySettings : _*).
   settings(guiSettings: _*)
 
 resolvers += Resolver.sonatypeRepo("releases")
 
-//resolvers += "Bintray" at "http://dl.bintray.com/content/sciabarra/maven"
+resolvers += "Bintray" at "http://dl.bintray.com/content/sciabarra/maven"
 
 resolvers += "Nexus-sciabarra-releases" at "http://nexus.sciabarra.com/content/repositories/releases"
 resolvers += "Nexus-sciabarra-snapshots" at "http://nexus.sciabarra.com/content/repositories/snapshots"
