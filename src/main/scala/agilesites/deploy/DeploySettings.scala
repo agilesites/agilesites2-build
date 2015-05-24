@@ -96,22 +96,6 @@ trait DeploySettings extends Utils with DeployUtil {
     recursiveCopy(srcDir, dstDir, s.log)(isHtml)
   }
 
-  // copy resources to the webapp task
-  /*
-  val asDeployTask = asDeploy := {
-    val log = streams.value.log
-    asCopyStatics.value
-    val url = sitesUrl.value
-    if (sitesHello.value.isEmpty) {
-      log.error(s"Sites must be up and running as ${url}.")
-    } else {
-      asPackage.value
-            log.info(httpCall("Setup", "&sites=%s".format(sitesFocus.value), url, sitesUser.value, sitesPassword.value))
-
-    }
-  }*/
-
-
   val asDeployTask = asDeploy := Def.sequential(
     asCopyStatics,
     asPackage,
@@ -141,7 +125,7 @@ trait DeploySettings extends Utils with DeployUtil {
     asDeployTask,
     asCopyStaticsTask,
     asUploadTask,
-    asPackageTarget := utilPropertyMap.value.get("as.package.target"),
+    asPackageTarget := Some(utilPropertyMap.value.getOrElse("as.package.target", sitesUrl.value)),
     (resourceGenerators in Compile) ++= Seq(generateIndexTask.taskValue,
       copyHtmlTask.taskValue),
     asPopulate := {

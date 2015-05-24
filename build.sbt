@@ -9,7 +9,7 @@ val jfx = config("jfx")
 val jfxJar = file(System.getProperty("java.home")) / "lib" / "jfxrt.jar"
 
 val libDeps = Seq(
-   "com.sciabarra"           % "agilesites2-setup" % "2.0.1",
+   "com.sciabarra"           % "agilesites2-setup" % "2.0.2",
    "org.scalafx"             %% "scalafx" % "2.2.76-R11",
    "org.scalafx"             %% "scalafxml-core" % "0.2.1",
    "org.scalatest"           %% "scalatest"      % "2.2.0" % "test",

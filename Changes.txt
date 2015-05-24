@@ -1,0 +1,5 @@
+v2.0.2
+
+- Adding support for "extrawebapp" in asSetupOffline - now all the extra are prefixed with "agilesites_" and anything starting with "agilesites" is removed first
+
+

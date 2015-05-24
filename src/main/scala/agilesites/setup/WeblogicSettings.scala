@@ -22,8 +22,8 @@ trait WeblogicSettings extends Utils {
       runJVMOptions = "-cp" :: weblogicJar.getAbsolutePath :: Nil,
       workingDirectory = Some(wlserver))
 
+    //println(forkOpt)
 
-    println(forkOpt)
     Fork.java(forkOpt,
       Seq("weblogic.Deployer",
         "-adminurl", url,

@@ -108,9 +108,9 @@ trait SetupSettings extends Utils {
     val webapp = sitesWebapp.value
     val version = sitesVersion.value
     val destLib = file(webapp) / "WEB-INF" / "lib"
-    val addJars = update.value.matching({ x: ModuleID => coreFilter(x.name)})
-    val removeJars = destLib.listFiles.filter(x => coreFilter(x.getName))
-    setupCopyJars(destLib, addJars, removeJars)
+    val addJars = update.value.matching({ x: ModuleID => coreFilter(x.name)}) ++ asExtraWebappClasspath.value
+    val removeJars = destLib.listFiles.filter(_.getName.startsWith("agilesites"))
+    setupCopyJars("agilesites_", destLib, addJars, removeJars)
   }
 
   // select jars for the setup online
@@ -123,16 +123,15 @@ trait SetupSettings extends Utils {
     destLib.mkdirs()
 
     // jars to include when performing a setup
-    val addJars = update.value.matching({ x: ModuleID => apiFilter(x.name)})
-    val extraJars = asExtraClasspath.value
+    val addJars = update.value.matching({ x: ModuleID => apiFilter(x.name)}) ++ asExtraClasspath.value
 
     //println(addJars)
 
     // jars to remove when performing a setup
     val removeJars = destLib.listFiles
-    //println(removeJars)
 
-    setupCopyJars(destLib, addJars++extraJars, removeJars)
+    //println(removeJars)
+    setupCopyJars("", destLib, addJars, removeJars)
 
     for (file <- destLib.listFiles) {
       val parentFile = parentLib / file.getName
@@ -144,7 +143,7 @@ trait SetupSettings extends Utils {
   }
 
   // copy jars filtering and and remove
-  def setupCopyJars(destLib: File, addJars: Seq[File], removeJars: Seq[File]) {
+  def setupCopyJars(prefix: String, destLib: File, addJars: Seq[File], removeJars: Seq[File]) {
 
     // remove jars
     println("** removing old version of files **");
@@ -157,7 +156,7 @@ trait SetupSettings extends Utils {
     // add jars
     println("** installing new version of files **");
     for (file <- addJars) yield {
-      val tgt = destLib / file.getName
+      val tgt = destLib / (prefix+file.getName)
       IO.copyFile(file, tgt)
       //println(file)
       println("+ " + tgt.getAbsolutePath)
