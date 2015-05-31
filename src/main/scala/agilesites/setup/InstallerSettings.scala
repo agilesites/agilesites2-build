@@ -35,7 +35,7 @@ trait InstallerSettings extends Utils {
         </init-param>
         <init-param>
             <param-name>log</param-name>
-            <param-value>true</param-value>
+            <param-value>false</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>
