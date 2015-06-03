@@ -1,5 +1,3 @@
-import sbt.Keys._
-
 val v = scala.io.Source.fromFile(file("version.txt")).getLines.next.trim
 
 val tomcatConfig = config("tomcat")
