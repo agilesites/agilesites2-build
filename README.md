@@ -1,5 +1,5 @@
-# AgileSites Build 2.0-M1 
+# AgileSites Build 11g
 
-Sbt Plugin used all over the AgileSites 2.0 Framework
+Sbt Plugin used all over the AgileSites 11g Framework
 
-
+# unstable/undocumented stuff - do not try at home without our support...
