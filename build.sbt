@@ -28,8 +28,6 @@ libraryDependencies ++=  Seq(
    "org.apache.tomcat" % "tomcat-dbcp" % tomcatVersion,
    "org.hsqldb" % "hsqldb" % "1.8.0.10", // database
    "org.apache.httpcomponents" % "httpclient" % "4.3.4",
-   "org.scalafx"             %% "scalafx" % "2.2.76-R11",
-   "org.scalafx"             %% "scalafxml-core" % "0.2.1",
    "org.scalatest"           %% "scalatest"      % "2.2.0" % "test",
    "org.clapper"             %% "scalasti"       % "1.0.0",
    "net.databinder.dispatch" %% "dispatch-core"  % "0.11.2",
@@ -37,7 +35,6 @@ libraryDependencies ++=  Seq(
    "com.jcraft"              % "jsch"            % "0.1.51",
    "commons-io"              % "commons-io"      % "2.4",
    "commons-httpclient"      % "commons-httpclient"   % "3.1")
-
 
 publishMavenStyle := true
 
@@ -63,6 +60,6 @@ resolvers ++= Seq(Resolver.sonatypeRepo("releases"),
   "Nexus-sciabarra-releases" at "http://nexus.sciabarra.com/content/repositories/releases",
   "Nexus-sciabarra-snapshots" at "http://nexus.sciabarra.com/content/repositories/snapshots")
 
-
 net.virtualvoid.sbt.graph.Plugin.graphSettings
 
+addSbtPlugin("com.typesafe.sbt" %% "sbt-js-engine" % "1.1.2")
