@@ -21,20 +21,12 @@ object AgileSitesJsPlugin
 
   object autoImport {
     lazy val js = inputKey[Unit]("js runner")
-
-    lazy val superCazzola = inputKey[Unit]("echo runner")
-  }
+   }
 
   import autoImport._
   import SbtWeb.autoImport._
   import WebKeys._
 
-  val superCazzolaTask = superCazzola := {
-
-    val args: Seq[String] = Def.spaceDelimited("<arg>").parsed
-
-    println(args.mkString(" "))
-  }
 
   val jsTask = js := {
 
@@ -63,6 +55,6 @@ object AgileSitesJsPlugin
     }
   }
 
-  override lazy val projectSettings = Seq(jsTask, superCazzolaTask)
+  override lazy val projectSettings = Seq(jsTask)
 
 }
