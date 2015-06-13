@@ -1,4 +1,4 @@
-val v = "11g-SNAPSHOT-001"
+val v = "11g-M1-SNAPSHOT"
 
 name := "agilesites2-build"
 
