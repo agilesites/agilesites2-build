@@ -42,18 +42,6 @@ trait ScaffoldSettings {
         (Space.+) ~> templates.reduce(token(_) | token(_))
     }
 
-  /*
-  val asGenerateTask = asGenerate <<= InputTask(parser) { (argTask: TaskKey[String]) =>
-    (baseDirectory, argTask) map { (b, name) =>
-      val folder = b / "project" / "template"
-      val res = G8Helpers.applyRaw(folder / name, b, Nil)
-      //println(ls)
-      res.fold(
-        e => sys.error(e),
-        r => println("***\n*** asGenerate successful\n*** remember to asDeploy the new templates/cselements\n***"))
-    }
-  }
-  */
 
   val asGenerateTask = asGenerate := {
     val b = baseDirectory.value

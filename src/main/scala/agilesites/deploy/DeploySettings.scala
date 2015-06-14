@@ -121,15 +121,51 @@ trait DeploySettings extends Utils with DeployUtil {
       sitesPassword.value)
   }
 
+  val processAnnotations = Def.task {
+
+    val comp: Compiler.Compilers = (compilers in Compile).value
+    val mcp: Seq[File] = (managedClasspath in Compile).value.files
+    val dcp: Seq[File] = asTomcatClasspath.value.filter(_.getName.startsWith("agilesites2-build"))
+    // (dependencyClasspath in Compile).value.files
+    val src: File = (sourceDirectory in Compile).value
+    val out: File = (sourceManaged in Compile).value
+    val log = streams.value.log
+    val in = (src ** "*.java").get
+
+    val opt = Seq(
+      "-proc:only",
+      "-processor",
+      "agilesites.IndexProcessor",
+      s"-Asite=${name.value}",
+      "-s",
+      out.getAbsolutePath)
+
+    //log.info(in.mkString("in:", " ", ""))
+    //log.info(mcp.mkString("mcp: ", " ", ""))
+    //log.info(dcp.mkString("dcp: ", " ", ""))
+    //log.info(opt.mkString("opt: ", " ", ""))
+
+    try {
+      out.mkdirs()
+      comp.javac(in, mcp ++ dcp, out, opt)(log)
+    } catch {
+      case ex: Throwable =>
+        log.error(ex.getMessage)
+    }
+    Seq(out / name.value / "Index.java")
+  }
+
   val deploySettings = Seq(asPackageTask,
     asDeployTask,
     asCopyStaticsTask,
     asUploadTask,
     asPackageTarget := Some(utilPropertyMap.value.getOrElse("as.package.target", sitesUrl.value)),
-    (resourceGenerators in Compile) ++= Seq(generateIndexTask.taskValue,
+    (resourceGenerators in Compile) ++= Seq(
+      generateIndexTask.taskValue,
       copyHtmlTask.taskValue),
     asPopulate := {
       cmov.toTask(" import_all @src/main/populate").value
-    }
+    },
+    sourceGenerators in Compile ++= Seq(processAnnotations.taskValue)
   )
 }

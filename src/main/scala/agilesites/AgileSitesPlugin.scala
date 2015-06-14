@@ -2,6 +2,7 @@ package agilesites
 
 import agilesites.config.AgileSitesConfigPlugin
 import agilesites.deploy.AgileSitesDeployPlugin
+import agilesites.js.AgileSitesJsPlugin
 import agilesites.setup.AgileSitesSetupPlugin
 import agilesites.web.AgileSitesWebPlugin
 import agilesites.wem.AgileSitesWemPlugin
@@ -17,7 +18,8 @@ object AgileSitesPlugin
       AgileSitesDeployPlugin &&
       AgileSitesSetupPlugin &&
       AgileSitesWebPlugin &&
-      AgileSitesWemPlugin
+      AgileSitesWemPlugin &&
+      AgileSitesJsPlugin
 
   def guiCmd = Command.args("gui", "<args>") { (state, args) =>
     val ex = Project.extract(state)
