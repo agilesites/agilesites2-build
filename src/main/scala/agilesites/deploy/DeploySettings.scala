@@ -131,12 +131,17 @@ trait DeploySettings extends Utils with DeployUtil {
     val out: File = (sourceManaged in Compile).value
     val log = streams.value.log
     val in = (src ** "*.java").get
+    val ids = baseDirectory.value / "src" / "main" / "resources" / name.value / "uid.properties"
+
+    ids.getParentFile.mkdirs
+    out.mkdirs
 
     val opt = Seq(
       "-proc:only",
       "-processor",
       "agilesites.IndexProcessor",
       s"-Asite=${name.value}",
+      s"-Auid=${ids.getAbsolutePath}",
       "-s",
       out.getAbsolutePath)
 
@@ -146,7 +151,6 @@ trait DeploySettings extends Utils with DeployUtil {
     //log.info(opt.mkString("opt: ", " ", ""))
 
     try {
-      out.mkdirs()
       comp.javac(in, mcp ++ dcp, out, opt)(log)
     } catch {
       case ex: Throwable =>

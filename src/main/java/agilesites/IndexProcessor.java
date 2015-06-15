@@ -7,11 +7,13 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.JavaFileObject;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.Writer;
 import java.util.*;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
-@SupportedOptions("site")
+@SupportedOptions({"uid","site"})
 @SupportedAnnotationTypes({"agilesites.annotations.Attribute",
         "agilesites.annotations.AttributeEditor",
         "agilesites.annotations.Attribute",
@@ -30,11 +32,15 @@ public class IndexProcessor extends AbstractProcessor {
 
     private String site;
     private Filer filer;
+    private UidGenerator uid;
     boolean created;
 
     public synchronized void init(ProcessingEnvironment env) {
         super.init(env);
         site = env.getOptions().get("site");
+        String uidfile = env.getOptions().get("uid");
+        System.out.println(uidfile);
+        uid = new UidGenerator(uidfile);
         filer = env.getFiler();
         created = false;
     }
@@ -53,11 +59,14 @@ public class IndexProcessor extends AbstractProcessor {
                     if (element.getKind().isClass()) {
                         List<String> list = map.get(ann);
                         if (list == null) list = new LinkedList<String>();
-                        list.add(element.toString());
+                        String elementName = element.toString();
+                        list.add(elementName);
                         map.put(ann, list);
+                        uid.add(ann+"."+elementName);
                     }
                 }
             }
+            uid.save();
             JavaFileObject jfo = filer.createSourceFile(site + ".Index");
             Writer w = jfo.openWriter();
             String s = createClass(map);
