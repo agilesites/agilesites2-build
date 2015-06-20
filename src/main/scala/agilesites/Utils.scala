@@ -14,10 +14,15 @@ trait Utils {
   // read a file
   def readFile(f: File) = {
     val fr = new FileReader(f)
-    val buf = new Array[Char](f.length().toInt)
-    fr.read(buf)
+    val sb = new StringBuilder
+    var c = fr.read
+    while(c != -1) {
+      sb.append(c.asInstanceOf[Char])
+      c = fr.read
+    }
+    fr.close
     fr.close()
-    new String(buf)
+    sb.toString
   }
 
   // get a wrapped property
