@@ -27,7 +27,7 @@ libraryDependencies ++=  Seq(
    "org.apache.tomcat" % "tomcat-jsp-api" % tomcatVersion,
    "org.apache.tomcat" % "tomcat-dbcp" % tomcatVersion,
    "org.hsqldb" % "hsqldb" % "1.8.0.10", // database
-   "org.apache.httpcomponents" % "httpclient" % "4.3.4",
+   "org.apache.httpcomponents" % "httpclient" % "4.3.6",
    "org.scalatest"           %% "scalatest"      % "2.2.0" % "test",
    "org.clapper"             %% "scalasti"       % "1.0.0",
    "net.databinder.dispatch" %% "dispatch-core"  % "0.11.2",
