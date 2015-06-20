@@ -19,9 +19,9 @@ object AgileSitesSetupPlugin
 
   object autoImport {
     lazy val asTomcatClasspath = taskKey[Seq[File]]("Tomcat Classpath")
-    lazy val asExtraClasspath = taskKey[Seq[File]]("AgileSites Extra Classpath")
+    lazy val asCoreClasspath = taskKey[Seq[File]]("AgileSites Extra Classpath")
     lazy val asPopulateClasspath = taskKey[Seq[File]]("AgileSites Populate Classpath")
-    lazy val asExtraWebappClasspath = taskKey[Seq[File]]("AgileSites Extra Webapp Classpath")
+    lazy val asLibClasspath = taskKey[Seq[File]]("AgileSites Extra Webapp Classpath")
 
     lazy val sitesInstall = taskKey[Unit]("Sites installation task")
     lazy val proxyInstall = taskKey[Unit]("Proxy installation task")
@@ -41,13 +41,15 @@ object AgileSitesSetupPlugin
 
   import agilesites.setup.AgileSitesSetupPlugin.autoImport._
 
+  override lazy val projectConfigurations = Seq(config("run"), config("core"), config("api"), config("populate"))
+
   override lazy val projectSettings = Seq(
     asTomcatClasspath <<= (update) map {
-      report => report.select(configurationFilter("tomcat"))
-    }, asExtraClasspath <<= (update) map {
-      report => report.select(configurationFilter("extra"))
-    }, asExtraWebappClasspath <<= (update) map {
-      report => report.select(configurationFilter("extrawebapp"))
+      report => report.select(configurationFilter("run"))
+    }, asCoreClasspath <<= (update) map {
+      report => report.select(configurationFilter("core"))
+    }, asLibClasspath <<= (update) map {
+      report => report.select(configurationFilter("api"))
     }, asPopulateClasspath <<= (update) map {
       report => report.select(configurationFilter("populate"))
     }) ++

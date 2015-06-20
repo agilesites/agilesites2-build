@@ -62,30 +62,6 @@ trait DeploySettings extends Utils with DeployUtil {
     println("*** copied " + (l.size) + " static files")
   }
 
-  // generate index classes from sources
-  val generateIndexTask = Def.task {
-    val analysis = (compile in Compile).value
-    val dstDir = (resourceManaged in Compile).value
-    val s = streams.value
-
-    val groupIndexed =
-      analysis.apis.allInternalSources. // all the sources
-        map(extractClassAndIndex(_)). // list of Some(index, class) or Nome
-        flatMap(x => x). // remove None
-        groupBy(_._1). // group by (index, (index, List(class)) 
-        map { x => (x._1, x._2 map (_._2)) }; // lift to (index, List(class))
-
-    //println(groupIndexed)
-
-    val l = for ((subfile, lines) <- groupIndexed) yield {
-      val file = dstDir / subfile
-      val body = lines mkString("# generated - do not edit\n", "\n", "\n# by AgileSites build\n")
-      writeFile(file, body, s.log)
-      file
-    }
-    l.toSeq
-  }
-
   val copyHtmlTask = Def.task {
     val base = baseDirectory.value
     val dstDir = (resourceManaged in Compile).value
@@ -96,17 +72,32 @@ trait DeploySettings extends Utils with DeployUtil {
     recursiveCopy(srcDir, dstDir, s.log)(isHtml)
   }
 
+  val sitesCheck = Def.task {
+    if (sitesHello.value.isEmpty)
+      throw new Exception(s"Sites must be up and running at ${sitesUrl.value}.")
+  }
+
+  val asSetupInit = Def.task {
+    streams.value.log.info(
+      httpCall("Setup", "op=init&site=%s".format(sitesFocus.value),
+        sitesUrl.value, sitesUser.value, sitesPassword.value))
+  }
+
+  val asSetupDeploy = Def.task {
+    streams.value.log.info(
+      httpCall("Setup", "op=deploy&site=%s".format(sitesFocus.value),
+        sitesUrl.value, sitesUser.value, sitesPassword.value))
+  }
+
+  val st = new StringTokenizer("")
+
+
   val asDeployTask = asDeploy := Def.sequential(
+    sitesCheck,
     asCopyStatics,
     asPackage,
-    Def.task {
-      val url = sitesUrl.value
-      val log = streams.value.log
-      if (sitesHello.value.isEmpty)
-        log.error(s"Sites must be up and running as ${url}.")
-      else
-        log.info(httpCall("Setup", "&sites=%s".format(sitesFocus.value), url, sitesUser.value, sitesPassword.value))
-    },
+    asSetupInit,
+    asSetupDeploy,
     asPopulate
   ).value
 
@@ -164,12 +155,8 @@ trait DeploySettings extends Utils with DeployUtil {
     asCopyStaticsTask,
     asUploadTask,
     asPackageTarget := Some(utilPropertyMap.value.getOrElse("as.package.target", sitesUrl.value)),
-    (resourceGenerators in Compile) ++= Seq(
-      generateIndexTask.taskValue,
-      copyHtmlTask.taskValue),
-    asPopulate := {
-      cmov.toTask(" import_all @src/main/populate").value
-    },
+    resourceGenerators in Compile += copyHtmlTask.taskValue,
+    asPopulate := cmov.toTask(" import_all @src/main/populate").value,
     sourceGenerators in Compile ++= Seq(processAnnotations.taskValue)
   )
 }

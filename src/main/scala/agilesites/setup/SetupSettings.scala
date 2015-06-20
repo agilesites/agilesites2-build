@@ -108,7 +108,7 @@ trait SetupSettings extends Utils {
     val webapp = sitesWebapp.value
     val version = sitesVersion.value
     val destLib = file(webapp) / "WEB-INF" / "lib"
-    val addJars = update.value.matching({ x: ModuleID => coreFilter(x.name)}) ++ asExtraWebappClasspath.value
+    val addJars = asCoreClasspath.value
     val removeJars = destLib.listFiles.filter(_.getName.startsWith("agilesites"))
     setupCopyJars("agilesites_", destLib, addJars, removeJars)
   }
@@ -123,7 +123,7 @@ trait SetupSettings extends Utils {
     destLib.mkdirs()
 
     // jars to include when performing a setup
-    val addJars = update.value.matching({ x: ModuleID => apiFilter(x.name)}) ++ asExtraClasspath.value
+    val addJars = asLibClasspath.value
 
     //println(addJars)
 
@@ -161,7 +161,6 @@ trait SetupSettings extends Utils {
       //println(file)
       println("+ " + tgt.getAbsolutePath)
     }
-
   }
 
   val asSetupOfflineTask = asSetupOffline := {

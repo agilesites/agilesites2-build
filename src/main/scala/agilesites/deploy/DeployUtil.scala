@@ -12,45 +12,6 @@ import dispatch.Defaults._
  * Created by msciab on 10/04/15.
  */
 trait DeployUtil {
-  /**
-   * Extract the index of the classes annotated with the @Index annotation
-   */
-  def extractClassAndIndex(file: File): Option[Tuple2[String, String]] = {
-    import scala.io._
-
-    //println("***" + file)
-
-    var packageRes: Option[String] = None;
-    var indexRes: Option[String] = None;
-    var classRes: Option[String] = None;
-    val packageRe = """.*package\s+([\w\.]+)\s*;.*""".r;
-    val indexRe = """.*@Index\(\"(.*?)\"\).*""".r;
-    val classRe = """.*class\s+(\w+).*""".r;
-
-    if (file.getName.endsWith(".java") || file.getName.endsWith(".scala"))
-      for (line <- Source.fromFile(file).getLines) {
-        line match {
-          case packageRe(m) =>
-            //println(line + ":" + m)
-            packageRes = Some(m)
-          case indexRe(m) =>
-            //println(line + ":" + m)
-            indexRes = Some(m)
-          case classRe(m) =>
-            //println(line + ":" + m)
-            classRes = Some(m)
-          case _ => ()
-        }
-      }
-
-    if (packageRes.isEmpty || indexRes.isEmpty || classRes.isEmpty)
-      None
-    else {
-      val t = (indexRes.get, packageRes.get + "." + classRes.get)
-      Some(t)
-    }
-  }
-
 
   def uploadJar(uri: URL, jar: File, log: Logger, sites: String, username: String, password: String) = {
     val path = URLDecoder.decode(uri.getPath, "UTF-8").substring(1)
