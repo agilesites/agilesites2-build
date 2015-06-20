@@ -89,9 +89,6 @@ trait DeploySettings extends Utils with DeployUtil {
         sitesUrl.value, sitesUser.value, sitesPassword.value))
   }
 
-  val st = new StringTokenizer("")
-
-
   val asDeployTask = asDeploy := Def.sequential(
     sitesCheck,
     asCopyStatics,
