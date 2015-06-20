@@ -114,6 +114,9 @@ trait ToolsSettings extends Utils {
     val log = streams.value.log
     val envision = file(sitesEnvision.value)
 
+    if(!envision.isDirectory)
+      throw new Exception(s"not found envision directory ${envision.getAbsolutePath}")
+
     val sites = sitesFocus.value
     val defaultSite = sites.split(",").head
 
