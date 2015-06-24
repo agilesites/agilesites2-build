@@ -6,6 +6,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,8 +40,13 @@ public class IndexProcessor extends AbstractProcessor {
         super.init(env);
         site = env.getOptions().get("site");
         String uidfile = env.getOptions().get("uid");
-        System.out.println(uidfile);
-        uid = new UidGenerator(uidfile);
+        System.out.println("loading "+uidfile);
+        try {
+            uid = new UidGenerator(uidfile);
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
+            env.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
+        }
         filer = env.getFiler();
         created = false;
     }

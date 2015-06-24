@@ -17,15 +17,17 @@ import java.util.*;
 public class UidGenerator {
 
     private Properties prp = new Properties();
-    private long maxId = 0;
+    private long minId = 0;
     private File file;
+    Set<Long> idSet = new HashSet<Long>();
+    int RANGE = 1000 * 60;
 
     /**
      * Load the current ids in order to generate new ones
      *
      * @param filename
      */
-    public UidGenerator(String filename) {
+    public UidGenerator(String filename) throws Exception {
         file = new File(filename);
 
         if (file.exists()) {
@@ -36,6 +38,7 @@ public class UidGenerator {
             }
             Enumeration e = prp.propertyNames();
             while (e.hasMoreElements()) {
+
                 String key = e.nextElement().toString();
                 long id = 0;
                 try {
@@ -43,26 +46,39 @@ public class UidGenerator {
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-                maxId = Math.max(id, maxId);
+                //System.out.println("id:"+id);
+                if (idSet.contains(id))
+                    throw new Exception("Duplicate id , cannot continue!");
+                idSet.add(id);
+                minId = Math.min(id, minId);
             }
         }
-        if (maxId == 0)
-            maxId = System.currentTimeMillis();
+        if (minId == 0)
+            minId = System.currentTimeMillis();
     }
 
     /**
-     * Add a new key assing a new id if not already there
+     * Add a new key assigning a new id if not already there
      *
      * @param key
      */
     public void add(String key) {
         Object val = prp.get(key);
-        if (val == null) {
-            maxId++;
-            System.out.println("assigning an id " + key + "=" + maxId);
-            prp.setProperty(key, "" + maxId);
-        }
+        if (val != null)
+            return;
+
+        // generate a new random id in the range
+        long newId = 0;
+        Random rnd = new Random();
+        do {
+            newId = minId + 1 + rnd.nextInt(RANGE);
+        } while (idSet.contains(newId));
+
+        System.out.println("Generated id " + key + "=" + newId);
+        prp.setProperty(key, "" + newId);
+        idSet.add(newId);
     }
+
 
     /**
      * Save properties in a file in alphabetical order
@@ -82,9 +98,9 @@ public class UidGenerator {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         UidGenerator uid = new UidGenerator(args[0]);
-        for(int i=1; i<args.length; i++)
+        for (int i = 1; i < args.length; i++)
             uid.add(args[i]);
         uid.save();
     }
