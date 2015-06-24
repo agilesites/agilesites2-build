@@ -18,9 +18,11 @@ object AgileSitesConfigPlugin
 
     // read all the properties in a single property map
     lazy val utilPropertyMap = settingKey[Map[String, String]]("AgileSites Property Map")
+    lazy val uidPropertyMap = settingKey[Map[String, String]]("AgileSites Property Map")
 
     val sitesHello = taskKey[Option[String]]("Hello World, Sites!")
     val sitesFocus = settingKey[String]("Sites's sites currently under focus")
+    val sitesFocusId = settingKey[Long]("Sites's site id currently under focus")
     val sitesStatics = settingKey[String]("Comma separated list of extensions to be considered statics")
 
     val sitesVersion = settingKey[String]("Sites or Fatwire Version Number")
@@ -66,10 +68,13 @@ object AgileSitesConfigPlugin
 
 
   override lazy val projectSettings = Seq(
+
     utilProperties := propertyFiles,
+
     // focus on which site?
     sitesFocus := utilPropertyMap.value.getOrElse("sites.focus", "Demo"),
-    sitesStatics := utilPropertyMap.value.getOrElse("sites.statics", "js,css,gif,png,jpg,ico"),
+    sitesStatics := utilPropertyMap.value.getOrElse("sites.statics", "js,css,gif,png,jpg,ico,woff,woff2,ttf"),
+    sitesFocusId := uidPropertyMap.value.getOrElse(s"Site.${sitesFocus.value}.Config", "-1").toLong,
 
     // installation properties
     sitesDirectory := file(utilPropertyMap.value.getOrElse("sites.directory",
