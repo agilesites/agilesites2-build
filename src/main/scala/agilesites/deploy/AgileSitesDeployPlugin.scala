@@ -6,20 +6,26 @@ import agilesites.config.AgileSitesConfigPlugin
 object AgileSitesDeployPlugin
   extends AutoPlugin
   with DeploySettings
-   with ScaffoldSettings {
+  with AnnotationSettings
+  with CopySettings {
 
   override def requires = AgileSitesConfigPlugin
 
   object autoImport {
     // upload target
     val asPackage = taskKey[Unit]("AgileSites package jar")
-    val asPackageTarget = settingKey[Option[String]]("AgileSites deploy target")
     val asCopyStatics = taskKey[Unit]("AgileSites copy statics")
-    val asDeploy = taskKey[Unit]("AgileSites deploy")
-    val asUpload = taskKey[Unit]("AgileSites upload jar")
+    val asDeploy = inputKey[Unit]("AgileSites deploy")
     val asPopulate = taskKey[Unit]("AgileSites populate")
+
+    val asScpFromTo = settingKey[Option[(File, URL)]]("AgileSites scp from source file to target url (either scp:// or file://)")
+    val asScp = taskKey[Unit]("AgileSites scp")
+
   }
 
-  override lazy val projectSettings = deploySettings
+  override lazy val projectSettings =
+    deploySettings ++
+      annotationSettings ++
+      copySettings
 
 }
