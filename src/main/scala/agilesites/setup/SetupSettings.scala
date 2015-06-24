@@ -15,15 +15,6 @@ trait SetupSettings extends Utils {
     with ToolsSettings
     with TomcatSettings =>
 
-  // jars to be added to the wcs-setup
-  def coreFilter(x: String) = x.startsWith("agilesites2-core")
-
-  // jars to be added to the library setup
-  def apiFilter(x: String) =
-    x.startsWith("agilesites2-api") ||
-      x.startsWith("junit") ||
-      x.startsWith("hamcrest")
-
   import agilesites.config.AgileSitesConfigPlugin.autoImport._
   import agilesites.setup.AgileSitesSetupPlugin.autoImport._
 
@@ -66,7 +57,6 @@ trait SetupSettings extends Utils {
       prp.setProperty("agilesites.site." + nsite, "/cs/Satellite/" + nsite)
       prp.setProperty("agilesites.name." + nsite, s)
     }
-
     prp.setProperty("agilesites.statics", sitesStatics.value)
 
     // store
