@@ -19,10 +19,8 @@ trait UtilSettings extends Utils {
   lazy val utilPropertyMapTask = utilPropertyMap := {
     val prp: Properties = new Properties
     for (prpFileName <- utilProperties.value) {
-      val prpFile = file(prpFileName)
-      if (!prpFile.exists) {
-        //System.out.println("not found property file " + prpFile)
-      } else {
+      val prpFile = baseDirectory.value / prpFileName
+      if (prpFile.exists) {
         System.out.println(">>> " + prpFile)
         prp.load(new java.io.FileInputStream(prpFile))
       }
@@ -35,6 +33,16 @@ trait UtilSettings extends Utils {
     map
   }
 
+  lazy val uidPropertyMapTask = uidPropertyMap := {
+    val prp: Properties = new Properties
+    val prpFile = baseDirectory.value / "src" / "main" / "resources" / sitesFocus.value / "uid.properties"
+    if (prpFile.exists) {
+      System.out.println(">>> " + prpFile)
+      prp.load(new java.io.FileInputStream(prpFile))
+    }
+    prp.asScala.toMap
+  }
+
   // display a prompt with the project name
   lazy val utilShellPromptTask = shellPrompt in ThisBuild := {
     state =>
@@ -44,6 +52,7 @@ trait UtilSettings extends Utils {
 
   val utilSettings = Seq(
     utilShellPromptTask,
-    utilPropertyMapTask
+    utilPropertyMapTask,
+    uidPropertyMapTask
   )
 }
