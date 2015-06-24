@@ -48,7 +48,6 @@ trait CopySettings extends Utils {
     }
   }
 
-
   val asCopyStaticsTask = asCopyStatics := {
     val base = baseDirectory.value
     val tgt = sitesWebapp.value
@@ -69,10 +68,10 @@ trait CopySettings extends Utils {
     recursiveCopy(srcDir, dstDir, s.log)(isHtml)
   }
 
-
-  val deploySettings = Seq(
+  val copySettings = Seq(
     asCopyStaticsTask,
     asScpTask,
     asScpFromTo := None,
-    resourceGenerators in Compile += copyHtmlTask.taskValue)
+    resourceGenerators in Compile += copyHtmlTask.taskValue
+  )
 }
