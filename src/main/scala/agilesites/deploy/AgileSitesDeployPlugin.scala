@@ -12,7 +12,6 @@ object AgileSitesDeployPlugin
   override def requires = AgileSitesConfigPlugin
 
   object autoImport {
-    // upload target
     val asPackage = taskKey[Unit]("AgileSites package jar")
     val asCopyStatics = taskKey[Unit]("AgileSites copy statics")
     val asDeploy = inputKey[Unit]("AgileSites deploy")

@@ -30,7 +30,7 @@ trait DeploySettings extends Utils {
     import scala.collection.JavaConverters._
 
     // init, requesting the cookie
-    println(" %%%%%%% init");
+    println("init")
     val reqInit = req <<? Map("op" -> "init",
       "site" -> site, "siteid" -> siteId.toString,
       "username" -> username, "password" -> password)
@@ -39,16 +39,15 @@ trait DeploySettings extends Utils {
     val cookies = res.getCookies.asScala
     log.debug(s"init ${res.getResponseBody} ")
 
-    /*
-
     // status, requesting the status of the jars and a key to post
-    println(" %%%%%%% status");
+    println("status")
     val reqKey = cookies.foldLeft(req)(_.addCookie(_)) <<? Map("op" -> "status")
     log.debug(reqKey.toRequest.getRawUrl)
     val key = Http(reqKey).apply.getResponseBody.trim
-    log.debug(s"key ${key} ")
+    log.debug(s"status ${key} ")
 
     // upload the jar
+    println("upload")
     val reqFile = req.setMethod("POST").
       setHeader("Content-Type", "multipart/form-data").
       addBodyPart(new FilePart("jar", jar)).
@@ -56,19 +55,17 @@ trait DeploySettings extends Utils {
       addBodyPart(new StringPart("_authkey_", key)).
       addBodyPart(new StringPart("username", username)).
       addBodyPart(new StringPart("password", password)).
-      addBodyPart(new StringPart("site", site)).
       addBodyPart(new StringPart("siteid", siteId.toString))
 
     val reqFile1 = cookies.foldLeft(reqFile)(_.addCookie(_))
     val resFile = Http(reqFile1).apply.getResponseBody.trim
     log.info(s"${resFile}")
-    resFile */
-
-    "hello"
+    resFile
   }
 
   // package jar task - build the jar and copy it  to destination 
   val asPackageTask = asPackage := {
+
     if (sitesHello.value.isEmpty)
       throw new Exception(s"Sites must be up and running at ${sitesUrl.value}.")
 
@@ -81,6 +78,7 @@ trait DeploySettings extends Utils {
     val (user: String, pass: String) =
       if (info != null) info.split(":")
       else (sitesUser.value, sitesPassword.value)
+
     uploadJar(new URL(sitesUrl.value), jar, log, site, siteId, user, pass)
   }
 

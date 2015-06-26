@@ -28,7 +28,7 @@ libraryDependencies ++=
     ,"org.apache.tomcat"       % "tomcat-jsp-api" % tomcatVersion
     ,"org.apache.tomcat"       % "tomcat-dbcp" % tomcatVersion
     ,"org.apache.httpcomponents" % "httpclient" % "4.3.6"
-    ,"org.scalatest"           %% "scalatest"      % "2.2.0" % "test"
+    ,"org.scalatest"           %% "scalatest"      % "2.2.4" % "test"
     ,"org.clapper"             %% "scalasti"       % "1.0.0"
     ,"net.databinder.dispatch" %% "dispatch-core"  % "0.11.2"
     ,"org.slf4j"               % "slf4j-simple"    % "1.6.1"
@@ -36,6 +36,14 @@ libraryDependencies ++=
     ,"com.jcraft"              % "jsch"            % "0.1.51"
     ,"commons-io"              % "commons-io"      % "2.4"
     ,"commons-httpclient"      % "commons-httpclient"  % "3.1"
+    ,"com.typesafe.akka" %% "akka-actor"   % "2.3.9"
+    ,"com.typesafe.akka" %% "akka-slf4j"   % "2.3.9"
+    ,"com.typesafe.akka" %% "akka-testkit" % "2.3.9" % "test"
+    ,"io.spray"          %% "spray-can"    % "1.3.2"
+    ,"io.spray"          %% "spray-http"   % "1.3.2"
+    ,"io.spray"          %% "spray-httpx"  % "1.3.2"
+    ,"org.scalaz"        %% "scalaz-core"  % "7.0.6"
+    ,"io.argonaut"       %% "argonaut"     % "6.0.4"
     )
 
 pomIncludeRepository := { _ => false }

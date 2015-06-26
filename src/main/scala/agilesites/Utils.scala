@@ -7,10 +7,6 @@ import sbt._
 
 trait Utils {
 
-  //def file(s: String) = new File(s)
-
-  //def file(f: File, s: String) = new File(f, s)
-
   // read a file
   def readFile(f: File) = {
     val fr = new FileReader(f)
@@ -21,7 +17,6 @@ trait Utils {
       c = fr.read
     }
     fr.close
-    fr.close()
     sb.toString
   }
 
