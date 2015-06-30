@@ -11,12 +11,21 @@ import scala.collection.JavaConverters._
 /**
  * Created by msciab on 08/02/15.
  */
-trait UtilSettings extends Utils {
+trait PropertySettings extends Utils {
   this: AutoPlugin =>
 
   import agilesites.config.AgileSitesConfigPlugin.autoImport._
 
-  lazy val utilPropertyMapTask = utilPropertyMap := {
+  val profile = Option(System.getProperty("profile")).map(Seq(_)).getOrElse(Nil)
+
+  val propertyFiles = Seq(
+    "agilesites.dist.properties",
+    "agilesites.properties",
+    "agilesites.local.properties") ++
+    profile.map(x =>
+      s"agilesites.${x}.properties")
+
+  lazy val utilPropertyMapTask = utilPropertyMap in Global := {
     val prp: Properties = new Properties
     for (prpFileName <- utilProperties.value) {
       val prpFile = baseDirectory.value / prpFileName
@@ -33,7 +42,7 @@ trait UtilSettings extends Utils {
     map
   }
 
-  lazy val uidPropertyMapTask = uidPropertyMap := {
+  lazy val uidPropertyMapTask = uidPropertyMap in Global := {
     val prp: Properties = new Properties
     val prpFile = baseDirectory.value / "src" / "main" / "resources" / sitesFocus.value / "uid.properties"
     if (prpFile.exists) {
@@ -50,7 +59,8 @@ trait UtilSettings extends Utils {
         Option(System.getProperty("profile")).map("[" + _ + "]> ").getOrElse("> ")
   }
 
-  val utilSettings = Seq(
+  val propertySettings = Seq(
+    utilProperties in Global := propertyFiles,
     utilShellPromptTask,
     utilPropertyMapTask,
     uidPropertyMapTask

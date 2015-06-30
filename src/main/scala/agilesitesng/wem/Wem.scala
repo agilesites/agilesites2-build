@@ -1,14 +1,11 @@
 package agilesitesng.wem
 
-import akka.actor.Actor.Receive
 import akka.actor.{Props, ActorLogging, Actor, ActorRef}
 import akka.io.IO
 import argonaut._, Argonaut._
-import com.typesafe.config.ConfigException.Parse
 import spray.http.{HttpResponse, FormData, Uri}
 import spray.http.Uri.{Path, Host, Authority}
 import spray.httpx.RequestBuilding._
-
 import scala.collection._
 
 /**
@@ -25,12 +22,12 @@ object Wem {
 
   case class AskDelete(ref: ActorRef, url: String) extends WemMsg
 
-  case class Reply(json: Json)
+  case class Reply(json: Json) extends WemMsg
 
 
   def wemActor(url: Option[java.net.URL] = None,
                username: Option[String] = None,
-               password: Option[String] = None) = Props(classOf[WemActor], url, username, password)
+               password: Option[String ]= None) = Props(classOf[WemActor], url, username, password)
 
   class WemActor(url: Option[java.net.URL], username: Option[String], password: Option[String])
     extends Actor with ActorLogging {
@@ -40,6 +37,8 @@ object Wem {
     val jnu = url getOrElse new java.net.URL(context.system.settings.config.getString("akka.sites.url"))
     val user = username getOrElse context.system.settings.config.getString("akka.sites.user")
     val pass = password getOrElse system.settings.config.getString("akka.sites.pass")
+
+    println(jnu+" "+user+"/"+pass)
 
     def receive = preLogin
 

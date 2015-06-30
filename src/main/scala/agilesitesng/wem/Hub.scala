@@ -1,16 +1,19 @@
 package agilesitesng.wem
 
-import akka.actor.Actor.Receive
-import akka.actor.{Props, ActorRef, ActorLogging, Actor}
-import argonaut.Json
+import akka.actor._
+import java.net.URL
 
 /**
  * Created by msciab on 26/04/15.
  */
 object Hub {
 
-  case class Init()
+  case class Init(url: Option[URL] = None, username: Option[String ]= None, password: Option[String] = None)
+  case class Finish()
+
   case class Get(request: String)
+
+  def hubActor() = Props[HubActor]
 
   class HubActor extends Actor with ActorLogging {
 
@@ -19,20 +22,24 @@ object Hub {
     def receive = init
 
     def init: Receive = {
-      case Init() =>
-        val wem = context.actorOf(wemActor())
+      case Init(url, user, pass) =>
+        println(s"!!! init ${url}, ${user}, ${pass}")
+        val wem = context.actorOf(wemActor(url, user, pass))
         context.become(running(wem))
         log.debug("**** Init {}", sender)
-
         sender ! "OK"
     }
 
     def running(wem: ActorRef): Receive = {
       case Get(request) =>
-        //println("Get "+request)
+        println("Get "+request)
         val sender = context.sender()
         log.debug("**** Get {} sender {}", request, sender)
         wem ! AskGet(sender, request)
+      case Finish() =>
+        wem ! PoisonPill
+        context.become(init)
+        sender ! "OK"
     }
 
 

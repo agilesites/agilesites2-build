@@ -11,17 +11,16 @@ object AgileSitesWemPlugin
   override def requires = AgileSitesConfigPlugin
 
   object autoImport {
-    lazy val asConfig = config("as")
+
     // Keys
-    lazy val wemConfig = config("wem").hide
-    lazy val login = taskKey[String]("WEM login")
-    lazy val get = inputKey[Unit]("WEM get")
+    lazy val wemConfig = config("owem").hide
+    lazy val ologin = taskKey[String]("WEM login")
+    lazy val oget = inputKey[Unit]("WEM get")
 
   }
 
   import autoImport._
 
-  override val projectSettings =
-    Seq(ivyConfigurations ++= Seq(asConfig)) ++
-      restSettings
+  override val projectConfigurations =  Seq(wemConfig)
+  override val projectSettings = restSettings
 }

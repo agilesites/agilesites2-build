@@ -13,12 +13,12 @@ trait RestSettings {
   import agilesites.config.AgileSitesConfigPlugin.autoImport._
 
   // Tasks
-  val getTask = get := {
+  val getTask = oget := {
     val args = Def.spaceDelimited("<args>").parsed
     if (args.isEmpty) {
       println("usage: wem:get path [xpath...]")
     } else {
-      val token = login.value
+      val token = ologin.value
       val base = sitesUrl.value
       val s = RestUtil.get(base, args.head, token)
       RestUtil.processXmlWithXpath(s, args.tail)
@@ -26,7 +26,7 @@ trait RestSettings {
     }
   }
 
-  val loginTask = login := {
+  val loginTask = ologin := {
     val url = sitesUrl.value
     val user = sitesUser.value
     val pass = sitesPassword.value

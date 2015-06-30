@@ -6,19 +6,25 @@ import sbt.plugins.JvmPlugin
 
 object AgileSitesConfigPlugin
   extends AutoPlugin
-  with UtilSettings
+  with PropertySettings
   with VersionSettings {
 
   override def requires = JvmPlugin
 
   object autoImport {
 
-    // where the property files are
-    lazy val utilProperties = settingKey[Seq[String]]("AgileSites Property Files")
-
     // read all the properties in a single property map
+    lazy val utilProperties = settingKey[Seq[String]]("AgileSites Property Files")
     lazy val utilPropertyMap = settingKey[Map[String, String]]("AgileSites Property Map")
     lazy val uidPropertyMap = settingKey[Map[String, String]]("AgileSites Property Map")
+
+    val sitesUrl = settingKey[String]("Sites URL")
+    val sitesUser = settingKey[String]("Sites User ")
+    val sitesPassword = settingKey[String]("Sites Password")
+    val sitesAdminUser = settingKey[String]("Sites admin user ")
+    val sitesAdminPassword = settingKey[String]("Sites admin password")
+    val sitesPort = settingKey[String]("Sites Port")
+    val sitesHost = settingKey[String]("Sites Host")
 
     val sitesHello = taskKey[Option[String]]("Hello World, Sites!")
     val sitesFocus = settingKey[String]("Sites's sites currently under focus")
@@ -31,14 +37,6 @@ object AgileSitesConfigPlugin
     val sitesShared = settingKey[String]("Sites Shared Directory")
     val sitesWebapp = settingKey[String]("Sites Webapp Directory")
     val sitesWebappName = settingKey[String]("Sites Webapp Name")
-
-    val sitesUrl = settingKey[String]("Sites URL")
-    val sitesUser = settingKey[String]("Sites User ")
-    val sitesPassword = settingKey[String]("Sites Password")
-    val sitesAdminUser = settingKey[String]("Sites admin user ")
-    val sitesAdminPassword = settingKey[String]("Sites admin password")
-    val sitesPort = settingKey[String]("Sites Port")
-    val sitesHost = settingKey[String]("Sites Host")
 
     val sitesPopulate = settingKey[String]("Sites Populate Dir")
     val sitesEnvision = settingKey[String]("Sites Envision Dir")
@@ -56,20 +54,15 @@ object AgileSitesConfigPlugin
     val weblogicServer = settingKey[File]("Weblogic Server")
 
   }
-
   import agilesites.config.AgileSitesConfigPlugin.autoImport._
 
-  val profile = Option(System.getProperty("profile")).map(Seq(_)).getOrElse(Nil)
-
-  val propertyFiles = Seq("agilesites.dist.properties",
-    "agilesites.properties",
-    "agilesites.local.properties") ++
-    profile.map(x => s"agilesites.${x}.properties")
-
-
-  override lazy val projectSettings = Seq(
-
-    utilProperties := propertyFiles,
+  override val projectSettings = Seq(
+    sitesUrl in Global := utilPropertyMap.value.getOrElse("sites.url",
+      s"http://${sitesHost.value}:${sitesPort.value}/cs"),
+    sitesUser in Global := utilPropertyMap.value.getOrElse("sites.user", "fwadmin"),
+    sitesPassword in Global := utilPropertyMap.value.getOrElse("sites.password", "xceladmin"),
+    sitesAdminUser in Global := utilPropertyMap.value.getOrElse("sites.admin.user", "ContentServer"),
+    sitesAdminPassword in Global := utilPropertyMap.value.getOrElse("sites.admin.password", "password"),
 
     // focus on which site?
     sitesFocus := utilPropertyMap.value.getOrElse("sites.focus", "Demo"),
@@ -94,16 +87,10 @@ object AgileSitesConfigPlugin
       (baseDirectory.value / "export" / "envision").getAbsolutePath),
 
     // versions
-    sitesVersion := utilPropertyMap.value.getOrElse("sites.version", "11.1.1.8.0"),
-    sitesUser := utilPropertyMap.value.getOrElse("sites.user", "fwadmin"),
-    sitesPassword := utilPropertyMap.value.getOrElse("sites.password", "xceladmin"),
-    sitesAdminUser := utilPropertyMap.value.getOrElse("sites.admin.user", "ContentServer"),
-    sitesAdminPassword := utilPropertyMap.value.getOrElse("sites.admin.password", "password"),
 
+    sitesVersion := utilPropertyMap.value.getOrElse("sites.version", "11.1.1.8.0"),
     sitesPort := utilPropertyMap.value.getOrElse("sites.port", "11800"),
     sitesHost := utilPropertyMap.value.getOrElse("sites.host", "localhost"),
-    sitesUrl := utilPropertyMap.value.getOrElse("sites.url",
-      s"http://${sitesHost.value}:${sitesPort.value}/cs"),
 
     satelliteWebapp := utilPropertyMap.value.getOrElse("satellite.webapp",
       (file(sitesWebapp.value).getParentFile / "ss").getAbsolutePath),
@@ -118,8 +105,7 @@ object AgileSitesConfigPlugin
     weblogicUrl := utilPropertyMap.value.getOrElse("weblogic.url", "t3://localhost:7001"),
     weblogicServer := file(utilPropertyMap.value.getOrElse("weblogic.server", "wlserver")),
     weblogicTargets := utilPropertyMap.value.getOrElse("weblogic.targets", "AdminServer"),
-
     sitesHello := {
       helloSites(sitesUrl.value)
-    }) ++ utilSettings ++ versionSettings
+    })  ++ propertySettings ++ versionSettings
 }

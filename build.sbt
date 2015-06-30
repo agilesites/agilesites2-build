@@ -58,9 +58,9 @@ publishTo := {
       Some("releases"  at nexus + "content/repositories/releases")
   }
 
-publishArtifact in packageDoc := false
-
 publishArtifact in Test := false
+
+publishArtifact in packageDoc := false
 
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))
 
@@ -73,3 +73,6 @@ resolvers ++= Seq(Resolver.sonatypeRepo("releases"),
 net.virtualvoid.sbt.graph.Plugin.graphSettings
 
 addSbtPlugin("com.typesafe.sbt" %% "sbt-js-engine" % "1.1.2")
+
+addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.0.0")
+
