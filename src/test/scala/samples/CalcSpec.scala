@@ -2,12 +2,12 @@ package samples
 
 import akka.actor.ActorSystem
 import akka.testkit.{TestActorRef, TestKit}
-import org.scalatest.{BeforeAndAfterAll, MustMatchers, WordSpecLike}
+import org.scalatest.{Ignore, BeforeAndAfterAll, MustMatchers, WordSpecLike}
 
 /**
  * Created by msciab on 08/04/15.
  */
-class CalcSpec extends TestKit(ActorSystem("Calc"))
+@Ignore class CalcSpec extends TestKit(ActorSystem("Calc"))
 with WordSpecLike with MustMatchers with BeforeAndAfterAll {
   override def afterAll = TestKit.shutdownActorSystem(system)
 

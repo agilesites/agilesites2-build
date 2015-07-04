@@ -83,8 +83,8 @@ trait TomcatSettings extends Utils {
     println("+++ created server." + ext)
   }
 
-  import agilesites.config.AgileSitesConfigPlugin.autoImport._
-  import agilesites.setup.AgileSitesSetupPlugin.autoImport._
+  import agilesites.config.AgileSitesConfigKeys._
+  import agilesites.setup.AgileSitesSetupKeys._
 
   lazy val serverTask = server := {
 

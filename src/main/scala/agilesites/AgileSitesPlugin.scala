@@ -2,48 +2,28 @@ package agilesites
 
 import agilesites.config.AgileSitesConfigPlugin
 import agilesites.deploy.AgileSitesDeployPlugin
-import agilesites.js.AgileSitesJsPlugin
 import agilesites.setup.AgileSitesSetupPlugin
 import agilesites.web.AgileSitesWebPlugin
-import agilesites.wem.AgileSitesWemPlugin
-import agilesitesng.AgileSitesNgPlugin
-
-import sbt.Keys._
 import sbt._
+import sbt.plugins.JvmPlugin
 
 object AgileSitesPlugin
   extends AutoPlugin
   with Utils {
 
-  override def requires =
+  override def requires = JvmPlugin &&
     AgileSitesConfigPlugin &&
-      AgileSitesDeployPlugin &&
-      AgileSitesSetupPlugin &&
-      AgileSitesWebPlugin &&
-      AgileSitesWemPlugin &&
-      AgileSitesJsPlugin &&
-      AgileSitesNgPlugin
+    AgileSitesDeployPlugin &&
+    AgileSitesSetupPlugin &&
+    AgileSitesWebPlugin
 
+  /*
   def guiCmd = Command.args("gui", "<args>") { (state, args) =>
     val ex = Project.extract(state)
     val cp = ex.currentUnit.classpath
     exec("agilesites.gui.Main" +: args, state.configuration.baseDirectory, cp)
     state
-  }
+  }*/
 
-  def downloadCmd = Command.command("sitesDownload") { state =>
-
-    import agilesites.config.AgileSitesConfigPlugin.autoImport._
-    val extracted: Extracted = Project.extract(state)
-    val dir = extracted.get(sitesDirectory)
-
-    exec(Seq("agilesites.gui.Main", "download", dir.getAbsolutePath),
-      state.configuration.baseDirectory,
-      extracted.currentUnit.classpath)
-
-    state
-  }
-
-  override lazy val projectSettings = Seq(
-    commands ++= Seq(guiCmd, downloadCmd))
+  //override lazy val projectSettings = Seq(commands ++= Seq(guiCmd))
 }

@@ -15,8 +15,8 @@ trait SetupSettings extends Utils {
     with ToolsSettings
     with TomcatSettings =>
 
-  import agilesites.config.AgileSitesConfigPlugin.autoImport._
-  import agilesites.setup.AgileSitesSetupPlugin.autoImport._
+  import agilesites.config.AgileSitesConfigKeys._
+  import agilesites.setup.AgileSitesSetupKeys._
 
   lazy val asSetupServletRequest = taskKey[Unit]("setup servlet request")
   lazy val asSetupServletRequestTask = asSetupServletRequest := {

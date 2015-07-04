@@ -8,14 +8,14 @@ import akka.actor.ActorSystem
 import akka.io.IO
 import spray.can.Http
 import akka.testkit.{TestActorRef, TestKit}
-import org.scalatest.{BeforeAndAfterAll, MustMatchers, WordSpecLike}
+import org.scalatest.{Ignore, BeforeAndAfterAll, MustMatchers, WordSpecLike}
 
 import scala.concurrent.duration._
 
 /**
  * Created by msciab on 08/04/15.
  */
-class IpSpec extends TestKit(ActorSystem("Ip"))
+@Ignore class IpSpec extends TestKit(ActorSystem("Ip"))
 with WordSpecLike with MustMatchers with BeforeAndAfterAll {
 
   override def afterAll = {

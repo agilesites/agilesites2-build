@@ -8,10 +8,10 @@ import sbt._
 import scala.util.matching.Regex
 
 trait WebSettings extends Utils with WebUtil {
-  this: AutoPlugin  =>
+  this: AutoPlugin =>
 
-  import AgileSitesWebPlugin.autoImport._
-  import agilesites.config.AgileSitesConfigPlugin.autoImport._
+  import AgileSitesWebKeys._
+  import agilesites.config.AgileSitesConfigKeys._
 
   def fingerPrintMap(staticPrefix: String, files: Seq[File], prefixLen: Int): Seq[(Regex, (String, String))] =
     for (file <- files) yield {
@@ -24,7 +24,7 @@ trait WebSettings extends Utils with WebUtil {
       val fileAndHash = s"/${normfile}\n${md5sum}"
 
       val re = new Regex(s"(\\.\\./)*\\Q${normfile}\\E")
-      val r = ( re, fileAndHash -> hashedfile)
+      val r = (re, fileAndHash -> hashedfile)
       //println(r)
       r
     }

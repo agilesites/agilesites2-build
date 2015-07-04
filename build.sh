@@ -1,1 +1,1 @@
-sbt7 publish-local
+sbt publish-local

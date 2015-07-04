@@ -1,7 +1,6 @@
 package agilesites.config
 
 import java.nio.charset.Charset
-
 import sbt.Keys._
 import sbt._
 

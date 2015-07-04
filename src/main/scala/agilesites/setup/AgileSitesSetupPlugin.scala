@@ -17,33 +17,12 @@ object AgileSitesSetupPlugin
 
   override def requires = AgileSitesConfigPlugin && JvmPlugin
 
-  object autoImport {
-    lazy val asTomcatClasspath = taskKey[Seq[File]]("Tomcat Classpath")
-    lazy val asCoreClasspath = taskKey[Seq[File]]("AgileSites Core Classpath")
-    lazy val asApiClasspath = taskKey[Seq[File]]("AgileSites Api Classpath")
-    lazy val asPopulateClasspath = taskKey[Seq[File]]("AgileSites Populate Classpath")
+  val autoImport = AgileSitesSetupKeys
 
-    lazy val sitesInstall = taskKey[Unit]("Sites installation task")
-    lazy val proxyInstall = taskKey[Unit]("Proxy installation task")
-
-    lazy val asSetupOffline = taskKey[Unit]("AgileSites Setup (Offline)")
-    lazy val asSetupOnline = taskKey[Unit]("AgileSites Setup (Offline)")
-    lazy val asSetup = taskKey[Unit]("AgileSites installation task for local sites")
-    lazy val asStatics = settingKey[String]("AgileSites extensions to be recognized as statics")
-
-    lazy val asSetupWeblogic = taskKey[Unit]("AgileSites installation task for Weblogic")
-    lazy val weblogicDeploy = inputKey[Unit]("Weblogic Webapp Deploy")
-    lazy val weblogicRedeployCs = taskKey[Unit]("Weblogic Redeploy CS")
-    lazy val weblogicRedeployPackage = taskKey[Unit]("Weblogic Redeploy CS")
-    lazy val server = inputKey[Unit]("Launch Local Sites")
-    lazy val cmov = inputKey[Unit]("WCS Catalog Mover")
-  }
-
-  import agilesites.setup.AgileSitesSetupPlugin.autoImport._
-
-  override lazy val projectConfigurations = Seq(config("run"), config("core"), config("api"), config("populate"))
+  import agilesites.setup.AgileSitesSetupKeys._
 
   override lazy val projectSettings = Seq(
+    ivyConfigurations ++= Seq(config("run"), config("core"), config("api"), config("populate")),
     asTomcatClasspath <<= (update) map {
       report => report.select(configurationFilter("run"))
     }, asCoreClasspath <<= (update) map {

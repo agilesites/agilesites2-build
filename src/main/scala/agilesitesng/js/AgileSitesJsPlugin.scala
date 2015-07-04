@@ -1,32 +1,23 @@
-package agilesites.js
+package agilesitesng.js
 
-import java.io.File
-
-import agilesites.config.AgileSitesConfigPlugin
-import com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys
-import com.typesafe.sbt.web.Import.WebKeys
-import sbt.Keys._
-import sbt._
-import sbt.plugins.JvmPlugin
-import sbt._
-import sbt.Keys._
-import com.typesafe.sbt.web.SbtWeb
-import com.typesafe.sbt.jse.SbtJsTask
+import sbt._, Keys._
 import scala.concurrent.duration._
+import agilesites.config.AgileSitesConfigPlugin
+import sbt.plugins.JvmPlugin
+import com.typesafe.sbt.jse.SbtJsTask
+import com.typesafe.sbt.web.SbtWeb
+import com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys
 
 object AgileSitesJsPlugin
   extends AutoPlugin {
 
   override def requires = JvmPlugin && SbtWeb && AgileSitesConfigPlugin
 
-  object autoImport {
-    lazy val js = inputKey[Unit]("js runner")
-   }
+  val autoImport = AgileSitesJsKeys
 
   import autoImport._
   import SbtWeb.autoImport._
   import WebKeys._
-
 
   val jsTask = js := {
 

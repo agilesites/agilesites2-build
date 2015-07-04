@@ -1,12 +1,12 @@
 package agilesitesng.wem
 
-import akka.actor.{Props, ActorLogging, Actor, ActorRef}
-import akka.io.IO
 import argonaut._, Argonaut._
+import akka.actor.{Props, ActorLogging, Actor, ActorRef}
 import spray.http.{HttpResponse, FormData, Uri}
 import spray.http.Uri.{Path, Host, Authority}
 import spray.httpx.RequestBuilding._
 import scala.collection._
+import akka.io.IO
 
 /**
  * Created by msciab on 25/04/15.
@@ -18,16 +18,16 @@ object Wem {
 
   case class AskGet(ref: ActorRef, url: String) extends WemMsg
 
-  case class AskPut(ref: ActorRef, url: String, json: Json) extends WemMsg
+  case class AskPut(ref: ActorRef, url: String, json: Option[Json]) extends WemMsg
+
+  case class AskPost(ref: ActorRef, url: String, json: Option[Json]) extends WemMsg
 
   case class AskDelete(ref: ActorRef, url: String) extends WemMsg
 
-  case class Reply(json: Json) extends WemMsg
-
-
   def wemActor(url: Option[java.net.URL] = None,
                username: Option[String] = None,
-               password: Option[String ]= None) = Props(classOf[WemActor], url, username, password)
+               password: Option[String] = None) =
+    Props(classOf[WemActor], url, username, password)
 
   class WemActor(url: Option[java.net.URL], username: Option[String], password: Option[String])
     extends Actor with ActorLogging {
@@ -38,14 +38,13 @@ object Wem {
     val user = username getOrElse context.system.settings.config.getString("akka.sites.user")
     val pass = password getOrElse system.settings.config.getString("akka.sites.pass")
 
-    println(jnu+" "+user+"/"+pass)
+    //println(jnu + " " + user + "/" + pass)
 
     def receive = preLogin
 
     override def preStart {
-      log.debug("******* preStart")
+      log.debug("preStart")
       // ask for a ticket
-
       val host = Authority(Host(jnu.getHost), jnu.getPort)
       val uri = Uri(jnu.getProtocol, authority = host, path = Path("/cas/v1/tickets"))
       http ! Post(uri, FormData(Seq("username" -> user, "password" -> pass)))
@@ -66,10 +65,10 @@ object Wem {
         log.debug("HttpResponse Location: {} ({})", location, headers.map(_.value))
         if (location.nonEmpty) {
           http ! Post(Uri(location.get.value), FormData(Seq("service" -> "*")))
-          log.debug("**** Reply with Location {}", location.get.value)
+          log.debug("Reply with Location {}", location.get.value)
         } else {
           val ticket = res.entity.asString
-          log.debug("**** Reply with Ticket {}", ticket)
+          log.debug("Reply with Ticket {}", ticket)
           context.become(postLogin(ticket), false)
           flushQueue
         }
@@ -78,15 +77,54 @@ object Wem {
         queue.enqueue(msg)
     }
 
+
     def postLogin(ticket: String): Receive = {
+
       case AskGet(ref, what) =>
         val uri = s"${jnu.toString}/REST${what}?multiticket=${ticket}"
         val req = Get(Uri(uri)) ~>
           //addHeader("X-CSRF-Token", ticket) ~>
           addHeader("Accept", "application/json")
-        log.debug("!!!!!!! get {}", req.toString)
+        log.debug("get {}", req.toString)
         http ! req
         context.become(waitForHttpReply(ref), false)
+
+      case AskDelete(ref, what) =>
+        val uri = s"${jnu.toString}/REST${what}?multiticket=${ticket}"
+        val req = Delete(Uri(uri)) ~>
+          //addHeader("X-CSRF-Token", ticket) ~>
+          addHeader("Accept", "application/json")
+        log.debug("delete {}", req.toString)
+        http ! req
+        context.become(waitForHttpReply(ref), false)
+
+
+      case AskPost(ref, what, body) =>
+        val uri = s"${jnu.toString}/REST${what}?multiticket=${ticket}"
+        if(body.isEmpty) {
+          ref ! Protocol.Reply(jString("error: empty post"))
+        } else {
+          val req = Post(Uri(uri), body.get.string) ~>
+            //addHeader("X-CSRF-Token", ticket) ~>
+            addHeader("Accept", "application/json")
+          log.debug("post {}", req.toString)
+          http ! req
+          context.become(waitForHttpReply(ref), false)
+        }
+
+
+      case AskPut(ref, what, body) =>
+        val uri = s"${jnu.toString}/REST${what}?multiticket=${ticket}"
+        if(body.isEmpty) {
+          ref ! Protocol.Reply(jString("error: empty post"))
+        } else {
+          val req = Put(Uri(uri), body.get.string) ~>
+            //addHeader("X-CSRF-Token", ticket) ~>
+            addHeader("Accept", "application/json")
+          log.debug("put {}", req.toString)
+          http ! req
+          context.become(waitForHttpReply(ref), false)
+        }
     }
 
     def waitForHttpReply(ref: ActorRef): Receive = {
@@ -94,7 +132,7 @@ object Wem {
         val body = res.entity.asString
         log.debug("body={}", body)
         val json = argonaut.Parse.parse(body).getOrElse(jString("error: bad json"))
-        ref ! Reply(json)
+        ref ! Protocol.Reply(json)
         context.unbecome()
         flushQueue
       case msg: WemMsg =>

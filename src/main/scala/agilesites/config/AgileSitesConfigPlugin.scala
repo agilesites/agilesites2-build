@@ -11,52 +11,11 @@ object AgileSitesConfigPlugin
 
   override def requires = JvmPlugin
 
-  object autoImport {
+  val autoImport = AgileSitesConfigKeys
 
-    // read all the properties in a single property map
-    lazy val utilProperties = settingKey[Seq[String]]("AgileSites Property Files")
-    lazy val utilPropertyMap = settingKey[Map[String, String]]("AgileSites Property Map")
-    lazy val uidPropertyMap = settingKey[Map[String, String]]("AgileSites Property Map")
+  import AgileSitesConfigKeys._
 
-    val sitesUrl = settingKey[String]("Sites URL")
-    val sitesUser = settingKey[String]("Sites User ")
-    val sitesPassword = settingKey[String]("Sites Password")
-    val sitesAdminUser = settingKey[String]("Sites admin user ")
-    val sitesAdminPassword = settingKey[String]("Sites admin password")
-    val sitesPort = settingKey[String]("Sites Port")
-    val sitesHost = settingKey[String]("Sites Host")
-
-    val sitesHello = taskKey[Option[String]]("Hello World, Sites!")
-    val sitesFocus = settingKey[String]("Sites's sites currently under focus")
-    val sitesFocusId = settingKey[Long]("Sites's site id currently under focus")
-    val sitesStatics = settingKey[String]("Comma separated list of extensions to be considered statics")
-
-    val sitesVersion = settingKey[String]("Sites or Fatwire Version Number")
-    val sitesDirectory = settingKey[File]("Sites installation folder")
-    val sitesHome = settingKey[String]("Sites Home Directory")
-    val sitesShared = settingKey[String]("Sites Shared Directory")
-    val sitesWebapp = settingKey[String]("Sites Webapp Directory")
-    val sitesWebappName = settingKey[String]("Sites Webapp Name")
-
-    val sitesPopulate = settingKey[String]("Sites Populate Dir")
-    val sitesEnvision = settingKey[String]("Sites Envision Dir")
-
-    val satelliteWebapp = settingKey[String]("Sites Satellite Directory")
-    val satelliteHome = settingKey[String]("Sites Satellite Home Directory")
-    val satelliteUrl = settingKey[String]("Sites Satellite Url Directory")
-    val satelliteUser = settingKey[String]("Satellite user ")
-    val satellitePassword = settingKey[String]("Satellite password")
-
-    val weblogicUrl = settingKey[String]("Weblogic Url")
-    val weblogicTargets = settingKey[String]("Weblogic Target")
-    val weblogicUser = settingKey[String]("Weblogic User")
-    val weblogicPassword = settingKey[String]("Weblogic Password")
-    val weblogicServer = settingKey[File]("Weblogic Server")
-
-  }
-  import agilesites.config.AgileSitesConfigPlugin.autoImport._
-
-  override val projectSettings = Seq(
+  override val projectSettings = propertySettings ++ versionSettings ++ Seq(
     sitesUrl in Global := utilPropertyMap.value.getOrElse("sites.url",
       s"http://${sitesHost.value}:${sitesPort.value}/cs"),
     sitesUser in Global := utilPropertyMap.value.getOrElse("sites.user", "fwadmin"),
@@ -87,7 +46,6 @@ object AgileSitesConfigPlugin
       (baseDirectory.value / "export" / "envision").getAbsolutePath),
 
     // versions
-
     sitesVersion := utilPropertyMap.value.getOrElse("sites.version", "11.1.1.8.0"),
     sitesPort := utilPropertyMap.value.getOrElse("sites.port", "11800"),
     sitesHost := utilPropertyMap.value.getOrElse("sites.host", "localhost"),
@@ -107,5 +65,5 @@ object AgileSitesConfigPlugin
     weblogicTargets := utilPropertyMap.value.getOrElse("weblogic.targets", "AdminServer"),
     sitesHello := {
       helloSites(sitesUrl.value)
-    })  ++ propertySettings ++ versionSettings
+    })
 }

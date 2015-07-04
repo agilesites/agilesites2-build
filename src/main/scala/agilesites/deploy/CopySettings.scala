@@ -1,21 +1,14 @@
 package agilesites.deploy
 
-import java.net.URLDecoder
-
 import agilesites.Utils
-import com.ning.http.client.StringPart
-import com.ning.http.multipart.FilePart
-import dispatch.Defaults._
-import dispatch._
 import sbt.Keys._
 import sbt._
 
 trait CopySettings extends Utils {
   this: AutoPlugin =>
 
-  import agilesites.config.AgileSitesConfigPlugin.autoImport._
-  import agilesites.deploy.AgileSitesDeployPlugin.autoImport._
-  import agilesites.setup.AgileSitesSetupPlugin.autoImport._
+  import agilesites.config.AgileSitesConfigKeys._
+  import agilesites.deploy.AgileSitesDeployKeys._
 
   val asScpTask = asScp := {
 

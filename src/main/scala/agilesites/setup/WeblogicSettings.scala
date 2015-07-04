@@ -8,8 +8,8 @@ import sbt._
  */
 trait WeblogicSettings extends Utils {
 
-  import agilesites.config.AgileSitesConfigPlugin.autoImport._
-  import agilesites.setup.AgileSitesSetupPlugin.autoImport._
+  import agilesites.config.AgileSitesConfigKeys._
+  import agilesites.setup.AgileSitesSetupKeys._
 
   def weblogicDeployer(args: String*)
                     (implicit url: String,

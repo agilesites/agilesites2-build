@@ -11,12 +11,13 @@ import sbt._
 trait InstallerSettings extends Utils {
   this: AutoPlugin with TomcatSettings =>
 
-  import agilesites.config.AgileSitesConfigPlugin.autoImport._
-  import agilesites.setup.AgileSitesSetupPlugin.autoImport._
+  import agilesites.config.AgileSitesConfigKeys._
+  import agilesites.setup.AgileSitesSetupKeys._
 
   def initProxies(webapps: File, proxyMap: Map[String, String]): Unit = {
     val proxies = proxyMap.get("proxies")
-    if (proxies.nonEmpty)
+    if (proxies.nonEmpty) {
+
       for (proxy <- proxies.get.split(",")) {
         val target = proxyMap(s"proxy.${proxy}")
         if (target != null) {
@@ -45,6 +46,7 @@ trait InstallerSettings extends Utils {
 </web-app>""", null)
         }
       }
+    }
   }
 
   def initFolders(base: File): Unit = {
@@ -160,8 +162,15 @@ trait InstallerSettings extends Utils {
   }
 
   lazy val proxyInstallTask = proxyInstall := {
-    val webApps = file(sitesWebapp.value).getParentFile
-    initProxies(webApps, utilPropertyMap.value)
+    val webapp = Option(sitesWebapp.value)
+    if (webapp.nonEmpty) {
+      val webApps = file(webapp.get).getParentFile
+      val map = utilPropertyMap.value
+      if (map != null)
+        initProxies(webApps, map)
+    } else {
+      println("No webapps defined")
+    }
   }
 
   lazy val sitesInstallTask = sitesInstall := {

@@ -7,7 +7,6 @@
             <minIndex>1</minIndex>
             <maxIndex>3</maxIndex>
         </rollingPolicy>
-
         <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
             <maxFileSize>5MB</maxFileSize>
         </triggeringPolicy>
@@ -15,7 +14,6 @@
             <pattern>%date{YYYY-MM-dd HH:mm:ss} %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
         </encoder>
     </appender>
-    -->
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -23,16 +21,26 @@
         </encoder>
     </appender>
 
+-->
+
+    <appender name="Lilith" class="ch.qos.logback.classic.net.SocketAppender">
+        <RemoteHost>localhost</RemoteHost>
+        <Port>4560</Port>
+        <ReconnectionDelay>170</ReconnectionDelay>
+        <IncludeCallerData>true</IncludeCallerData>
+    </appender>
+
+
     <logger name="agilesitesng.wem" level="DEBUG"
             additivity="false">
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="Lilith"/>
     </logger>
 
-
-    <root level="INFO">
-        <!--
-        <appender-ref ref="FILE" />
-        -->
-        <appender-ref ref="STDOUT" />
+    <root level="DEBUG">
+      <!--
+       <appender-ref ref="Lilith"/>
+       <appender-ref ref="STDOUT" />
+       <appender-ref ref="FILE" />
+       -->
     </root>
 </configuration>

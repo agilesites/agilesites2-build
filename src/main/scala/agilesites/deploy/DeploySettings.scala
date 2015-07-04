@@ -15,14 +15,14 @@ import sbt._
 trait DeploySettings extends Utils {
   this: AutoPlugin =>
 
-  import agilesites.config.AgileSitesConfigPlugin.autoImport._
-  import agilesites.setup.AgileSitesSetupPlugin.autoImport._
-  import agilesites.deploy.AgileSitesDeployPlugin.autoImport._
+  import agilesites.config.AgileSitesConfigKeys._
+  import agilesites.setup.AgileSitesSetupKeys._
+  import agilesites.deploy.AgileSitesDeployKeys._
 
   def uploadJar(uri: URL, jar: File, log: Logger, site: String, siteId: Long, username: String, password: String) = {
 
-    // shut up the SLF4J
-    System.setProperty(org.slf4j.impl.SimpleLogger.LOG_KEY_PREFIX + "com.ning.http.client", "warn")
+    // shut up the SLF4J for ning
+    System.setProperty("org.slf4j.simpleLogger.log." + "com.ning.http.client", "warn")
 
     val path = URLDecoder.decode(uri.getPath, "UTF-8").substring(1)
     val base = host(uri.getHost, uri.getPort)
