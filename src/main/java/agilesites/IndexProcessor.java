@@ -58,10 +58,10 @@ public class IndexProcessor extends AbstractProcessor {
         try {
             for (String classType : getSupportedAnnotationTypes()) {
                 String ann = classType.split("\\.")[2];
-                //System.out.println(ann);
+                System.out.println(ann);
                 Class clazz = Class.forName(classType);
                 for (Element element : env.getElementsAnnotatedWith(clazz)) {
-                    //System.out.println(element.toString());
+                    System.out.println(element.toString());
                     if (element.getKind().isClass()) {
                         List<String> list = map.get(ann);
                         if (list == null) list = new LinkedList<String>();

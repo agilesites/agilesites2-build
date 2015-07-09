@@ -1,12 +1,12 @@
 package agilesitesng.wem
 
-import argonaut._, Argonaut._
-import akka.actor.{Props, ActorLogging, Actor, ActorRef}
-import spray.http.{HttpResponse, FormData, Uri}
-import spray.http.Uri.{Path, Host, Authority}
-import spray.httpx.RequestBuilding._
 import scala.collection._
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.io.IO
+import argonaut.Argonaut._
+import spray.http.Uri.{Authority, Host, Path}
+import spray.httpx.RequestBuilding._
+import spray.http._
 
 /**
  * Created by msciab on 25/04/15.
@@ -18,27 +18,25 @@ object Wem {
 
   case class AskGet(ref: ActorRef, url: String) extends WemMsg
 
-  case class AskPut(ref: ActorRef, url: String, json: Option[Json]) extends WemMsg
+  case class AskPut(ref: ActorRef, url: String, json: String) extends WemMsg
 
-  case class AskPost(ref: ActorRef, url: String, json: Option[Json]) extends WemMsg
+  case class AskPost(ref: ActorRef, url: String, json: String) extends WemMsg
 
   case class AskDelete(ref: ActorRef, url: String) extends WemMsg
 
   def wemActor(url: Option[java.net.URL] = None,
                username: Option[String] = None,
-               password: Option[String] = None) =
-    Props(classOf[WemActor], url, username, password)
+               password: Option[String] = None) = Props(classOf[WemActor], url, username, password)
 
   class WemActor(url: Option[java.net.URL], username: Option[String], password: Option[String])
     extends Actor with ActorLogging {
 
     implicit val system = context.system
+
     val http = IO(spray.can.Http)
     val jnu = url getOrElse new java.net.URL(context.system.settings.config.getString("akka.sites.url"))
     val user = username getOrElse context.system.settings.config.getString("akka.sites.user")
     val pass = password getOrElse system.settings.config.getString("akka.sites.pass")
-
-    //println(jnu + " " + user + "/" + pass)
 
     def receive = preLogin
 
@@ -69,6 +67,7 @@ object Wem {
         } else {
           val ticket = res.entity.asString
           log.debug("Reply with Ticket {}", ticket)
+          System.out.println(ticket)
           context.become(postLogin(ticket), false)
           flushQueue
         }
@@ -76,7 +75,6 @@ object Wem {
       case msg: WemMsg =>
         queue.enqueue(msg)
     }
-
 
     def postLogin(ticket: String): Receive = {
 
@@ -98,39 +96,32 @@ object Wem {
         http ! req
         context.become(waitForHttpReply(ref), false)
 
-
       case AskPost(ref, what, body) =>
         val uri = s"${jnu.toString}/REST${what}?multiticket=${ticket}"
-        if(body.isEmpty) {
-          ref ! Protocol.Reply(jString("error: empty post"))
-        } else {
-          val req = Post(Uri(uri), body.get.string) ~>
-            //addHeader("X-CSRF-Token", ticket) ~>
+        val req = HttpRequest(method = HttpMethods.POST, uri = uri,
+            entity = HttpEntity(ContentTypes.`application/json`, body)) ~>
+            addHeader("X-CSRF-Token", ticket) ~>
             addHeader("Accept", "application/json")
-          log.debug("post {}", req.toString)
-          http ! req
-          context.become(waitForHttpReply(ref), false)
-        }
-
+        log.debug("post {}", req.toString)
+        http ! req
+        context.become(waitForHttpReply(ref), false)
 
       case AskPut(ref, what, body) =>
         val uri = s"${jnu.toString}/REST${what}?multiticket=${ticket}"
-        if(body.isEmpty) {
-          ref ! Protocol.Reply(jString("error: empty post"))
-        } else {
-          val req = Put(Uri(uri), body.get.string) ~>
-            //addHeader("X-CSRF-Token", ticket) ~>
-            addHeader("Accept", "application/json")
-          log.debug("put {}", req.toString)
-          http ! req
-          context.become(waitForHttpReply(ref), false)
-        }
+        val req = HttpRequest(method = HttpMethods.PUT, uri = uri,
+          entity = HttpEntity(ContentTypes.`application/json`, body)) ~>
+          addHeader("X-CSRF-Token", ticket) ~>
+          addHeader("Accept", "application/json") ~>
+          addHeader("Content-Type", "application/json")
+        log.debug("put {}", req.toString)
+        http ! req
+        context.become(waitForHttpReply(ref), false)
     }
 
     def waitForHttpReply(ref: ActorRef): Receive = {
       case res: HttpResponse =>
         val body = res.entity.asString
-        log.debug("body={}", body)
+        log.debug("res={}", res.toString)
         val json = argonaut.Parse.parse(body).getOrElse(jString("error: bad json"))
         ref ! Protocol.Reply(json)
         context.unbecome()
@@ -138,6 +129,7 @@ object Wem {
       case msg: WemMsg =>
         queue.enqueue(msg)
     }
+
   }
 
 }

@@ -23,20 +23,22 @@ trait WemSettings {
 
   def process(ref: ActorRef, action: Symbol, args: Seq[String], log: Logger): String = {
 
+    log.debug(s"${action.name}: ${args.mkString(" ")}")
+
     import Protocol._
     val inFile = """^<(.*)$""".r
     val outFile = """^>(.*)$""".r
     val req = """^(/.*)$""".r
 
     val m = args.map(_ match {
-      case inFile(filename)  => 'in -> readFile(file(filename))
+      case inFile(filename) => 'in -> readFile(file(filename))
       case outFile(filename) => 'out -> filename
-      case req(arg)   => 'arg -> arg
+      case req(arg) => 'arg -> arg
       case arg => println(s"ignored ${arg}")
         'ignore -> arg
     }).toMap
 
-    log.debug(m.toString)
+    log.debug(s"parsed: ${m.toString}")
 
     val arg = m.get('arg)
     if (arg.isEmpty) {
@@ -49,11 +51,11 @@ trait WemSettings {
         case 'put => Put(arg.getOrElse(""), Parse.parseOption(m.getOrElse('in, "")))
       }
 
-      log.debug(">>> sending "+msg.toString)
+      log.debug(">>> sending " + msg.toString)
       val rf = ref ? msg
       val Reply(json) = Await.result(rf, 3.second).asInstanceOf[Reply]
       val res = json.spaces2
-      log.debug("<<< received "+res)
+      log.debug("<<< received " + res)
       val out = m.get('out)
       if (out.isEmpty) {
         println(res)
@@ -71,20 +73,19 @@ trait WemSettings {
     val log = streams.value.log
     val args: Seq[String] = Def.spaceDelimited("<arg>").parsed
     val ref = (hub in wem).value
-    log.info(args.mkString(" "))
     process(ref, 'get, args, log)
+  }
+
+  def postTask = post in wem := {
+    val args: Seq[String] = Def.spaceDelimited("<arg>").parsed
+    val ref = (hub in wem).value
+    process(ref, 'post, args, streams.value.log)
   }
 
   def putTask = put in wem := {
     val args: Seq[String] = Def.spaceDelimited("<arg>").parsed
     val ref = (hub in wem).value
     process(ref, 'put, args, streams.value.log)
-  }
-
-  def postTask = post in wem := {
-    val args: Seq[String] = Def.spaceDelimited("<arg>").parsed
-    val ref = (hub in wem).value
-    process(ref, 'delete, args, streams.value.log)
   }
 
   def deleteTask = delete in wem := {
