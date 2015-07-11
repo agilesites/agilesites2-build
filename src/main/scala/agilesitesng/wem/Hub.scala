@@ -11,27 +11,11 @@ import ch.qos.logback.classic.LoggerContext
  */
 object Hub {
 
-  /*
-  def createLogger(name: String): Unit = {
-    val lf = org.slf4j.LoggerFactory.getILoggerFactory
-    val sa = new ch.qos.logback.classic.net.SocketAppender
-    sa.setIncludeCallerData(true)
-    sa.setRemoteHost("localhost")
-    sa.setPort(4560)
-    sa.setContext(lf.asInstanceOf[LoggerContext])
-    val log = lf.getLogger(name).asInstanceOf[ch.qos.logback.classic.Logger]
-    log.addAppender(sa)
-    log.setLevel(ch.qos.logback.classic.Level.DEBUG)
-    log.setAdditive(false)
-  }*/
-
-
   import agilesitesng.wem.Protocol._
 
   def hubActor() = Props[HubActor]
 
   class HubActor extends Actor with ActorLogging with agilesites.Utils {
-
 
     def receive = init
 
@@ -78,6 +62,10 @@ object Hub {
         wem ! PoisonPill
         context.become(init)
         sender ! Status(OK)
+
+      case Annotation(ann) =>
+        println(" !!!! "+ann+ "!!!!")
+        log.debug("!!!!"+ann)
     }
 
   }

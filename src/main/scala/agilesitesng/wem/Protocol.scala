@@ -27,6 +27,8 @@ object Protocol extends Enumeration {
 
   trait IO extends Message
 
+  trait Source extends Message
+
 
   /**
    * Protocol control
@@ -53,4 +55,8 @@ object Protocol extends Enumeration {
 
   case class Reply(json: Json) extends IO
 
+  /**
+   * Annotation
+   */
+  case class Annotation(message: String)
 }

@@ -1,5 +1,6 @@
 package agilesites.deploy
 
+import agilesitesng.wem.AnnotationSettings
 import sbt._
 import agilesites.config.AgileSitesConfigPlugin
 
@@ -15,7 +16,6 @@ object AgileSitesDeployPlugin
 
   override lazy val projectSettings =
     deploySettings ++
-      annotationSettings ++
       copySettings
 
 }

@@ -35,6 +35,7 @@ libraryDependencies ++=
     ,"org.jsoup"                 % "jsoup"           % "1.7.3"
     ,"com.jcraft"                % "jsch"            % "0.1.51"
     ,"com.typesafe.akka"         %% "akka-actor"   % "2.3.9"
+    ,"com.typesafe.akka"         %% "akka-remote"  % "2.3.9"
     ,"com.typesafe.akka"         %% "akka-slf4j"   % "2.3.9"
     ,"com.typesafe.akka"         %% "akka-testkit" % "2.3.9" % "test"
     ,"io.spray"                  %% "spray-can"    % "1.3.2"

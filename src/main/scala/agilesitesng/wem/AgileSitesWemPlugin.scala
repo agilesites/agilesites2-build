@@ -3,21 +3,21 @@
  */
 package agilesitesng.wem
 
+import sbt.Keys._
+import sbt._
+import scala.concurrent.duration._
 import java.net.URL
-
 import agilesites.Utils
-import agilesites.config.{AgileSitesConfigKeys, AgileSitesConfigPlugin}
 import agilesitesng.js._
 import akka.actor.ActorRef
 import akka.pattern.gracefulStop
 import com.typesafe.sbt.web.SbtWeb
-import sbt.Keys._
-import sbt._
+import agilesites.config.{AgileSitesConfigKeys, AgileSitesConfigPlugin}
 
-import scala.concurrent.duration._
 
 object AgileSitesWemPlugin
   extends AutoPlugin
+  with AnnotationSettings
   with WemSettings
   with Utils {
 
@@ -41,7 +41,7 @@ object AgileSitesWemPlugin
     //createLogger("agilesitesng.wem")
     SbtWeb.withActorRefFactory(state, "agilesitesng.AgileSitesNgPlugin") {
       arf =>
-        val hub = arf.actorOf(Hub.hubActor())
+        val hub = arf.actorOf(Hub.hubActor(), "Hub")
         val f = hub ! Protocol.Connect(Some(url), Some(user), Some(password))
         val newState = state.put(wemHubKey, hub)
         //newState.addExitHook(s: sbt.State => finish(s))
@@ -62,6 +62,7 @@ object AgileSitesWemPlugin
   override def trigger = AllRequirements
 
   override val projectSettings = wemSettings ++
+    annotationSettings ++
     Seq(hub <<= state map (_.get(wemHubKey).get))
 
 }

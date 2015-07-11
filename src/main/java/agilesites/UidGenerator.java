@@ -81,6 +81,13 @@ public class UidGenerator {
 
 
     /**
+     * Read the assigned uid so far
+     */
+    public Object get(String key) {
+        return prp.get(key);
+    }
+
+    /**
      * Save properties in a file in alphabetical order
      */
     public void save() {
