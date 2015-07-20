@@ -3,12 +3,12 @@ package agilesitesng.wem
 import java.net.URL
 
 import argonaut.Json
+import net.liftweb.json.JValue
 
 /**
  * Created by msciab on 01/07/15.
  */
 object Protocol extends Enumeration {
-
 
   /**
    * Error codes
@@ -47,13 +47,13 @@ object Protocol extends Enumeration {
    */
   case class Get(request: String) extends IO
 
-  case class Post(request: String, json: Option[Json]) extends IO
+  case class Post(request: String, json: JValue) extends IO
 
-  case class Put(request: String, json: Option[Json]) extends IO
+  case class Put(request: String, json: JValue) extends IO
 
   case class Delete(request: String) extends IO
 
-  case class Reply(json: Json) extends IO
+  case class Reply(json: JValue) extends IO
 
   /**
    * Annotation

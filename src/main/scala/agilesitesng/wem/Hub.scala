@@ -1,10 +1,7 @@
 package agilesitesng.wem
 
 import akka.actor._
-import java.net.URL
-
-import argonaut.Argonaut._
-import ch.qos.logback.classic.LoggerContext
+import net.liftweb.json._
 
 /**
  * Created by msciab on 26/04/15.
@@ -40,22 +37,26 @@ object Hub {
 
       case Post(request, json) =>
         val sender = context.sender()
-        if (json.isEmpty) {
-          sender ! Protocol.Reply(jString("error: empty post"))
+        val sjson = pretty(render(json))
+
+        if (sjson.isEmpty) {
+          sender ! Protocol.Reply(JString("error: empty post"))
           log.debug("Post with empty body")
         } else {
+
           log.debug("Post {} sender {} json {}", request, sender, json)
-          wem ! Wem.AskPost(sender, request, json.get.nospaces)
+          wem ! Wem.AskPost(sender, request, sjson)
         }
 
       case Put(request, json) =>
         val sender = context.sender()
-        if (json.isEmpty) {
-          sender ! Protocol.Reply(jString("error: empty post"))
+        val sjson = pretty(render(json))
+        if (sjson.isEmpty) {
+          sender ! Protocol.Reply(JString("error: empty post"))
           log.debug("Put with empty body")
         } else {
           log.debug("Put {} sender {}", request, sender)
-          wem ! Wem.AskPut(sender, request, json.get.nospaces)
+          wem ! Wem.AskPut(sender, request, sjson)
         }
 
       case Disconnect() =>

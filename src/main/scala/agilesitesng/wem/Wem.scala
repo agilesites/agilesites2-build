@@ -3,10 +3,10 @@ package agilesitesng.wem
 import scala.collection._
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.io.IO
-import argonaut.Argonaut._
 import spray.http.Uri.{Authority, Host, Path}
 import spray.httpx.RequestBuilding._
 import spray.http._
+import net.liftweb.json._
 
 /**
  * Created by msciab on 25/04/15.
@@ -122,8 +122,8 @@ object Wem {
       case res: HttpResponse =>
         val body = res.entity.asString
         log.debug("res={}", res.toString)
-        val json = argonaut.Parse.parse(body).getOrElse(jString("error: bad json"))
-        ref ! Protocol.Reply(json)
+
+        ref ! Protocol.Reply(parse(body))
         context.unbecome()
         flushQueue
       case msg: WemMsg =>

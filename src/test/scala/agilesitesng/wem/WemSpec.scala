@@ -25,7 +25,7 @@ class WemSpec
     wem ! Wem.AskGet(testActor, "/users")
 
     expectMsgPF(5.second) {
-      case Protocol.Reply(json) => info(json.nospaces)
+      case Protocol.Reply(json) => info(json.toString)
     }
   }
 }

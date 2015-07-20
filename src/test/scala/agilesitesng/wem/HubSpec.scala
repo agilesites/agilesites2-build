@@ -39,7 +39,7 @@ with BeforeAndAfterAll {
 
     val rf = hub ? Get("/sites")
     val Reply(json) = Await.result(rf, 3.second).asInstanceOf[Reply]
-    info(json.nospaces)
+    info(json.toString)
 
     //val Reply(json2) = Await.result(hub ? Get("/sites"), 3.second).asInstanceOf[Reply]
     //info(json2.nospaces)
