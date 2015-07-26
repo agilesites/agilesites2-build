@@ -22,6 +22,7 @@ object AgileSitesConfigPlugin
     sitesPassword in Global := utilPropertyMap.value.getOrElse("sites.password", "xceladmin"),
     sitesAdminUser in Global := utilPropertyMap.value.getOrElse("sites.admin.user", "ContentServer"),
     sitesAdminPassword in Global := utilPropertyMap.value.getOrElse("sites.admin.password", "password"),
+    casProtocol in Global := utilPropertyMap.value.getOrElse("cas.protocol", "1"),
 
     // focus on which site?
     sitesFocus := utilPropertyMap.value.getOrElse("sites.focus", "Demo"),
@@ -49,7 +50,6 @@ object AgileSitesConfigPlugin
     sitesVersion := utilPropertyMap.value.getOrElse("sites.version", "11.1.1.8.0"),
     sitesPort := utilPropertyMap.value.getOrElse("sites.port", "11800"),
     sitesHost := utilPropertyMap.value.getOrElse("sites.host", "localhost"),
-
     satelliteWebapp := utilPropertyMap.value.getOrElse("satellite.webapp",
       (file(sitesWebapp.value).getParentFile / "ss").getAbsolutePath),
     satelliteHome := utilPropertyMap.value.getOrElse("satellite.home", sitesHome.value),

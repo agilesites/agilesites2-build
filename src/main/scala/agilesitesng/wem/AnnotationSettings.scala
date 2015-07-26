@@ -1,10 +1,11 @@
 package agilesitesng.wem
 
+import agilesitesng.wem.actor.Protocol
 import sbt._
 import sbt.Keys._
 import scala.io.Source
 import agilesites.Utils
-import agilesitesng.wem.Protocol.Annotation
+import Protocol.Annotation
 
 trait AnnotationSettings extends Utils {
   this: AutoPlugin =>
