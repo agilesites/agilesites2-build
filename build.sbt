@@ -70,7 +70,7 @@ resolvers ++= Seq(Resolver.sonatypeRepo("releases"),
   "Nexus-sciabarra-releases" at "http://nexus.sciabarra.com/content/repositories/releases",
   "Nexus-sciabarra-snapshots" at "http://nexus.sciabarra.com/content/repositories/snapshots")
 
-net.virtualvoid.sbt.graph.Plugin.graphSettings
+//net.virtualvoid.sbt.graph.Plugin.graphSettings
 
 addSbtPlugin("com.typesafe.sbt" %% "sbt-js-engine" % "1.1.2" exclude("org.slf4j", "slf4j-simple"))
 
