@@ -10,7 +10,9 @@ import Protocol.Annotation
 trait AnnotationSettings extends Utils {
   this: AutoPlugin =>
 
-  val processAnnotations = Def.task {
+  import AgileSitesWemKeys._
+
+  val processAnnotationsTask = processAnnotation := {
 
     val comp: Compiler.Compilers = (compilers in Compile).value
     val mcp: Seq[File] = (managedClasspath in Compile).value.files
@@ -49,6 +51,8 @@ trait AnnotationSettings extends Utils {
     Seq(out / name.value / "Index.java")
   }
 
-  val annotationSettings = Seq(sourceGenerators in Compile ++= Seq(processAnnotations.taskValue))
+  val annotationSettings = Seq(processAnnotationsTask)
+
+  //  Seq(sourceGenerators in Compile ++= Seq(processAnnotations.taskValue))
 
 }

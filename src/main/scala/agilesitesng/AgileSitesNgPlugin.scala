@@ -2,6 +2,7 @@ package agilesitesng
 
 import agilesites.AgileSitesPlugin
 import agilesites.config.AgileSitesConfigPlugin
+import agilesitesng.install.AgileSitesInstallPlugin
 import agilesitesng.js.AgileSitesJsPlugin
 import agilesitesng.wem.AgileSitesWemPlugin
 
@@ -12,7 +13,8 @@ object AgileSitesNgPlugin
 
   override def requires = AgileSitesPlugin &&
     AgileSitesWemPlugin &&
-    AgileSitesJsPlugin
+    AgileSitesJsPlugin &&
+    AgileSitesInstallPlugin
 
   /*
   def guiCmd = Command.args("gui", "<args>") { (state, args) =>

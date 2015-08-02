@@ -10,10 +10,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.*;
 
+/*
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedOptions({"uid", "site", "out"})
 @SupportedAnnotationTypes({"agilesites.annotations.Attribute",
@@ -147,3 +146,4 @@ public class IndexProcessor extends AbstractProcessor {
     }
 
 }
+*/

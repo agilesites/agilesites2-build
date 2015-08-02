@@ -14,4 +14,5 @@ object AgileSitesWemKeys {
   val put = inputKey[String]("Wem Put")
   val delete = inputKey[String]("Wem delete")
   val setup = inputKey[String]("Wem setup")
+  val processAnnotation = taskKey[Unit]("Annotation processor")
 }

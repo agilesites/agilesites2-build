@@ -50,8 +50,14 @@ trait WemSettings {
       val msg = action match {
         case 'get => Get(arg.getOrElse(""))
         case 'delete => Delete(arg.getOrElse(""))
-        case 'post => Post(arg.getOrElse(""), parse(m.getOrElse('in, "")))
-        case 'put => Put(arg.getOrElse(""), parse(m.getOrElse('in, "")))
+        case 'post =>
+          val json = parse(m.getOrElse('in, ""))
+          println(json)
+          Post(arg.getOrElse(""), json)
+        case 'put =>
+          val json = parse(m.getOrElse('in, ""))
+          println(json)
+          Put(arg.getOrElse(""), json)
       }
 
       log.debug(">>> sending " + msg.toString)

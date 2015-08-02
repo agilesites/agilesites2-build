@@ -42,8 +42,8 @@ libraryDependencies ++=
     ,"io.spray"                  %% "spray-http"     % "1.3.2"
     ,"io.spray"                  %% "spray-httpx"    % "1.3.2"
     ,"org.scalaz"                %% "scalaz-core"    % "7.0.6"
-    ,"io.argonaut"               %% "argonaut"       % "6.0.4"
     ,"net.liftweb"               %% "lift-json"      % "2.6"
+    ,"fr.inria.gforge.spoon"     %  "spoon-core"     % "4.2.0"
     )
 
 pomIncludeRepository := { _ => false }
@@ -76,14 +76,3 @@ addSbtPlugin("com.typesafe.sbt" %% "sbt-js-engine" % "1.1.2" exclude("org.slf4j"
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.0.0" exclude("org.slf4j", "slf4j-simple"))
 
-
-
-//scalaxbSettings
-
-//sourceGenerators in Compile += (scalaxb in Compile).taskValue
-
-//packageName in (Compile, scalaxb) := "agilesites.wem.mapping"
-
-//async in (Compile, scalaxb) := false
-
-//xsdSource := baseDirectory.getParentFile / "lib" / file("/data/sites/bigbang/")

@@ -29,28 +29,28 @@ trait ToolsSettings extends Utils {
     val args = Def.spaceDelimited("<arg>").parsed
     val log = streams.value.log
     if (args.length == 0) {
-      println( s"""usage: cman <cmd> [<dir>...] [<options>....]])
-|<cmd> one of view, setup, import, import_all, export, export_all
-|[@]<dir> if start with @ uses all the contained dirs otherwise just the specified dir,
-|        defaults to   @${sitesPopulate.value},
-|<options> can be:
-|-b base URL  (defaults to ${sitesUrl.value}/CatalogManager)
-|-u user name (defaults to ${sitesUser.value})
+      println( s"""usage: cmov <cmd> [@][<dir>...] [<options>....]])
+                  |<cmd> one of view, setup, import, import_all, export, export_all
+                  |[@]<dir> if start with @ uses all the contained dirs otherwise just the specified dir,
+                  |      defaults to   @${sitesPopulate.value},
+                  |<options> can be:
+                  |-b base URL  (defaults to ${sitesUrl.value}/CatalogManager)
+                                                                                                              |-u user name (defaults to ${sitesUser.value})
           """.stripMargin)
     } else {
       val cp = (Seq(file("bin").getAbsoluteFile) ++ cmovClasspath.value).mkString(java.io.File.pathSeparator)
 
-      val coreJar = update.value.matching({ x: ModuleID => x.name.startsWith("agilesites2-core") }).head
+      val coreJar = update.value.matching({ x: ModuleID => x.name.startsWith("agilesites2-build") }).headOption
       val populateJars = asPopulateClasspath.value.filter(!_.getName.startsWith("scala-library"))
 
-      if (sitesHello.value.isEmpty)
-        throw new Exception(s"Web Center Sites must be online as ${sitesUrl.value}.")
+      //if (sitesHello.value.isEmpty)
+      //  throw new Exception(s"Web Center Sites must be online as ${sitesUrl.value}.")
 
       val populateDir = file(sitesPopulate.value) / "setup" / "populate"
-      val cmd = if (args(0) == "setup") {
-        if (coreJar.exists()) {
-          log.info(s"extracting aaagile from ${coreJar.getName}")
-          IO.unzip(coreJar, populateDir, GlobFilter("aaagile/*"))
+      val cmd = if (coreJar.nonEmpty && args(0) == "setup") {
+        if (coreJar.get.exists()) {
+          log.info(s"extracting aaagile from ${coreJar.get.getName}")
+          IO.unzip(coreJar.get, populateDir, GlobFilter("aaagile/*"))
         }
         for (jar <- populateJars) {
           log.info(s"extracting from ${jar.getName}")
@@ -69,17 +69,37 @@ trait ToolsSettings extends Utils {
           (if (set("-p")) Seq() else Seq("-p", sitesAdminPassword.value))
 
       val baseDir = if (args.length > 1) args(1) else "@" + populateDir.getAbsolutePath
+      println(s"baseDir=${baseDir}")
+
+      // get dirs
       val dirs = if (baseDir.startsWith("@")) {
+        // multiple dirs
         val dir = file(baseDir.substring(1))
         if (dir.exists())
           (dir * "*").filter(_.isDirectory).get
         else
           Seq()
       } else {
+        // single dir
         val dir = file(baseDir)
-        if (dir.exists)
-          Seq(dir)
-        else Seq()
+        if (dir.isAbsolute) {
+          // absolute
+          if (dir.exists)
+            Seq(dir)
+          else {
+            println("not found" + dir)
+            Seq()
+          }
+        } else {
+          // relative
+          val dir = file(sitesPopulate.value + File.separator + baseDir)
+          if (dir.exists)
+            Seq(dir)
+          else {
+            println("not found" + dir)
+            Seq()
+          }
+        }
       }
 
       if (cmd == "view")
@@ -114,7 +134,7 @@ trait ToolsSettings extends Utils {
     val log = streams.value.log
     val envision = file(sitesEnvision.value)
 
-    if(!envision.isDirectory)
+    if (!envision.isDirectory)
       throw new Exception(s"not found envision directory ${envision.getAbsolutePath}")
 
     val sites = sitesFocus.value
