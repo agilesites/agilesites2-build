@@ -14,8 +14,5 @@ object AgileSitesWemKeys {
   val put = inputKey[String]("Wem Put")
   val delete = inputKey[String]("Wem delete")
   val setup = inputKey[String]("Wem setup")
-  val ngProcessAnnotations = taskKey[Seq[File]]("Annotation processor")
-
-  val ngSpoonSources = taskKey[Unit]("Spoon processor")
-  val ngSpoonClasspath = taskKey[Seq[File]]("AgileSites Populate Classpath")
+  val wemProcessAnnotations = taskKey[Seq[File]]("process annnotations")
 }

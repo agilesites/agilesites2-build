@@ -19,6 +19,7 @@ import agilesites.config.{AgileSitesConfigKeys, AgileSitesConfigPlugin}
 object AgileSitesWemPlugin
   extends AutoPlugin
   with WemSettings
+  with AnnotationSettings
   with Utils {
 
   import AgileSitesConfigKeys._
@@ -63,7 +64,5 @@ object AgileSitesWemPlugin
 
   override val projectSettings =
     Seq(hub <<= state map (_.get(wemHubKey).get)) ++
-      wemSettings
-
-
+      wemSettings ++ annotationSettings
 }
