@@ -1,21 +1,21 @@
-package agilesitesng.install
+package agilesitesng.setup
 
-import java.io.{File, FileReader}
+import java.io.File
 import java.util.Date
 
 import agilesites.Utils
-import sbt._
 import sbt.Keys._
-import agilesites.config._
+import sbt.{AutoPlugin, PathFinder}
 
 import scala.io.Source
-import scala.xml._
 
+/**
+ * Created by msciab on 04/08/15.
+ */
 trait ConcatSettings extends Utils  {
   this: AutoPlugin =>
 
-  import AgileSitesInstallKeys._
-  import AgileSitesConfigKeys._
+  import NgSetupKeys._
 
   lazy val ngConcatJavaTask = ngConcatJava := {
 

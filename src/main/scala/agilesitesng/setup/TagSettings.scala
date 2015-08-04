@@ -1,21 +1,24 @@
-package agilesitesng.install
+package agilesitesng.setup
 
 import java.io.{File, FileReader}
 
+import agilesites.config.AgileSitesConfigKeys
+import org.xml.sax.InputSource
 import sbt._
-import sbt.Keys._
-import agilesites.config._
 
-import scala.xml._
+import scala.xml.XML
 
+/**
+ * Created by msciab on 04/08/15.
+ */
 trait TagSettings {
   this: AutoPlugin =>
 
-  import AgileSitesInstallKeys._
   import AgileSitesConfigKeys._
+  import NgSetupKeys._
 
   val javaKeywords = Set(
-    "abstract", "continue", "for", "new", "switch",
+    "def", "abstract", "continue", "for", "new", "switch",
     "assert", "default", "goto", "package", "synchronized",
     "boolean", "do", "if", "private", "this",
     "break", "double", "implements", "protected", "throw",

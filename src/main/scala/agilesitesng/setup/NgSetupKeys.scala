@@ -1,12 +1,11 @@
-package agilesitesng.install
+package agilesitesng.setup
 
-import akka.actor.ActorRef
 import sbt._
 
 /**
  * Created by msciab on 02/07/15.
  */
-object AgileSitesInstallKeys {
+object NgSetupKeys {
 
   lazy val ngConcatJavaMap = settingKey[Map[File, PathFinder]]("map concatenation")
 

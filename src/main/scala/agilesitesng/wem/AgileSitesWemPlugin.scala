@@ -18,7 +18,6 @@ import agilesites.config.{AgileSitesConfigKeys, AgileSitesConfigPlugin}
 
 object AgileSitesWemPlugin
   extends AutoPlugin
-  with AnnotationSettings
   with WemSettings
   with Utils {
 
@@ -40,8 +39,10 @@ object AgileSitesWemPlugin
 
   private def init(url: java.net.URL, user: String, password: String, casVersion: String, state: State): State = {
     //createLogger("agilesitesng.wem")
-    SbtWeb.withActorRefFactory(state, "agilesitesng.AgileSitesNgPlugin") {
+
+    SbtWeb.withActorRefFactory(state, "wem") {
       arf =>
+        println("************ WemSettings init ")
         val hub = arf.actorOf(Hub.actor(), "Hub")
         val f = hub ! Protocol.Connect(Some(url), Some(user), Some(password), casVersion)
         val newState = state.put(wemHubKey, hub)
@@ -58,12 +59,11 @@ object AgileSitesWemPlugin
         (finish)
     )
 
-  override def requires = SbtWeb && AgileSitesConfigPlugin && AgileSitesJsPlugin
+  override def requires = SbtWeb && AgileSitesConfigPlugin
 
-  override def trigger = AllRequirements
+  override val projectSettings =
+    Seq(hub <<= state map (_.get(wemHubKey).get)) ++
+      wemSettings
 
-  override val projectSettings = wemSettings ++
-    annotationSettings ++
-    Seq(hub <<= state map (_.get(wemHubKey).get))
 
 }

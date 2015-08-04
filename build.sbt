@@ -12,7 +12,7 @@ version := v
 
 scalaVersion := "2.10.4"
 
-javacOptions ++= Seq("-source", "1.6", "-target", "1.6")
+javacOptions ++= Seq("-source", "1.6", "-target", "1.6", "-Xlint:unchecked")
 
 scalacOptions ++= Seq("-feature", "-target:jvm-1.6", "-deprecation")
 
@@ -30,21 +30,22 @@ libraryDependencies ++=
     ,"org.apache.tomcat"         % "tomcat-dbcp"               % tomcatVersion
     ,"org.apache.httpcomponents" % "httpclient"      % "4.3.6"
     ,"commons-io"                % "commons-io"      % "2.4"
-    ,"org.scalatest"             %% "scalatest"      % "2.2.4" % "test"
     ,"net.databinder.dispatch"   %% "dispatch-core"  % "0.11.2"
     ,"org.jsoup"                 % "jsoup"           % "1.7.3"
     ,"com.jcraft"                % "jsch"            % "0.1.51"
     ,"com.typesafe.akka"         %% "akka-actor"     % "2.3.9"
     ,"com.typesafe.akka"         %% "akka-remote"    % "2.3.9"
     ,"com.typesafe.akka"         %% "akka-slf4j"     % "2.3.9"
+    ,"org.scalatest"             %% "scalatest"      % "2.2.4" % "test"
     ,"com.typesafe.akka"         %% "akka-testkit"   % "2.3.9" % "test"
     ,"io.spray"                  %% "spray-can"      % "1.3.2"
     ,"io.spray"                  %% "spray-http"     % "1.3.2"
     ,"io.spray"                  %% "spray-httpx"    % "1.3.2"
     ,"org.scalaz"                %% "scalaz-core"    % "7.0.6"
     ,"net.liftweb"               %% "lift-json"      % "2.6"
-    ,"fr.inria.gforge.spoon"     %  "spoon-core"     % "4.2.0"
+    ,"net.openhft"               % "spoon-core"      % "4.3.0"
     )
+
 
 pomIncludeRepository := { _ => false }
 
@@ -71,6 +72,9 @@ resolvers ++= Seq(Resolver.sonatypeRepo("releases"),
   "Nexus-sciabarra-snapshots" at "http://nexus.sciabarra.com/content/repositories/snapshots")
 
 //net.virtualvoid.sbt.graph.Plugin.graphSettings
+
+mappings in (Compile, packageBin) ~= { _.filter(!_._1.getName.equals("logback-test.xml")) }
+
 
 addSbtPlugin("com.typesafe.sbt" %% "sbt-js-engine" % "1.1.2" exclude("org.slf4j", "slf4j-simple"))
 

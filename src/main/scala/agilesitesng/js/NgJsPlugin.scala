@@ -8,12 +8,12 @@ import com.typesafe.sbt.jse.SbtJsTask
 import com.typesafe.sbt.web.SbtWeb
 import com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys
 
-object AgileSitesJsPlugin
+object NgJsPlugin
   extends AutoPlugin {
 
   override def requires = JvmPlugin && SbtWeb && AgileSitesConfigPlugin
 
-  val autoImport = AgileSitesJsKeys
+  val autoImport = NgJsKeys
 
   import autoImport._
   import SbtWeb.autoImport._

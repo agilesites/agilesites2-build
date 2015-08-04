@@ -1,5 +1,6 @@
 <configuration>
-    <!--
+
+<!--
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/mylog.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
@@ -20,7 +21,6 @@
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{5} - %msg%n</pattern>
         </encoder>
     </appender>
-
 -->
 
     <appender name="Lilith" class="ch.qos.logback.classic.net.SocketAppender">
@@ -31,7 +31,7 @@
     </appender>
 
 
-    <logger name="agilesitesng.wem" level="DEBUG"
+    <logger name="agilesitesng" level="DEBUG"
             additivity="false">
         <appender-ref ref="Lilith"/>
     </logger>

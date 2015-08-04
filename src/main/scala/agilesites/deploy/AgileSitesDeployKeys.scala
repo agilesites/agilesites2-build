@@ -10,7 +10,6 @@ object AgileSitesDeployKeys {
   val asCopyStatics = taskKey[Unit]("AgileSites copy statics")
   val asDeploy = inputKey[Unit]("AgileSites deploy")
   val asPopulate = taskKey[Unit]("AgileSites populate")
-
   val asScpFromTo = settingKey[Option[(File, URL)]]("AgileSites scp from source file to target url (either scp:// or file://)")
   val asScp = taskKey[Unit]("AgileSites scp")
 }

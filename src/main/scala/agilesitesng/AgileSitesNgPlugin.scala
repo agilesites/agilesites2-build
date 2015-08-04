@@ -2,8 +2,9 @@ package agilesitesng
 
 import agilesites.AgileSitesPlugin
 import agilesites.config.AgileSitesConfigPlugin
-import agilesitesng.install.AgileSitesInstallPlugin
-import agilesitesng.js.AgileSitesJsPlugin
+import agilesitesng.deploy.NgDeployPlugin
+import agilesitesng.js.NgJsPlugin
+import agilesitesng.setup.NgSetupPlugin
 import agilesitesng.wem.AgileSitesWemPlugin
 
 import sbt._
@@ -12,9 +13,9 @@ object AgileSitesNgPlugin
   extends AutoPlugin {
 
   override def requires = AgileSitesPlugin &&
-    AgileSitesWemPlugin &&
-    AgileSitesJsPlugin &&
-    AgileSitesInstallPlugin
+    NgJsPlugin &&
+    NgSetupPlugin &&
+    NgDeployPlugin
 
   /*
   def guiCmd = Command.args("gui", "<args>") { (state, args) =>
