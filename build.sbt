@@ -44,6 +44,7 @@ libraryDependencies ++=
     ,"org.scalaz"                %% "scalaz-core"    % "7.0.6"
     ,"net.liftweb"               %% "lift-json"      % "2.6"
     ,"net.openhft"               % "spoon-core"      % "4.3.0"
+     // from "https://repo1.maven.org/maven2/net/openhft/spoon-core/4.3.0/spoon-core-4.3.0-jar-with-dependencies.jar"
     )
 
 
@@ -74,7 +75,6 @@ resolvers ++= Seq(Resolver.sonatypeRepo("releases"),
 //net.virtualvoid.sbt.graph.Plugin.graphSettings
 
 mappings in (Compile, packageBin) ~= { _.filter(!_._1.getName.equals("logback-test.xml")) }
-
 
 addSbtPlugin("com.typesafe.sbt" %% "sbt-js-engine" % "1.1.2" exclude("org.slf4j", "slf4j-simple"))
 

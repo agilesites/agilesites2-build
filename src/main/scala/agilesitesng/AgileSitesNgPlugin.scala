@@ -12,7 +12,7 @@ import sbt._
 object AgileSitesNgPlugin
   extends AutoPlugin {
 
-  override def requires = AgileSitesPlugin && AgileSitesWemPlugin &&
+  override def requires = AgileSitesPlugin &&
     NgJsPlugin &&
     NgSetupPlugin &&
     NgDeployPlugin

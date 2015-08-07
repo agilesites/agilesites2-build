@@ -21,6 +21,7 @@ object Deployer {
         log.debug("Login!")
         println(">>> Login")
 
+
       case Deploy(file: String) =>
         log.debug(s"deploying ${file}")
         println(s">>> ${file}")

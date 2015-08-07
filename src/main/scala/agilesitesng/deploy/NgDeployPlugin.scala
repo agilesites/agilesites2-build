@@ -14,14 +14,14 @@ import scala.concurrent.duration._
 object NgDeployPlugin
   extends AutoPlugin
   with ActorSettings
-  with DeploySettings {
+  with DeploySettings
+  with SpoonSettings {
 
   override def requires = JvmPlugin && SbtWeb && AgileSitesConfigPlugin
 
   val autoImport = NgDeployKeys
 
-
   override def globalSettings: Seq[Setting[_]] = super.globalSettings ++ actorGlobalSettings
 
-  override lazy val projectSettings = actorSettings ++ deploySettings
+  override lazy val projectSettings = actorSettings ++ deploySettings ++ spoonSettings
 }

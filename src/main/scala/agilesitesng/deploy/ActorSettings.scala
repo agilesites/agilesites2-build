@@ -3,7 +3,7 @@ package agilesitesng.deploy
 import java.net.URL
 
 import agilesites.config.AgileSitesConfigKeys._
-import agilesitesng.deploy.actor.Deployer
+import agilesitesng.deploy.actor.{DeployHub, Deployer}
 import agilesitesng.deploy.actor.Protocol.Login
 import akka.actor.{ActorRef, PoisonPill}
 import com.typesafe.sbt.web.SbtWeb
@@ -18,14 +18,14 @@ trait ActorSettings {
 
   import NgDeployKeys._
 
-  val ngDeployKey = AttributeKey[ActorRef]("ng-deployer")
+  val ngDeployHubKey = AttributeKey[ActorRef]("ng-deployer")
 
   private def finish(state: State): State = {
-    state.get(ngDeployKey) map {
+    state.get(ngDeployHubKey) map {
       ngActor =>
         ngActor ! PoisonPill
     }
-    state.remove(ngDeployKey)
+    state.remove(ngDeployHubKey)
   }
 
   private def init(url: java.net.URL, user: String, password: String, state: State): State = {
@@ -33,9 +33,8 @@ trait ActorSettings {
     SbtWeb.withActorRefFactory(state, "Ngn") {
       arf =>
         println("************ NgSettings init ")
-        val deployer = arf.actorOf(Deployer.actor(), "Deployer")
-        val f = deployer ! Login(url, user, password)
-        val newState = state.put(ngDeployKey, deployer)
+        val hub = arf.actorOf(DeployHub.actor(), "Deployer")
+        val newState = state.put(ngDeployHubKey, hub)
         //newState.addExitHook(s: sbt.State => finish(s))
         newState
     }
@@ -48,6 +47,6 @@ trait ActorSettings {
         (finish)
     )
 
-  val actorSettings = Seq(ngDeployer <<= state map (_.get(ngDeployKey).get))
+  val actorSettings = Seq(ngDeployHub <<= state map (_.get(ngDeployHubKey).get))
 
 }
