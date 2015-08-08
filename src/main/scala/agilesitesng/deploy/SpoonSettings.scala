@@ -33,25 +33,28 @@ trait SpoonSettings {
   val spoonTask = spoon in ng := {
     val args: Seq[String] = Def.spaceDelimited("<arg>").parsed
     var source = baseDirectory.value / "src" / "main" / "java"
+    val uid = baseDirectory.value /  "src" / "main" / "resources" / name.value / "uid.properties"
     val target = baseDirectory.value / "target" / "groovy"
-
-    val spool = File.createTempFile("spoon", ".ser", baseDirectory.value / "target")
+    val spool = baseDirectory.value / "target" / "spoon-spool.json"
 
     target.mkdirs
+    spool.getParentFile.mkdirs
+
     val sourceClasspath = (managedClasspath in Compile).value.files.map(_.getAbsolutePath).mkString(File.pathSeparator)
     val spoonClasspath = ngSpoonClasspath.value.map(_.getAbsolutePath).mkString(File.pathSeparator)
     val processors = ngSpoonProcessors.value.mkString(File.pathSeparator)
 
-    val jvmOpts = Seq("-cp", spoonClasspath, s"-Dspoon.spool=${spool.getAbsolutePath}")
-    val runOpts = Seq("spoon.Launcher",
+    val jvmOpts = Seq(
+      "-cp", spoonClasspath,
+      s"-Dspoon.spool=${spool.getAbsolutePath}",
+      s"-Duid.properties=${uid.getAbsolutePath}"
+    )
+    val runOpts = Seq("agilesitesng.deploy.spoon.SpoonMain",
       "--source-classpath", sourceClasspath,
       "--processors", processors,
       "-i", source.getAbsolutePath,
       "-o", target.getAbsolutePath
     ) ++ args
-
-    //println(jvmOpts.mkString("\n"))
-    //println(runOpts.mkString("\n"))
 
     val forkOpt = ForkOptions(
       runJVMOptions = jvmOpts,
@@ -60,7 +63,6 @@ trait SpoonSettings {
     Fork.java(forkOpt, runOpts)
 
     spool
-    //target
   }
 
   val spoonSettings = Seq(ngSpoonClasspath <<= (update, ngSpoonProcessorJar) map { (report, extraJar) =>
@@ -72,14 +74,19 @@ trait SpoonSettings {
     , ngSpoonProcessorJar := None
     , ngSpoonProcessors := Seq(
       "SiteAnnotation",
+      "AttributeAnnotation",
+      "SiteEntryAnnotation",
       "TemplateAnnotation",
       "CSElementAnnotation",
-      "ContentDefinitionAnnotation")
+      "ContentDefinitionAnnotation",
+      "ParentDefinitionAnnotation")
       .map(x => s"agilesitesng.deploy.spoon.${x}Processor")
     , ivyConfigurations += config("spoon")
     , libraryDependencies ++= Seq(
-      "net.openhft" % "spoon-core" % "4.3.0" % "spoon"
-      , "org.scala-lang" % "scala-library" % "2.10.5" % "spoon")
+      "net.openhft"     % "spoon-core"    % "4.3.0"  % "spoon"
+      ,"org.scala-lang" % "scala-library" % "2.10.5" % "spoon"
+      ,"net.liftweb"    % "lift-json_2.10"% "2.6"    % "spoon"
+    )
     , spoonTask
   )
 }

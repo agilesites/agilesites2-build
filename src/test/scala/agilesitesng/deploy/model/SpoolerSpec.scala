@@ -1,7 +1,6 @@
 package agilesitesng.deploy.model
 
-import agilesitesng.deploy.model.DeployModel.Site
-import agilesitesng.deploy.model.DeployModel.Asset
+import agilesitesng.deploy.model.DeployModel.{Template, Site, CSElement}
 import net.liftweb.json.{ShortTypeHints, Serialization}
 import net.liftweb.json.Serialization.{read, write}
 
@@ -10,10 +9,8 @@ import org.scalatest.{Matchers, FreeSpec}
 class SpoolerSpec extends FreeSpec with Matchers {
 
   val s1 = Site(1l, "TestSite")
-  val a2 = Asset("A", 2l, "TestAsset")
-  val a3 = Asset("A", 3l, "TestAsset2")
-
-  var t: Object = null
+  val a2 = Template(2l, "TestTemplate")
+  val a3 = CSElement(3l, "TestCSElement")
 
   "spool i/o" in {
     Spooler.insert(1, s1)
@@ -41,7 +38,6 @@ class SpoolerSpec extends FreeSpec with Matchers {
   }
 
   "export" in {
-
     Spooler.insert(1, s1)
     Spooler.insert(2, a3)
     Spooler.insert(3, a2)
@@ -76,6 +72,5 @@ class SpoolerSpec extends FreeSpec with Matchers {
     val deser = read[Animals](ser)
     info(deser.toString)
   }
-
 
 }

@@ -1,7 +1,7 @@
 package agilesitesng.deploy.model
 
 import net.liftweb.json.Serialization._
-import agilesitesng.deploy.model.DeployModel.{DeployObjects, DeployObject}
+import agilesitesng.deploy.model.DeployModel.{DeployObjects}
 import net.liftweb.json.{FullTypeHints, Serialization}
 
 /**
@@ -9,15 +9,15 @@ import net.liftweb.json.{FullTypeHints, Serialization}
  *
  * @param map
  */
-case class Spooler(val map: Map[String, List[DeployObject]] = Map.empty) {
+case class Spooler(val map: Map[String, List[DeployModel]] = Map.empty) {
 
-  def push(i: Int, obj: DeployObject) = {
+  def push(i: Int, obj: DeployModel) = {
     val pri = i.toString
     val ls = if (map.contains(pri)) obj :: map(pri) else List(obj)
     new Spooler(map + (pri -> ls))
   }
 
-  def pop(): (DeployObject, Spooler) = {
+  def pop(): (DeployModel, Spooler) = {
     val top = map.keys.map(_.toInt).max.toString
     val ls = map(top)
 
@@ -38,12 +38,12 @@ object Spooler {
 
   var spool = new Spooler
 
-  def insert(pri: Int, obj: DeployObject) {
+  def insert(pri: Int, obj: DeployModel) {
     val t = spool.push(pri, obj)
     spool = t
   }
 
-  def extract(): Option[DeployObject] = {
+  def extract(): Option[DeployModel] = {
     if (spool.size == 0)
       None
     else {
@@ -59,7 +59,7 @@ object Spooler {
   implicit val formats = Serialization.formats(ShortTypeHints(DeployModel.classTypes))
 
   def save = {
-    var res = List.empty[DeployObject]
+    var res = List.empty[DeployModel]
     var o = extract()
     while (o.isDefined) {
       res = o.get :: res

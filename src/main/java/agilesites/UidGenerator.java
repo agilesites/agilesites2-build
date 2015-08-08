@@ -60,12 +60,14 @@ public class UidGenerator {
     /**
      * Add a new key assigning a new id if not already there
      *
+     * Return true if addded, false if already there.
+     *
      * @param key
      */
-    public void add(String key) {
+    public boolean add(String key) {
         Object val = prp.get(key);
         if (val != null)
-            return;
+            return false;
 
         // generate a new random id in the range
         long newId = 0;
@@ -77,6 +79,7 @@ public class UidGenerator {
         System.out.println("Generated id " + key + "=" + newId);
         prp.setProperty(key, "" + newId);
         idSet.add(newId);
+        return true;
     }
 
 

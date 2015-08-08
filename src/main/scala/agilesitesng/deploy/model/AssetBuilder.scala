@@ -6,11 +6,11 @@ package agilesitesng.deploy.model
 
 import java.util.Date
 
-object CSElement {
+object AssetBuilder{
 
-  import DeployModel._
+  import AssetModel._
 
-  def apply(_id: Long, _name: String, blob: Blob)(implicit _site: String) =
+  def CSElement(_id: Long, _name: String, blob: Blob)(implicit _site: String) =
     Asset(c = "CSElement"
           , cid = _id
           , subtype = ""

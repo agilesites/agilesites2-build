@@ -1,12 +1,14 @@
 package agilesitesng.deploy.model
 
-import java.io.{InputStream, FileInputStream, FileReader, File}
+import java.io.{InputStream, FileInputStream, File}
+import agilesitesng.deploy.model.AssetModel.Blob
+
 import scala.collection.immutable.HashMap
 
 /**
  * Created by msciab on 17/07/15.
  */
-trait DeployModelUtil {
+trait ModelUtil {
 
   import DeployModel._
 
