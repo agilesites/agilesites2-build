@@ -11,6 +11,8 @@ object NgSetupKeys {
 
   lazy val ngTagWrapperGen = taskKey[Unit]("Generate Tag Wrappers")
 
-  lazy val ngConcatJava = taskKey[Unit]("ng Concatenate Java source files")
+  lazy val ngConcatJava = taskKey[Unit]("Concatenate Java source files")
+
+  lazy val ngService = inputKey[Unit]("Invoke service command line")
 
 }

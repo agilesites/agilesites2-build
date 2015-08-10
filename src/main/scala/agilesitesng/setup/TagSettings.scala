@@ -5,6 +5,7 @@ import java.io.{File, FileReader}
 import agilesites.config.AgileSitesConfigKeys
 import org.xml.sax.InputSource
 import sbt._
+import sbt.Keys._
 
 import scala.xml.XML
 
@@ -37,11 +38,9 @@ trait TagSettings {
 
   def preHead(s: String) = {
     val cl = tld2class(s)
-    """package wcs.core.tag;
+    """package agilesites.api;
 
-import static wcs.core.Api.*;
-import wcs.core.Arg;
-import wcs.core.Log;
+import static agilesites.api.Api.*;
 import COM.FutureTense.Interfaces.*;
 
 public class %s  {
@@ -62,19 +61,21 @@ public class %s  {
     """.format(cl, cl)
   }
 
+  def deKeyword(name: String) = if (javaKeywords.contains(name)) name + "_" else name
+
   def body(lib: String, name: String, parArgs: List[String]): String = {
 
-    val uname = if (javaKeywords.contains(name)) name + "_" else name
+    val uname = deKeyword(name)
     val cname = uname(0).toUpper + uname.substring(1)
     val lname = uname.toLowerCase;
     val tname = lib.toUpperCase + "." + uname.toUpperCase
 
     val setParams = parArgs map { x =>
       """ public %s %s(String val) { args.setValString("%s", val); return this; }
-      """.format(cname, x, x.toUpperCase)
+      """.format(cname, deKeyword(x), x.toUpperCase)
     } mkString "\n";
 
-    """
+"""
   public static class %s {
   private FTValList args = new FTValList();
   private String output;
@@ -140,30 +141,32 @@ public static %s %s() {
 
       val parList = reqList ::: optList
 
+      //println(s"${libname} ${tagname} ${parList}")
+
       body(libname, tagname, parList)
 
     }
 
-      // result
-      preHead(filename) +
+    // result
+    preHead(filename) +
       res.mkString("\n") +
       postHead
   }
 
+  lazy val ngTagWrapperGenTask = ngTagWrapperGen := {
 
-  lazy val ntTagWrapperGenTask = ngTagWrapperGen := {
-
+    val base = baseDirectory.value
     val dir = file(sitesWebapp.value)
     val ver = sitesVersion.value
+    val dstDir = base / "src" / "main" / s"java-${sitesVersion.value}" / "agilesites" / "api"
+    val tldDir = dir / "WEB-INF" / "futuretense_cs"
 
     if (!dir.exists || ver.isEmpty)
       println("cannot find sites tld!")
     else {
-      val tldDir = dir / "WEB-INF" / "futuretense_cs"
       if (!tldDir.isDirectory)
         println("no tld founds in " + tldDir)
       else {
-        val dstDir = file("src") / "main" / s"java-${ver}" / "agilesitesng" / "tags"
         for {
           tld <- tldDir.listFiles
           if tld.getName.endsWith(".tld")
@@ -180,6 +183,6 @@ public static %s %s() {
     }
   }
 
-  def tagSettings = Seq(ntTagWrapperGenTask)
+  def tagSettings = Seq(ngTagWrapperGenTask)
 
 }

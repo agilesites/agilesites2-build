@@ -126,6 +126,7 @@ trait Utils {
     out mkString ""
   }
 
+
   // name says it all  
   def normalizeSiteName(s: String) = s.toLowerCase.replaceAll( """[^a-z0-9]+""", "")
 
