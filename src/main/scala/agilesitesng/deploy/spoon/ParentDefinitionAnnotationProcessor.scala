@@ -1,7 +1,7 @@
 package agilesitesng.deploy.spoon
 
-import agilesites.annotations.{ParentDefinition, ContentDefinition}
-import agilesitesng.deploy.model.{Uid, DeployModel, Spooler}
+import agilesites.annotations.ParentDefinition
+import agilesitesng.deploy.model.{Spooler, SpoonModel, Uid}
 import spoon.processing.AbstractAnnotationProcessor
 import spoon.reflect.declaration.CtClass
 
@@ -12,7 +12,7 @@ class ParentDefinitionAnnotationProcessor extends AbstractAnnotationProcessor[Pa
 
   def process(a: ParentDefinition, cl: CtClass[_]) {
     val name = cl.getQualifiedName
-    Spooler.insert(70, DeployModel.ParentDefinition(Uid.generate(s"ParentDefinition.${name}"), name))
+    Spooler.insert(70, SpoonModel.ParentDefinition(Uid.generate(s"ParentDefinition.${name}"), name))
     println("...ParentDefinition!!!")
   }
 

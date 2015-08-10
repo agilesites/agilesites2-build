@@ -1,7 +1,7 @@
 package agilesitesng.deploy.spoon
 
-import agilesites.annotations.{Template, Site}
-import agilesitesng.deploy.model.{Uid, DeployModel, Spooler}
+import agilesites.annotations.Template
+import agilesitesng.deploy.model.{Spooler, SpoonModel, Uid}
 import spoon.processing.AbstractAnnotationProcessor
 import spoon.reflect.declaration.CtClass
 
@@ -12,7 +12,7 @@ class TemplateAnnotationProcessor extends AbstractAnnotationProcessor[Template, 
 
   def process(a: Template, cl: CtClass[_]) {
     val name = cl.getQualifiedName
-    Spooler.insert(50, DeployModel.Template(Uid.generate(s"Template.${name}"), name))
+    Spooler.insert(50, SpoonModel.Template(Uid.generate(s"Template.${name}"), name))
     println("...Template!!!")
   }
 

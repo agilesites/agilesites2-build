@@ -2,6 +2,7 @@ package agilesitesng.deploy.actor
 
 import java.io.File
 
+import agilesitesng.deploy.model.SpoonModel
 import akka.actor.{ActorLogging, Actor, Props}
 import akka.event.LoggingReceive
 import spoon.Launcher
@@ -19,43 +20,27 @@ object Spoon {
 
   class SpoonActor extends Actor with ActorLogging {
 
+    var count = 0
+
     def receive: Receive = config
 
-    def config: Receive  = LoggingReceive {
-      case SpoonInit(source: String, target: String, classpath: Seq[String]) =>
+    def config: Receive = LoggingReceive {
+      case SpoonInit() =>
         println("--- spooon init ---")
-        //this.getClass.getClassLoader.loadClass("spoon.Launcher")
-        //println(source+target+classpath)
-        //classpath.filter(_.indexOf("spoon")!= -1).foreach(println)
-        //spoon.addInputResource(source)
-        //spoon.setOutputDirectory(target)
-        //spoon.setArgs(Array("--source-classpath", classpath.mkString(File.pathSeparator)))
-        println("--- waiting for ask ---")
-        context.become(process(null /*spoon*/))
+        count = 0
+        context.become(process)
     }
 
-    def process(launcher: Launcher): Receive = LoggingReceive {
+    def process: Receive = LoggingReceive {
+
+      case SpoonData(model) =>
+        println("--- spoon received " + model+ " ---")
+        count = count +1
+
       case Ask(sender, SpoonRun(args)) =>
-        //launcher.run(args.toArray)
-        //val buffer: mutable.Buffer[CtType[_]] = mutable.Buffer() //launcher.getFactory.Class().getAll
-        //sender ! SpoonReply(buffer.mkString("\n"))
-        sender ! SpoonReply("hello world")
+        sender ! SpoonReply(s"messages: ${count}")
         context.become(config)
     }
-
-    /*
-    spoon.run();
-    Factory factory = spoon.getFactory();
-    // list all packages of the model
-    for(CtPackage p : factory.Package().getAll()) {
-      System.out.println("package: "+p.getQualifiedName());
-    }
-    // list all classes of the model
-    for(CtSimpleType s : factory.Class().getAll()) {
-      System.out.println("class: "+s.getQualifiedName());
-    }
-   */
-
   }
 
 }

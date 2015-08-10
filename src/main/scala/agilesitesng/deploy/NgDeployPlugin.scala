@@ -1,6 +1,7 @@
 package agilesitesng.deploy
 
 import agilesites.config.AgileSitesConfigPlugin
+import agilesitesng.Utils
 import agilesitesng.deploy.actor.Protocol.Deploy
 import com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys
 import com.typesafe.sbt.jse.SbtJsTask
@@ -15,7 +16,8 @@ object NgDeployPlugin
   extends AutoPlugin
   with ActorSettings
   with DeploySettings
-  with SpoonSettings {
+  with SpoonSettings
+  with Utils {
 
   override def requires = JvmPlugin && SbtWeb && AgileSitesConfigPlugin
 

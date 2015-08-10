@@ -1,7 +1,7 @@
 package agilesitesng.deploy.spoon
 
-import agilesites.annotations.{SiteEntry, Site}
-import agilesitesng.deploy.model.{Uid, DeployModel, Spooler}
+import agilesites.annotations.SiteEntry
+import agilesitesng.deploy.model.{Spooler, SpoonModel, Uid}
 import spoon.processing.AbstractAnnotationProcessor
 import spoon.reflect.declaration.CtClass
 
@@ -12,7 +12,7 @@ class SiteEntryAnnotationProcessor extends AbstractAnnotationProcessor[SiteEntry
 
   def process(a: SiteEntry, cl: CtClass[_]) {
     val name = cl.getQualifiedName
-    Spooler.insert(50, DeployModel.SiteEntry(Uid.generate(s"SiteEntry.${name}"), name))
+    Spooler.insert(50, SpoonModel.SiteEntry(Uid.generate(s"SiteEntry.${name}"), name))
     println("...SiteEntry!!!")
   }
 

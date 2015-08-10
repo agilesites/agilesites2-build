@@ -1,12 +1,9 @@
 package agilesitesng.deploy.spoon
 
-import java.lang.annotation.Annotation
-
 import agilesites.annotations.Site
-import agilesitesng.deploy.model.{Uid, DeployModel, Spooler}
-import spoon.processing.{AbstractAnnotationProcessor, ProcessorProperties, AnnotationProcessor}
-import spoon.reflect.declaration.{CtAnnotation, CtClass}
-import spoon.reflect.factory.Factory
+import agilesitesng.deploy.model.{Spooler, SpoonModel, Uid}
+import spoon.processing.AbstractAnnotationProcessor
+import spoon.reflect.declaration.CtClass
 
 /**
  * Created by msciab on 06/08/15.
@@ -15,7 +12,7 @@ class SiteAnnotationProcessor extends AbstractAnnotationProcessor[Site, CtClass[
 
   def process(a: Site, cl: CtClass[_]) {
     val name = cl.getQualifiedName
-    Spooler.insert(100, DeployModel.Site(Uid.generate(s"Site.${name}"), name))
+    Spooler.insert(100, SpoonModel.Site(Uid.generate(s"Site.${name}"), name))
     println("...Site!!!")
    }
 

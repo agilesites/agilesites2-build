@@ -3,6 +3,7 @@ package agilesitesng.deploy.actor
 import java.io.File
 import java.net.URL
 
+import agilesitesng.deploy.model.SpoonModel
 import akka.actor.ActorRef
 
 /**
@@ -18,7 +19,7 @@ object Protocol {
 
   trait SpoonMsg extends Msg
 
-  case class Ask(sender: ActorRef, message: Msg)
+  case class Ask(sender: ActorRef, message: Msg) extends Msg
 
   case class Login(url: URL, username: String, password: String) extends DeployMsg
 
@@ -26,9 +27,11 @@ object Protocol {
 
   case class Deploy(filename: String) extends DeployMsg
 
-  case class SpoonInit(source: String, target: String, classpath: Seq[String]) extends SpoonMsg
+  case class SpoonInit() extends SpoonMsg
 
-  case class SpoonRun(args: Seq[String]) extends SpoonMsg with Asking
+  case class SpoonData(model: SpoonModel) extends SpoonMsg
+
+  case class SpoonRun(args: String) extends SpoonMsg with Asking
 
   case class SpoonReply(result: String) extends SpoonMsg
 

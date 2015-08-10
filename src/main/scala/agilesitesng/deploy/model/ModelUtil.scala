@@ -10,8 +10,6 @@ import scala.collection.immutable.HashMap
  */
 trait ModelUtil {
 
-  import DeployModel._
-
   def blobFromFile(file: File): Blob = {
     val filename = file.getName
     val foldername = if (file.getParentFile != null) file.getParentFile.getName else ""

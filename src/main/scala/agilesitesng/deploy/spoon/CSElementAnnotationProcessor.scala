@@ -1,7 +1,7 @@
 package agilesitesng.deploy.spoon
 
-import agilesites.annotations.{CSElement, Site}
-import agilesitesng.deploy.model.{Uid, DeployModel, Spooler}
+import agilesites.annotations.CSElement
+import agilesitesng.deploy.model.{Spooler, SpoonModel, Uid}
 import spoon.processing.AbstractAnnotationProcessor
 import spoon.reflect.declaration.CtClass
 
@@ -12,7 +12,7 @@ class CSElementAnnotationProcessor extends AbstractAnnotationProcessor[CSElement
 
   def process(a: CSElement, cl: CtClass[_]) {
     val name = cl.getQualifiedName
-    Spooler.insert(50, DeployModel.CSElement(Uid.generate(s"CSElement.${name}"), name))
+    Spooler.insert(50, SpoonModel.CSElement(Uid.generate(s"CSElement.${name}"), name))
     println("...CSElement!!!")
   }
 
