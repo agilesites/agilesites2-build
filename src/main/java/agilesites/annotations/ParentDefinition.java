@@ -10,4 +10,6 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE) @Retention(RetentionPolicy.CLASS)
 public @interface ParentDefinition {
+    String value() default "";
+    String description() default "";
 }

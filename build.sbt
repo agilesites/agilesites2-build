@@ -1,4 +1,4 @@
-val v = "11g-M3"
+val v = "11g-M4-SNAPSHOT"
 
 isSnapshot := v.endsWith("-SNAPSHOT")
 
