@@ -98,6 +98,7 @@ public class UidGenerator {
         list.addAll(prp.stringPropertyNames());
         Collections.sort(list);
         FileWriter fw = null;
+        file.getParentFile().mkdirs();
         try {
             fw = new FileWriter(file);
             for (String key : list)

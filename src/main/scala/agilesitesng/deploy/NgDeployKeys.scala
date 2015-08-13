@@ -11,7 +11,7 @@ object NgDeployKeys {
   val deploy = taskKey[Unit]("AgileSitesNg deploy")
   val ngDeployHub = taskKey[ActorRef]("Actor for Deployment")
   val ngSpoonClasspath = taskKey[Seq[File]]("spoon classpath")
-  val ngSpoonProcessorJar = settingKey[Option[File]]("processors jar")
+  val ngSpoonProcessorJars = settingKey[Seq[File]]("processors jar")
   val ngSpoonProcessors = settingKey[Seq[String]]("spoon processors")
   val spoon = inputKey[File]("invoke spoon")
 }
