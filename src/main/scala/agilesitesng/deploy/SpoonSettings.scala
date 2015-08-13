@@ -2,6 +2,7 @@ package agilesitesng.deploy
 
 import java.io.File
 
+import agilesites.AgileSitesConstants
 import sbt.Keys._
 import sbt._
 
@@ -68,11 +69,7 @@ trait SpoonSettings {
       "ParentDefinitionAnnotation")
       .map(x => s"agilesitesng.deploy.spoon.${x}Processor")
     , ivyConfigurations += config("spoon")
-    , libraryDependencies ++= Seq(
-      "net.openhft" % "spoon-core" % "4.3.0" % "spoon"
-      , "org.scala-lang" % "scala-library" % "2.10.5" % "spoon"
-      , "net.liftweb" % "lift-json_2.10" % "2.6" % "spoon"
-    )
+    , libraryDependencies ++= AgileSitesConstants.spoonDependencies
     , spoonTask
   )
 }

@@ -2,7 +2,7 @@ package agilesites.setup
 
 import java.io.{File, PipedInputStream, PipedOutputStream}
 
-import agilesites.Utils
+import agilesites.{SitesDownloader, Utils}
 import sbt._
 
 /**
@@ -204,5 +204,18 @@ trait InstallerSettings extends Utils {
 
   }
 
-  val installerSettings = Seq(proxyInstallTask, sitesInstallTask)
+  lazy val sitesDownloadTask = sitesDownload := {
+    val args = Def.spaceDelimited("<username> <password>").parsed
+    if (args.size != 2) {
+      println("usage: <username> <password> of your oracle account")
+    } else {
+      val dir = sitesDirectory.value
+      dir.mkdirs()
+      new SitesDownloader(args(0), args(1)).download(dir.getAbsolutePath, "sites.zip");
+    }
+
+  }
+
+
+  val installerSettings = Seq(proxyInstallTask, sitesInstallTask, sitesDownloadTask)
 }

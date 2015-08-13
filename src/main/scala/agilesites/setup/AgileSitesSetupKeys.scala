@@ -14,6 +14,7 @@ object AgileSitesSetupKeys {
   lazy val asApiClasspath = taskKey[Seq[File]]("AgileSites Api Classpath")
   lazy val asPopulateClasspath = taskKey[Seq[File]]("AgileSites Populate Classpath")
 
+  lazy val sitesDownload = inputKey[Unit]("Sites download task")
   lazy val sitesInstall = taskKey[Unit]("Sites installation task")
   lazy val proxyInstall = taskKey[Unit]("Proxy installation task")
 

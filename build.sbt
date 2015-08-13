@@ -10,7 +10,7 @@ sbtPlugin := true
 
 version := v
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.10.5"
 
 javacOptions ++= Seq("-source", "1.6", "-target", "1.6", "-Xlint:unchecked")
 
@@ -20,31 +20,30 @@ val tomcatVersion = "7.0.59"
 
 libraryDependencies ++=
  Seq("ch.qos.logback"            % "logback-classic" % "1.1.3" % "test;compile"
-    ,"org.hsqldb" % "hsqldb"     % "1.8.0.10"
-    ,"org.apache.tomcat.embed"   % "tomcat-embed-core"         % tomcatVersion
-    ,"org.apache.tomcat.embed"   % "tomcat-embed-logging-juli" % tomcatVersion
-    ,"org.apache.tomcat.embed"   % "tomcat-embed-jasper"       % tomcatVersion
-    ,"org.apache.tomcat"         % "tomcat-jasper"             % tomcatVersion
-    ,"org.apache.tomcat"         % "tomcat-jasper-el"          % tomcatVersion
-    ,"org.apache.tomcat"         % "tomcat-jsp-api"            % tomcatVersion
-    ,"org.apache.tomcat"         % "tomcat-dbcp"               % tomcatVersion
-    ,"org.apache.httpcomponents" % "httpclient"      % "4.3.6"
-    ,"commons-io"                % "commons-io"      % "2.4"
-    ,"net.databinder.dispatch"   %% "dispatch-core"  % "0.11.2"
-    ,"org.jsoup"                 % "jsoup"           % "1.7.3"
-    ,"com.jcraft"                % "jsch"            % "0.1.51"
-    ,"com.typesafe.akka"         %% "akka-actor"     % "2.3.9"
-    ,"com.typesafe.akka"         %% "akka-remote"    % "2.3.9"
-    ,"com.typesafe.akka"         %% "akka-slf4j"     % "2.3.9"
-    ,"org.scalatest"             %% "scalatest"      % "2.2.4" % "test"
-    ,"com.typesafe.akka"         %% "akka-testkit"   % "2.3.9" % "test"
-    ,"io.spray"                  %% "spray-can"      % "1.3.2"
-    ,"io.spray"                  %% "spray-http"     % "1.3.2"
-    ,"io.spray"                  %% "spray-httpx"    % "1.3.2"
-    ,"org.scalaz"                %% "scalaz-core"    % "7.0.6"
-    ,"net.liftweb"               %% "lift-json"      % "2.6"
-    ,"net.openhft"               % "spoon-core"      % "4.3.0"
-     // from "https://repo1.maven.org/maven2/net/openhft/spoon-core/4.3.0/spoon-core-4.3.0-jar-with-dependencies.jar"
+    , "org.hsqldb" % "hsqldb" % "1.8.0.10"
+    , "org.apache.tomcat.embed" % "tomcat-embed-core" % tomcatVersion
+    , "org.apache.tomcat.embed" % "tomcat-embed-logging-juli" % tomcatVersion
+    , "org.apache.tomcat.embed" % "tomcat-embed-jasper" % tomcatVersion
+    , "org.apache.tomcat" % "tomcat-jasper" % tomcatVersion
+    , "org.apache.tomcat" % "tomcat-jasper-el" % tomcatVersion
+    , "org.apache.tomcat" % "tomcat-jsp-api" % tomcatVersion
+    , "org.apache.tomcat" % "tomcat-dbcp" % tomcatVersion
+    , "org.apache.httpcomponents" % "httpclient"      % "4.3.6"
+    , "commons-io"                % "commons-io"      % "2.4"
+    , "net.databinder.dispatch"   %% "dispatch-core"  % "0.11.2"
+    , "org.jsoup"                 % "jsoup"           % "1.7.3"
+    , "com.jcraft"                % "jsch"            % "0.1.51"
+    , "com.typesafe.akka"         %% "akka-actor"     % "2.3.9"
+    , "com.typesafe.akka"         %% "akka-remote"    % "2.3.9"
+    , "com.typesafe.akka"         %% "akka-slf4j"     % "2.3.9"
+    , "org.scalatest"             %% "scalatest"      % "2.2.4" % "test"
+    , "com.typesafe.akka"         %% "akka-testkit"   % "2.3.9" % "test"
+    , "io.spray"                  %% "spray-can"      % "1.3.2"
+    , "io.spray"                  %% "spray-http"     % "1.3.2"
+    , "io.spray"                  %% "spray-httpx"    % "1.3.2"
+    , "org.scalaz"                %% "scalaz-core"    % "7.0.6"
+    , "net.liftweb"               %% "lift-json"      % "2.6"
+    , "net.openhft"               % "spoon-core"      % "4.3.0"
     )
 
 

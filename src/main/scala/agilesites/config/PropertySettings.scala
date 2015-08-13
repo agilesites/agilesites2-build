@@ -50,7 +50,7 @@ trait PropertySettings extends Utils {
     }
   }
 
-  lazy val uidPropertyMapTask  = uidPropertyMap in ThisBuild := {
+  lazy val uidPropertyMapTask = uidPropertyMap in ThisBuild := {
     val prp: Properties = new Properties
     val prpFile = baseDirectory.value / "src" / "main" / "resources" / sitesFocus.value / "uid.properties"
     if (prpFile.exists) {
@@ -67,10 +67,26 @@ trait PropertySettings extends Utils {
         Option(System.getProperty("profile")).map("[" + _ + "]> ").getOrElse("> ")
   }
 
+  def profileCmd = Command.args("profile", "<args>") { (state, args) =>
+    if (args.size != 1) {
+      println("usage: profile <profile>")
+      state
+    } else {
+      val profile= args.head
+      val prp = state.configuration.baseDirectory / s"agilesites.${profile}.properties"
+      if(!prp.exists())
+        println(s"WARNING! no ${prp.getName} file found - are you using the right profile name?")
+      state.copy(remainingCommands =
+        Seq( s"""eval System.setProperty("profile", "${args.head}") """,
+          "reload") ++ state.remainingCommands)
+    }
+  }
+
   val propertySettings = Seq(
     utilProperties := propertyFiles,
     utilShellPromptTask,
     utilPropertyMapTask,
-    uidPropertyMapTask
+    uidPropertyMapTask,
+    commands += profileCmd
   )
 }

@@ -2,7 +2,7 @@ package agilesites.setup
 
 import java.io.File
 
-import agilesites.Utils
+import agilesites.{AgileSitesConstants, Utils}
 import sbt.Keys._
 import sbt._
 
@@ -79,8 +79,9 @@ trait TomcatSettings extends Utils {
 
     //println(script)
 
-    writeFile(new File("server." + ext), script, log)
-    println("+++ created server." + ext)
+    val scriptFile = base / ("server." + ext)
+    writeFile(scriptFile, script, log)
+    println(s"+++ created ${scriptFile.getAbsolutePath}")
   }
 
   import agilesites.config.AgileSitesConfigKeys._
@@ -149,5 +150,11 @@ trait TomcatSettings extends Utils {
     },
     serverStart := {
       server.toTask(" start").value
-    })
+    },
+    ivyConfigurations += config("tomcat"),
+    libraryDependencies ++= AgileSitesConstants.tomcatDependencies map { _ % "tomcat"},
+    asTomcatClasspath <<= (update) map {
+      report => report.select(configurationFilter("tomcat"))
+    }
+  )
 }

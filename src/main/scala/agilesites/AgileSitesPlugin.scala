@@ -4,7 +4,8 @@ import agilesites.config.AgileSitesConfigPlugin
 import agilesites.deploy.AgileSitesDeployPlugin
 import agilesites.setup.AgileSitesSetupPlugin
 import agilesites.web.AgileSitesWebPlugin
-import sbt._
+import sbt._, Keys._
+
 import sbt.plugins.JvmPlugin
 
 object AgileSitesPlugin
@@ -26,4 +27,6 @@ object AgileSitesPlugin
   }*/
 
   //override lazy val projectSettings = Seq(commands ++= Seq(guiCmd))
+
+
 }

@@ -146,7 +146,7 @@ trait SetupSettings extends Utils {
     // add jars
     println("** installing new version of files **");
     for (file <- addJars) yield {
-      val tgt = destLib / (prefix+file.getName)
+      val tgt = destLib / (prefix + file.getName)
       IO.copyFile(file, tgt)
       //println(file)
       println("+ " + tgt.getAbsolutePath)
@@ -174,7 +174,14 @@ trait SetupSettings extends Utils {
 
   //val asSetupOnlineTask = cmov.fullInput(" setup").parsed
 
-  val setupSettings = Seq(
+  val setupSettings = Seq(ivyConfigurations ++= Seq(config("core"), config("api"), config("populate")),
+    asCoreClasspath <<= (update) map {
+      report => report.select(configurationFilter("core"))
+    }, asApiClasspath <<= (update) map {
+      report => report.select(configurationFilter("api"))
+    }, asPopulateClasspath <<= (update) map {
+      report => report.select(configurationFilter("populate"))
+    },
     asSetupOfflineTask,
     asSetupServletRequestTask,
     asSetupFutureTenseIniTask,

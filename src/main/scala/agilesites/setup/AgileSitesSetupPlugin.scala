@@ -21,18 +21,7 @@ object AgileSitesSetupPlugin
 
   import agilesites.setup.AgileSitesSetupKeys._
 
-  override lazy val projectSettings = Seq(
-    ivyConfigurations ++= Seq(config("run"), config("core"), config("api"), config("populate")),
-    asTomcatClasspath <<= (update) map {
-      report => report.select(configurationFilter("run"))
-    }, asCoreClasspath <<= (update) map {
-      report => report.select(configurationFilter("core"))
-    }, asApiClasspath <<= (update) map {
-      report => report.select(configurationFilter("api"))
-    }, asPopulateClasspath <<= (update) map {
-      report => report.select(configurationFilter("populate"))
-    }) ++
-    weblogicSettings ++
+  override lazy val projectSettings = weblogicSettings ++
     tomcatSettings ++
     toolsSettings ++
     setupSettings ++
