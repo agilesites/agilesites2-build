@@ -3,9 +3,14 @@ package agilesitesng.deploy
 import java.net.URL
 
 import agilesites.config.AgileSitesConfigKeys._
-import agilesitesng.deploy.actor.{DeployHub, Deployer}
-import agilesitesng.deploy.actor.Protocol.Login
+import agilesitesng.deploy.actor.DeployProtocol.{ServiceReply, ServiceLogin}
+import agilesitesng.deploy.actor.{DeployHub, Services}
 import akka.actor.{ActorRef, PoisonPill}
+import akka.pattern.ask
+import akka.util.Timeout
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 import com.typesafe.sbt.web.SbtWeb
 import sbt.Keys._
 import sbt._
@@ -28,24 +33,34 @@ trait ActorSettings {
     state.remove(ngDeployHubKey)
   }
 
-  private def init(url: java.net.URL, user: String, password: String, state: State): State = {
+  private def init(url: java.net.URL, user: String, pass: String, state: State): State = {
     //createLogger("agilesitesng.wem")
     SbtWeb.withActorRefFactory(state, "Ngn") {
       arf =>
-        println("************ NgSettings init ")
+        val interval = 3.second
+        implicit val timeout = Timeout(3.second)
         val hub = arf.actorOf(DeployHub.actor(), "Deployer")
         val newState = state.put(ngDeployHubKey, hub)
+        println(s">>> ServiceLogin(${url}) ")
+        val r = hub ? ServiceLogin(url, user, pass)
+        val msg = try {
+          val ServiceReply(msg) = Await.result(r, interval)
+          msg
+        } catch {
+          case ex: Exception => "ERR: " + ex.getMessage
+        }
+        println(s"<<< ServiceReply(${msg}")
         //newState.addExitHook(s: sbt.State => finish(s))
         newState
     }
   }
 
-   def actorGlobalSettings: Seq[Setting[_]] = Seq(
-      onLoad in Global := (onLoad in Global).value andThen
-        (init(new URL(sitesUrl.value), sitesUser.value, sitesPassword.value, _)),
-      onUnload in Global := (onUnload in Global).value andThen
-        (finish)
-    )
+  def actorGlobalSettings: Seq[Setting[_]] = Seq(
+    onLoad in Global := (onLoad in Global).value andThen
+      (init(new URL(sitesUrl.value), sitesUser.value, sitesPassword.value, _)),
+    onUnload in Global := (onUnload in Global).value andThen
+      (finish)
+  )
 
   val actorSettings = Seq(ngDeployHub <<= state map (_.get(ngDeployHubKey).get))
 

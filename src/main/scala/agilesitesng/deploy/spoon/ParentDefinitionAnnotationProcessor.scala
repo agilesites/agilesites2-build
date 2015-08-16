@@ -13,7 +13,7 @@ class ParentDefinitionAnnotationProcessor extends AbstractAnnotationProcessor[Pa
   def process(a: ParentDefinition, cl: CtClass[_]) {
     val name = cl.getQualifiedName
     Spooler.insert(70, SpoonModel.ParentDefinition(Uid.generate(s"ParentDefinition.${name}"), name))
-    println("...ParentDefinition!!!")
+    //println("...ParentDefinition!!!")
   }
 
 }

@@ -26,10 +26,8 @@ object NgSetupPlugin
     if (args.size == 0) {
       println("usage: ngService <op> <key=value>")
     } else {
-      val req = s"${sitesUrl.value}/ContentServer?pagename=AAAgileService" +
-        s"&username=${sitesUser.value}&password=${sitesPassword.value}" +
-        s"&site=${sitesFocus.value}&op=${args.head}${
-          args.tail.map(s => if(s.indexOf("=")== -1) "value="+s else s ).mkString("&", "&", "")}"
+      val opts = args.tail.map(s => if(s.indexOf("=")== -1) "value="+s else s ).mkString("&", "&", "")
+      val req = s"${sitesUrl.value}/ContentServer?pagename=AAAgileService&op=${args.head}${opts}"
       println(">>> " + req)
       println(httpCallRaw(req))
     }

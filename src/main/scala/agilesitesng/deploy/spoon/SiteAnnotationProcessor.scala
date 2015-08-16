@@ -11,7 +11,7 @@ import spoon.reflect.declaration.CtClass
 class SiteAnnotationProcessor extends AbstractAnnotationProcessor[Site, CtClass[_]] {
 
   def process(a: Site, cl: CtClass[_]) {
-    val name = cl.getQualifiedName
+    val name = cl.getSimpleName
     Spooler.insert(100, SpoonModel.Site(Uid.generate(s"Site.${name}"), name))
     println("...Site!!!")
    }

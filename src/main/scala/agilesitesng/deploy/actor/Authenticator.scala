@@ -9,8 +9,6 @@ import akka.io.IO
  */
 object Authenticator {
 
-  import Protocol._
-  
   def actor() = Props[AuthenticatorActor]
 
   class AuthenticatorActor extends Actor with ActorLogging {
@@ -20,7 +18,7 @@ object Authenticator {
     var requester: ActorRef = null
 
     def receive = LoggingReceive {
-      case  any => println(any)
+      case any => println(any)
     }
   }
 

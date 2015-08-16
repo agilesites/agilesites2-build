@@ -2,7 +2,6 @@ package agilesitesng.deploy
 
 import agilesites.config.AgileSitesConfigPlugin
 import agilesitesng.Utils
-import agilesitesng.deploy.actor.Protocol.Deploy
 import com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys
 import com.typesafe.sbt.jse.SbtJsTask
 import com.typesafe.sbt.web.SbtWeb

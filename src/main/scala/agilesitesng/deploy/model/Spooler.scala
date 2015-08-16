@@ -62,8 +62,11 @@ object Spooler {
     while (o.isDefined) {
       res = o.get :: res
       o = extract()
+
     }
-    write(DeployObjects(res))
+    val out = DeployObjects(res.reverse)
+    //println(out)
+    write(out)
   }
 
   def load(ser: String): DeployObjects = read[DeployObjects](ser)

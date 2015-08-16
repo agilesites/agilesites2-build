@@ -13,7 +13,7 @@ class ContentDefinitionAnnotationProcessor extends AbstractAnnotationProcessor[C
   def process(a: ContentDefinition, cl: CtClass[_]) {
     val name = cl.getQualifiedName
     Spooler.insert(70, SpoonModel.ContentDefinition(Uid.generate(s"ContentDefinition.${name}"), name))
-    println("...ContentDefinition!!!")
+    //println("...ContentDefinition!!!")
   }
 
 }

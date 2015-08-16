@@ -9,23 +9,17 @@ import akka.actor.ActorRef
 /**
  * Created by msciab on 04/08/15.
  */
-object Protocol {
+object DeployProtocol {
 
   trait Msg
 
   trait Asking
 
-  trait DeployMsg extends Msg
+  trait ServiceMsg extends Msg
 
   trait SpoonMsg extends Msg
 
   case class Ask(sender: ActorRef, message: Msg) extends Msg
-
-  case class Login(url: URL, username: String, password: String) extends DeployMsg
-
-  case class AuthId(authid: String) extends DeployMsg
-
-  case class Deploy(filename: String) extends DeployMsg
 
   case class SpoonInit() extends SpoonMsg
 
@@ -34,5 +28,13 @@ object Protocol {
   case class SpoonRun(args: String) extends SpoonMsg with Asking
 
   case class SpoonReply(result: String) extends SpoonMsg
+
+  case class ServiceLogin(url: URL, username: String, password: String) extends ServiceMsg
+
+  case class ServiceGet(op: String, args: Map[String, String]) extends ServiceMsg with Asking
+
+  case class ServicePost(op: String, args: Map[String, String]) extends ServiceMsg with Asking
+
+  case class ServiceReply(result: String) extends ServiceMsg
 
 }

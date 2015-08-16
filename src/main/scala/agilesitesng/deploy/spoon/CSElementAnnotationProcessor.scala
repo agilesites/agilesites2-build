@@ -13,7 +13,7 @@ class CSElementAnnotationProcessor extends AbstractAnnotationProcessor[CSElement
   def process(a: CSElement, cl: CtClass[_]) {
     val name = cl.getQualifiedName
     Spooler.insert(50, SpoonModel.CSElement(Uid.generate(s"CSElement.${name}"), name))
-    println("...CSElement!!!")
+    //println("...CSElement!!!")
   }
 
 }

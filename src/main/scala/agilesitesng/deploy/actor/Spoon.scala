@@ -3,7 +3,7 @@ package agilesitesng.deploy.actor
 import java.io.File
 
 import agilesitesng.deploy.model.SpoonModel
-import akka.actor.{ActorLogging, Actor, Props}
+import akka.actor.{ActorRef, ActorLogging, Actor, Props}
 import akka.event.LoggingReceive
 import spoon.Launcher
 import scala.collection.{mutable, JavaConversions}
@@ -13,12 +13,12 @@ import scala.collection.{mutable, JavaConversions}
  */
 object Spoon {
 
-  import Protocol._
+  import DeployProtocol._
   import JavaConversions._
 
-  def actor() = Props[SpoonActor]
+  def actor(deployer: ActorRef) = Props(classOf[SpoonActor], deployer)
 
-  class SpoonActor extends Actor with ActorLogging {
+  class SpoonActor(deployer: ActorRef) extends Actor with ActorLogging {
 
     var count = 0
 

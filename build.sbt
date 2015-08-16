@@ -71,7 +71,7 @@ resolvers ++= Seq(Resolver.sonatypeRepo("releases"),
   "Nexus-sciabarra-releases" at "http://nexus.sciabarra.com/content/repositories/releases",
   "Nexus-sciabarra-snapshots" at "http://nexus.sciabarra.com/content/repositories/snapshots")
 
-//net.virtualvoid.sbt.graph.Plugin.graphSettings
+net.virtualvoid.sbt.graph.Plugin.graphSettings
 
 mappings in (Compile, packageBin) ~= { _.filter(!_._1.getName.equals("logback-test.xml")) }
 
@@ -80,3 +80,4 @@ addSbtPlugin("com.typesafe.sbt" %% "sbt-js-engine" % "1.1.2" exclude("org.slf4j"
 addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.0.0" exclude("org.slf4j", "slf4j-simple"))
 
 unmanagedSourceDirectories in Compile += baseDirectory.value.getParentFile / "nglib" / "src" / "main" / "java" / "agilesites" / "annotations"
+

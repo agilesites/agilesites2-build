@@ -1,6 +1,6 @@
 package agilesitesng.deploy.model
 
-import agilesitesng.deploy.model.DeployModel.{Template, Site, CSElement}
+import agilesitesng.deploy.model.SpoonModel.{Template, Site, CSElement}
 import net.liftweb.json.{ShortTypeHints, Serialization}
 import net.liftweb.json.Serialization.{read, write}
 

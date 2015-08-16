@@ -1,26 +1,33 @@
 package agilesitesng.deploy.actor
 
-import akka.actor.{Actor, Props}
+import akka.actor.{ActorLogging, ActorRef, Actor, Props}
+import akka.event.LoggingReceive
 
 /**
  * Created by msciab on 05/08/15.
  */
 object DeployHub {
-  import Protocol._
+
+  import DeployProtocol._
 
   def actor() = Props[DeployHubActor]
 
-  class DeployHubActor extends Actor {
+  class DeployHubActor
+    extends Actor
+    with ActorLogging
+    with ActorUtils {
 
-    val deployer = context.actorOf(Deployer.actor())
+    def receive = loop(null, null)
 
-    val spoon = context.actorOf(Spoon.actor())
-
-    def receive = {
-      case dm: DeployMsg with Asking =>  deployer ! Ask(context.sender, dm)
-      case sm: SpoonMsg with Asking =>  spoon ! Ask(context.sender, sm)
-      case dm: DeployMsg => deployer ! dm
-      case sm: SpoonMsg  => spoon ! sm
+    def loop(services: ActorRef, spoon: ActorRef): Receive = LoggingReceive {
+      case msg@ServiceLogin(url, user, pass) =>
+        val svc = context.actorOf(Services.actor())
+        svc ! Ask(context.sender, msg)
+        val spoon = context.actorOf(Spoon.actor(services))
+        context.become(loop(services, spoon))
+      case spm: SpoonMsg with Asking => spoon ! Ask(context.sender, spm)
+      case spm: SpoonMsg => spoon ! spm
+      case svm: ServiceMsg with Asking => services ! Ask(context.sender, svm)
     }
 
   }

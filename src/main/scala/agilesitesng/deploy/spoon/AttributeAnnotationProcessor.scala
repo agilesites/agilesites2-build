@@ -13,7 +13,7 @@ class AttributeAnnotationProcessor extends AbstractAnnotationProcessor[Attribute
   def process(a: Attribute, cl: CtField[_]) {
     val name = cl.getSimpleName
     Spooler.insert(90, SpoonModel.Attribute(Uid.generate(s"Attribute.${name}"), name))
-    println("...AttributeDefinition!!!")
+    //println("...AttributeDefinition!!!")
   }
 
 }
