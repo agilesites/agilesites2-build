@@ -60,13 +60,14 @@ trait SpoonSettings {
   }
     , ngSpoonProcessorJars := Nil
     , ngSpoonProcessors := Seq(
-      "SiteAnnotation",
-      "AttributeAnnotation",
-      "SiteEntryAnnotation",
-      "TemplateAnnotation",
-      "CSElementAnnotation",
-      "ContentDefinitionAnnotation",
-      "ParentDefinitionAnnotation")
+       "SiteAnnotation"
+      ,"AttributeEditorAnnotation"
+      /*,"AttributeAnnotation"
+      ,"SiteEntryAnnotation"
+      ,"TemplateAnnotation"
+      ,"CSElementAnnotation"
+      ,"ContentDefinitionAnnotation"
+      ,"ParentDefinitionAnnotation"*/)
       .map(x => s"agilesitesng.deploy.spoon.${x}Processor")
     , ivyConfigurations += config("spoon")
     , libraryDependencies ++= AgileSitesConstants.spoonDependencies
