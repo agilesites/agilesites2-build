@@ -49,6 +49,7 @@ public class SitesDownloader {
 
     private final String sso_params_url = "https://updates.oracle.com/Orion/Services/download";
     private final String sites_url = "http://download.oracle.com/otn/nt/middleware/11g/111180/ofm_sites_generic_11.1.1.8.0_disk1_1of1.zip";
+    private final String sites_zip_file_name = "WCS_Sites.zip";
     private String downloaded_file_path = "";
     private String downloaded_file_name = "owcs_11.1.1.8.zip";
     private static int percentage = 0;
@@ -264,15 +265,16 @@ public class SitesDownloader {
     }
 
     public void look_OWCS_Sites() {
-        String unzipped_directory = unzip(downloaded_file_path + File.separator + downloaded_file_name, downloaded_file_path);
+        //look for WCS_Sites.zip file in downloaded zip file
+        String unzipped_directory = unzip(downloaded_file_path + File.separator + downloaded_file_name, downloaded_file_path,sites_zip_file_name);
         if (unzipped_directory.length() > 0) {
-            String owcs_dest = downloaded_file_path + File.separator + unzipped_directory + File.separator + "WCS_Sites";
-            unzip(owcs_dest + File.separator + "WCS_Sites.zip", owcs_dest);
+            //String owcs_dest = unzipped_directory + File.separator + "WCS_Sites";
+            unzip(unzipped_directory + File.separator + sites_zip_file_name, downloaded_file_path,null);
 
         }
     }
 
-    public String unzip(String filepath, String destinaton_directory) {
+    public String unzip(String filepath, String destinaton_directory, String lookUpFile) {
         File destDir = new File(destinaton_directory);
         String root_directory = "";
 
@@ -287,6 +289,24 @@ public class SitesDownloader {
 
             while (entry != null) {
                 String filePath = destinaton_directory + File.separator + entry.getName();
+
+                if( lookUpFile != null && lookUpFile.length() > 0 ){
+
+                    if( (!entry.isDirectory()) && entry.getName().contains(lookUpFile) ){
+                        //found the lookUpFile
+                        System.out.println("Found "+entry.getName());
+                        filePath = destinaton_directory + File.separator + lookUpFile;
+                        extractFile(zipIn, filePath);
+                        System.out.println("extracting lookUpFile = " + lookUpFile + "...");
+                        root_directory = destinaton_directory;
+                        break;
+                    }
+                    /*skip the iteration*/
+                    zipIn.closeEntry();
+                    entry = zipIn.getNextEntry();
+                    continue;
+                }
+                //System.out.println("2..");
                 if (!entry.isDirectory()) {
                     // if the entry is a file, extracts it
                     extractFile(zipIn, filePath);
@@ -314,6 +334,58 @@ public class SitesDownloader {
             //looking for WCS_Sites folder
         }
         return root_directory;
+    }
+
+    public String unzipSites(String filepath, String destinaton_directory) {
+        File destDir = new File(destinaton_directory);
+        String root_directory = "";
+
+        if (!destDir.exists()) {
+            destDir.mkdir();
+        }
+
+        try {
+            //System.out.println("unzipping.");
+            ZipInputStream zipIn = new ZipInputStream(new FileInputStream(filepath));
+            ZipEntry entry = zipIn.getNextEntry();
+
+            while (entry != null) {
+
+                if( entry.getName().contains("WCS_Sites.zip")){
+                    //String filePath = destinaton_directory + File.separator + entry.getName();
+                    String filePath = destinaton_directory + File.separator + "WCS_Sites.zip";
+                    System.out.println("extracting "+entry.getName()+" - "+filePath);
+                    if (!entry.isDirectory()) {
+                        // if the entry is a file, extracts it
+                        extractFile(zipIn, filePath);
+                        System.out.println("extracting " + filePath + "...");
+                    } else {
+                        // if the entry is a directory, make the directory
+
+                        File dir = new File(filePath);
+                        dir.mkdir();
+                        if (root_directory.length() <= 0) {
+                            root_directory = dir.getName();
+                        }
+
+                    }
+                }
+
+
+                zipIn.closeEntry();
+                entry = zipIn.getNextEntry();
+
+            }
+            zipIn.close();
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            //looking for WCS_Sites folder
+        }
+        return root_directory;
+
     }
 
     private void extractFile(ZipInputStream zipIn, String filePath) throws IOException {
