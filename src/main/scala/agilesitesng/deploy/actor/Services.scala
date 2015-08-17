@@ -82,6 +82,9 @@ object Services {
     }
 
     def postLogin(url: URL, cookie: Cookie, authKey: String): Receive = LoggingReceive {
+      case Ask(origin, ServiceLogin(url, username, password)) =>
+        origin ! ServiceReply("OK - already logged in")
+
       case ServiceGet(op: String, args: Map[String, String]) =>
         http ! buildGetMap(op, args)(url, cookie)
         context.become(waitForReply(sender))

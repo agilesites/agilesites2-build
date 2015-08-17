@@ -35,21 +35,12 @@ trait ActorSettings {
 
   private def init(url: java.net.URL, user: String, pass: String, state: State): State = {
     //createLogger("agilesitesng.wem")
-    SbtWeb.withActorRefFactory(state, "Ngn") {
+    SbtWeb.withActorRefFactory(state, "Ng") {
       arf =>
         val interval = 3.second
         implicit val timeout = Timeout(3.second)
-        val hub = arf.actorOf(DeployHub.actor(), "Deployer")
+        val hub = arf.actorOf(DeployHub.actor(), "DeployHub")
         val newState = state.put(ngDeployHubKey, hub)
-        println(s">>> ServiceLogin(${url}) ")
-        val r = hub ? ServiceLogin(url, user, pass)
-        val msg = try {
-          val ServiceReply(msg) = Await.result(r, interval)
-          msg
-        } catch {
-          case ex: Exception => "ERR: " + ex.getMessage
-        }
-        println(s"<<< ServiceReply(${msg}")
         //newState.addExitHook(s: sbt.State => finish(s))
         newState
     }
