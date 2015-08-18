@@ -333,7 +333,7 @@ public class SitesDownloader {
         } finally {
             //looking for WCS_Sites folder
         }
-        return root_directory;
+        return root_directory; 
     }
 
     private void extractFile(ZipInputStream zipIn, String filePath) throws IOException {
