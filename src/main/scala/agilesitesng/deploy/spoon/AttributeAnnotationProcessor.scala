@@ -1,9 +1,9 @@
 package agilesitesng.deploy.spoon
 
-import agilesites.annotations.Attribute
 import agilesitesng.deploy.model.{Spooler, SpoonModel, Uid}
 import spoon.processing.AbstractAnnotationProcessor
 import spoon.reflect.declaration.CtField
+import agilesites.annotations.Attribute
 
 /**
  * Created by msciab on 06/08/15.
