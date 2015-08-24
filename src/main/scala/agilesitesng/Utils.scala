@@ -7,6 +7,9 @@ import sbt._
 
 trait Utils {
 
+
+  def readFile(s: String): String = readFile(new java.io.File(s))
+
   // read a file
   def readFile(f: File) = {
     val fr = new FileReader(f)

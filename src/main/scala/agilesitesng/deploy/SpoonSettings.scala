@@ -33,7 +33,8 @@ trait SpoonSettings {
     val jvmOpts = Seq(
       "-cp", spoonClasspath,
       s"-Dspoon.spool=${spool.getAbsolutePath}",
-      s"-Duid.properties=${uid.getAbsolutePath}"
+      s"-Duid.properties=${uid.getAbsolutePath}",
+      s"-Dspoon.outdir=${target.getAbsolutePath}"
     )
     val runOpts = Seq("agilesitesng.deploy.spoon.SpoonMain",
       "--source-classpath", sourceClasspath,

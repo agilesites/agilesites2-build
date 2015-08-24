@@ -31,9 +31,9 @@ object DeployProtocol {
 
   case class ServiceLogin(url: URL, username: String, password: String) extends ServiceMsg
 
-  case class ServiceGet(op: String, args: Map[String, String]) extends ServiceMsg with Asking
+  case class ServiceGet(args: Map[String, String]) extends ServiceMsg with Asking
 
-  case class ServicePost(op: String, args: Map[String, String]) extends ServiceMsg with Asking
+  case class ServicePost(args: Map[String, String]) extends ServiceMsg with Asking
 
   case class ServiceReply(result: String) extends ServiceMsg
 

@@ -17,19 +17,22 @@ object DeployHub {
     with ActorLogging
     with ActorUtils {
 
-    def receive = loop(null, null)
+    def receive = preLogin
 
-    def loop(services: ActorRef, spoon: ActorRef): Receive = LoggingReceive {
+    def preLogin: Receive = LoggingReceive {
       case msg@ServiceLogin(url, user, pass) =>
         val svc = context.actorOf(Services.actor())
         svc ! Ask(context.sender, msg)
-        val spoon = context.actorOf(Spoon.actor(services))
-        context.become(loop(services, spoon))
+        val spn = context.actorOf(Collector.actor(svc))
+        context.become(postLogin(svc, spn))
+        flushQueue
+      case etc: Object => enqueue(etc)
+    }
+
+    def postLogin(services: ActorRef, spoon: ActorRef): Receive = LoggingReceive {
       case spm: SpoonMsg with Asking => spoon ! Ask(context.sender, spm)
       case spm: SpoonMsg => spoon ! spm
       case svm: ServiceMsg with Asking => services ! Ask(context.sender, svm)
     }
-
   }
-
 }

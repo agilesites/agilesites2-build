@@ -21,18 +21,7 @@ object NgSetupPlugin
 
   import AgileSitesConfigKeys._
 
-  val ngServiceTask = NgSetupKeys.ngService := {
-    val args: Seq[String] = Def.spaceDelimited("<arg>").parsed
-    if (args.size == 0) {
-      println("usage: ngService <op> <key=value>")
-    } else {
-      val opts = args.tail.map(s => if(s.indexOf("=")== -1) "value="+s else s ).mkString("&", "&", "")
-      val req = s"${sitesUrl.value}/ContentServer?pagename=AAAgileService&op=${args.head}${opts}"
-      println(">>> " + req)
-      println(httpCallRaw(req))
-    }
-  }
 
-  override val projectSettings = Seq(ngServiceTask) ++ concatSettings ++ tagSettings
+  override val projectSettings = concatSettings ++ tagSettings
 
 }
