@@ -51,7 +51,6 @@ trait DeploySettings {
       //println(s" sending ${dobj}")
       hub ! SpoonData(dobj)
     }
-
     val SpoonReply(result) = Await.result(hub ? SpoonRun(""), 10.seconds)
 
     println(result)

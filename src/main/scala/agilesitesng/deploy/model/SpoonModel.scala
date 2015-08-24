@@ -30,7 +30,6 @@ object SpoonModel extends ModelUtil {
 
   case class Attribute(id: Long, name: String) extends SpoonModel
 
-
   case class ContentDefinition(id: Long, name: String) extends SpoonModel
 
   case class ParentDefinition(id: Long, name: String) extends SpoonModel
