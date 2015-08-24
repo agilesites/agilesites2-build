@@ -294,10 +294,10 @@ public class SitesDownloader {
 
                     if( (!entry.isDirectory()) && entry.getName().contains(lookUpFile) ){
                         //found the lookUpFile
-                        System.out.println("Found "+entry.getName());
+                        //System.out.println("Found "+entry.getName());
                         filePath = destinaton_directory + File.separator + lookUpFile;
                         extractFile(zipIn, filePath);
-                        System.out.println("extracting lookUpFile = " + lookUpFile + "...");
+                        System.out.println("extracting " + lookUpFile + "...");
                         root_directory = destinaton_directory;
                         break;
                     }
@@ -333,59 +333,7 @@ public class SitesDownloader {
         } finally {
             //looking for WCS_Sites folder
         }
-        return root_directory;
-    }
-
-    public String unzipSites(String filepath, String destinaton_directory) {
-        File destDir = new File(destinaton_directory);
-        String root_directory = "";
-
-        if (!destDir.exists()) {
-            destDir.mkdir();
-        }
-
-        try {
-            //System.out.println("unzipping.");
-            ZipInputStream zipIn = new ZipInputStream(new FileInputStream(filepath));
-            ZipEntry entry = zipIn.getNextEntry();
-
-            while (entry != null) {
-
-                if( entry.getName().contains("WCS_Sites.zip")){
-                    //String filePath = destinaton_directory + File.separator + entry.getName();
-                    String filePath = destinaton_directory + File.separator + "WCS_Sites.zip";
-                    System.out.println("extracting "+entry.getName()+" - "+filePath);
-                    if (!entry.isDirectory()) {
-                        // if the entry is a file, extracts it
-                        extractFile(zipIn, filePath);
-                        System.out.println("extracting " + filePath + "...");
-                    } else {
-                        // if the entry is a directory, make the directory
-
-                        File dir = new File(filePath);
-                        dir.mkdir();
-                        if (root_directory.length() <= 0) {
-                            root_directory = dir.getName();
-                        }
-
-                    }
-                }
-
-
-                zipIn.closeEntry();
-                entry = zipIn.getNextEntry();
-
-            }
-            zipIn.close();
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            //looking for WCS_Sites folder
-        }
-        return root_directory;
-
+        return root_directory; 
     }
 
     private void extractFile(ZipInputStream zipIn, String filePath) throws IOException {
