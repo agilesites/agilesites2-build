@@ -1,5 +1,7 @@
 package agilesitesng.deploy
 
+import java.net.URLEncoder
+
 import agilesites.config.AgileSitesConfigKeys._
 import agilesitesng.Utils
 import agilesitesng.deploy.actor.DeployProtocol._
@@ -61,7 +63,7 @@ trait DeploySettings {
 
     val args: Seq[String] = Def.spaceDelimited("<arg>").parsed
     if (args.size == 0) {
-      println("usage: ngService <op> <key=value>")
+      println("usage: ng:service <op> <key=value>")
       "no args"
     } else {
       val opts = args.tail.map(s => if (s.indexOf("=") == -1) "value=" + s else s).mkString("&", "&", "")
@@ -73,7 +75,32 @@ trait DeploySettings {
     }
   }
 
-  def deploySettings = Seq(serviceTask, deployTask, loginTask)
+  val selectTask = select in ng := {
+
+    val args: Seq[String] = Def.spaceDelimited("<arg>").parsed
+    val args1 = args.map(_.toLowerCase)
+    if (args.size == 0 || args1.indexOf("from") == -1) {
+      val msg = "usage: ng:select from <table> where <condition> [limit <n>]"
+      println(msg)
+      msg
+    } else {
+      val tables = args(args1.indexOf("from")+1)
+      val (sql, limit) = if (args1.init.last.toLowerCase() == "limit")
+        (args.init.init, args.last)
+      else
+        (args, -1)
+
+      val sql1 = sql.mkString("select ", " ", "");
+      val sql2 = URLEncoder.encode(sql1, "UTF-8")
+      val req = s"${sitesUrl.value}/ContentServer?pagename=AAAgileService&op=sql&sql=${sql2}&limit=${limit}&tables=${tables}&username=${sitesUser.value}&password=${sitesPassword.value}"
+      println(">>> " + req)
+      val r = httpCallRaw(req)
+      println(r)
+      r
+    }
+  }
+
+  def deploySettings = Seq(serviceTask, deployTask, loginTask, selectTask)
 
 
 }
