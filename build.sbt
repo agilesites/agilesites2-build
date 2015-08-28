@@ -79,5 +79,19 @@ addSbtPlugin("com.typesafe.sbt" %% "sbt-js-engine" % "1.1.2" exclude("org.slf4j"
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.0.0" exclude("org.slf4j", "slf4j-simple"))
 
-unmanagedSourceDirectories in Compile += baseDirectory.value.getParentFile / "nglib" / "src" / "main" / "java" / "agilesites" / "annotations"
+// unmanagedSourceDirectories in Compile += baseDirectory.value.getParentFile / "nglib" / "src" / "main" / "java" / "agilesites" / "annotations"
+
+sourceGenerators in Compile <+= (sourceManaged in Compile, baseDirectory)  map { (dir, base) =>
+  val annSrc = base.getParentFile / "nglib" / "src" / "main" / "java" / "agilesites" / "annotations"
+  val annTgt = dir / "agilesites" / "annotations"
+  //println("src="+annSrc.toString)
+  //println("tgt="+annTgt.toString)
+  annTgt.mkdirs
+  IO.copyDirectory(annSrc, annTgt)
+  val out = annTgt * "*.java"
+  val res = out.get
+  //println(res)
+  res
+}
+
 

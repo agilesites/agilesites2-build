@@ -13,7 +13,7 @@ class TemplateAnnotationProcessor extends AbstractAnnotationProcessor[Template, 
   def process(a: Template, cl: CtClass[_]) {
     val name = cl.getQualifiedName
     Spooler.insert(50, SpoonModel.Template(Uid.generate(s"Template.${name}"), name))
-    //println("...Template!!!")
+    println("...Template!!!")
   }
 
 }

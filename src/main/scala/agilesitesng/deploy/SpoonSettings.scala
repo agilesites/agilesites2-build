@@ -63,10 +63,10 @@ trait SpoonSettings {
     , ngSpoonProcessors := Seq(
        "SiteAnnotation"
       ,"AttributeEditorAnnotation"
-      /*,"AttributeAnnotation"
-      ,"SiteEntryAnnotation"
+      //,"AttributeAnnotation"
+      //,"SiteEntryAnnotation"
       ,"TemplateAnnotation"
-      ,"CSElementAnnotation"
+      /*,"CSElementAnnotation"
       ,"ContentDefinitionAnnotation"
       ,"ParentDefinitionAnnotation"*/)
       .map(x => s"agilesitesng.deploy.spoon.${x}Processor")
