@@ -55,7 +55,7 @@ trait SpoonSettings {
     spool
   }
 
-  val spoonSettings = Seq(ngSpoonClasspath <<= (update, ngSpoonProcessorJars) map {
+  val spoonSettings = Seq(ngSpoonClasspath <<= (Keys.update, ngSpoonProcessorJars) map {
     (report, extraJars) =>
       extraJars ++ report.select(configurationFilter("spoon"))
   }
@@ -65,7 +65,7 @@ trait SpoonSettings {
       ,"AttributeEditorAnnotation"
       //,"AttributeAnnotation"
       //,"SiteEntryAnnotation"
-      ,"TemplateAnnotation"
+      //,"TemplateAnnotation"
       /*,"CSElementAnnotation"
       ,"ContentDefinitionAnnotation"
       ,"ParentDefinitionAnnotation"*/)

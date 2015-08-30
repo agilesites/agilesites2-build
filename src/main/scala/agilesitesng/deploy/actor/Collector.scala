@@ -30,23 +30,23 @@ object Collector {
     def receive: Receive = config
 
     def config: Receive = LoggingReceive {
-      case SpoonInit() =>
-        println(">>> collector init")
+      case SpoonBegin(site: String) =>
+        println(s">>> collector begin: ${site}")
+        val decoder = new Decoder(site)
         count = 0
-        context.become(sending)
+        context.become(sending(decoder))
     }
 
-    def sending: Receive = LoggingReceive {
+    def sending(decoder: Decoder): Receive = LoggingReceive {
 
       case SpoonData(model) =>
-        val map = Decoder(model)
-        println(s">>> collector sending ${map} ---")
-
+        val map = decoder(model)
+        println(s">>> collector data: ${map} ---")
         services ! ServicePost(map)
         count = count +1
 
-      case Ask(origin, SpoonRun(args)) =>
-        println(">>> collector run ---")
+      case Ask(origin, SpoonEnd(args)) =>
+        println(">>> collector end ---")
         context.become(replying(origin))
         flushQueue
 

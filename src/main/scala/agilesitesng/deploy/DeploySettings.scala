@@ -47,14 +47,14 @@ trait DeploySettings {
     val hub = ngDeployHub.value
     val spool = (spoon in ng).toTask("").value
 
-    hub ! SpoonInit()
+    hub ! SpoonBegin(sitesFocus.value)
     val deployObjects = Spooler.load(readFile(spool))
     for (dobj <- deployObjects.deployObjects) {
       //println(s" sending ${dobj}")
       hub ! SpoonData(dobj)
     }
-    val SpoonReply(result) = Await.result(hub ? SpoonRun(""), 10.seconds)
 
+    val SpoonReply(result) = Await.result(hub ? SpoonEnd(""), 10.seconds)
     println(result)
 
   }
@@ -75,32 +75,8 @@ trait DeploySettings {
     }
   }
 
-  val selectTask = select in ng := {
 
-    val args: Seq[String] = Def.spaceDelimited("<arg>").parsed
-    val args1 = args.map(_.toLowerCase)
-    if (args.size == 0 || args1.indexOf("from") == -1) {
-      val msg = "usage: ng:select from <table> where <condition> [limit <n>]"
-      println(msg)
-      msg
-    } else {
-      val tables = args(args1.indexOf("from")+1)
-      val (sql, limit) = if (args1.init.last.toLowerCase() == "limit")
-        (args.init.init, args.last)
-      else
-        (args, -1)
-
-      val sql1 = sql.mkString("select ", " ", "");
-      val sql2 = URLEncoder.encode(sql1, "UTF-8")
-      val req = s"${sitesUrl.value}/ContentServer?pagename=AAAgileService&op=sql&sql=${sql2}&limit=${limit}&tables=${tables}&username=${sitesUser.value}&password=${sitesPassword.value}"
-      println(">>> " + req)
-      val r = httpCallRaw(req)
-      println(r)
-      r
-    }
-  }
-
-  def deploySettings = Seq(serviceTask, deployTask, loginTask, selectTask)
+  def deploySettings = Seq(serviceTask, deployTask, loginTask)
 
 
 }

@@ -21,11 +21,11 @@ object DeployProtocol {
 
   case class Ask(sender: ActorRef, message: Msg) extends Msg
 
-  case class SpoonInit() extends SpoonMsg
+  case class SpoonBegin(site: String) extends SpoonMsg
 
   case class SpoonData(model: SpoonModel) extends SpoonMsg
 
-  case class SpoonRun(args: String) extends SpoonMsg with Asking
+  case class SpoonEnd(args: String) extends SpoonMsg with Asking
 
   case class SpoonReply(result: String) extends SpoonMsg
 
