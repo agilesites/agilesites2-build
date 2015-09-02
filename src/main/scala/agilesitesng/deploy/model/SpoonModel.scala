@@ -28,7 +28,7 @@ object SpoonModel extends ModelUtil {
 
   case class AttributeEditor(id: Long, name: String, file: String) extends SpoonModel
 
-  case class Attribute(id: Long, name: String) extends SpoonModel
+  case class Attribute(id: Long, name: String, description:String, mul: Boolean, attibuteType:String, editor:String, assetType:String, subtypes: List[String]) extends SpoonModel
 
   case class ContentDefinition(id: Long, name: String) extends SpoonModel
 
