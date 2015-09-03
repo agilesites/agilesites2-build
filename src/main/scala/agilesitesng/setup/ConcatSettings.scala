@@ -44,6 +44,7 @@ trait ConcatSettings extends Utils {
       val imports = lines.filter(_.startsWith("import ")).toSeq
       val bodies = lines.filter(x => !(x.startsWith("import ") || x.startsWith("package "))).toSeq
       val helloWorld = s"Concat of ${thePackage} ${version.value} built on ${new Date()}"
+      output.getParentFile.mkdirs
       val fw = new java.io.FileWriter(output)
       val result = (imports ++ bodies)
         .map(removeMinus(_))

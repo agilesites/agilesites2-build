@@ -22,7 +22,6 @@ trait DeploySettings {
   this: AutoPlugin with Utils =>
 
   import NgDeployKeys._
-
   implicit val timeout = Timeout(10.seconds)
 
   val loginTask = login in ng := {
@@ -42,19 +41,19 @@ trait DeploySettings {
 
   val deployTask = deploy in ng := {
 
-    (login in ng).value
+    //(login in ng).value
 
     val hub = ngDeployHub.value
     val spool = (spoon in ng).toTask("").value
 
-    hub ! SpoonBegin(sitesFocus.value)
+    // sending objects
+    hub ! SpoonBegin(sitesFocus.value, sitesUser.value, sitesPassword.value)
     val deployObjects = Spooler.load(readFile(spool))
     for (dobj <- deployObjects.deployObjects) {
       //println(s" sending ${dobj}")
       hub ! SpoonData(dobj)
     }
-
-    val SpoonReply(result) = Await.result(hub ? SpoonEnd(""), 10.seconds)
+    val SpoonReply(result) = Await.result(hub ? SpoonEnd(""), 60.seconds)
     println(result)
 
   }
@@ -66,8 +65,10 @@ trait DeploySettings {
       println("usage: ng:service <op> <key=value>")
       "no args"
     } else {
+      // build url
       val opts = args.tail.map(s => if (s.indexOf("=") == -1) "value=" + s else s).mkString("&", "&", "")
       val req = s"${sitesUrl.value}/ContentServer?pagename=AAAgileService&op=${args.head}&username=${sitesUser.value}&password=${sitesPassword.value}${opts}"
+      // send request
       println(">>> " + req)
       val r = httpCallRaw(req)
       println(r)

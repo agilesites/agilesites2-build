@@ -2,11 +2,11 @@ package agilesitesng.deploy
 
 import java.net.URL
 
+import akka.pattern.ask
 import agilesites.config.AgileSitesConfigKeys._
 import agilesitesng.deploy.actor.DeployProtocol.{ServiceReply, ServiceLogin}
 import agilesitesng.deploy.actor.{DeployHub, Services}
 import akka.actor.{ActorRef, PoisonPill}
-import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.Await
 import scala.concurrent.duration._

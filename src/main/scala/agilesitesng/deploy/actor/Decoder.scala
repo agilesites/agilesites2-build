@@ -7,40 +7,32 @@ import agilesitesng.deploy.model.SpoonModel.{AttributeEditor, Site}
 /**
  * Created by msciab on 20/08/15.
  */
-class Decoder(site: String) extends Utils {
+class Decoder(site: String, username: String, password: String) extends Utils {
 
   /**
-   * Create a map request for gather, specifiying the "a:" prefix in each field
-   *
-   * @param c
-   * @param t2
-   * @return map ready to be "gathered"
+   * @return a map ready to be deployed
    */
-  def gather(c: String, t2: Tuple2[String, String]*) = {
-    val prefixedSeq = t2.map(x => "a:" + x._1 -> x._2)
-    Map("op" -> "gather",
-      "c" -> c,
-      "site" -> site,
-      "createdby" -> "agilesites",
-      "updatedby" -> "agilesites") ++
-      prefixedSeq
-  }
+  def map(op: String, t2: Tuple2[String, String]*) = t2.toMap +
+    ("op" -> op) +
+    ("site" -> site) +
+    ("username" -> username) +
+    ("password" -> password)
 
   def apply(model: SpoonModel): Map[String, String] = model match {
-    case Site(id, name) =>
-      Map("op" -> "site", "id" -> id.toString, "name" -> name)
+    case Site(id, name) => map("site",
+      "id" -> id.toString,
+      "name" -> name)
 
-    case AttributeEditor(id, name, file) =>
-      gather("AttrTypes",
-        "id" -> id.toString,
-        "name" -> name,
-        "description" -> name,
-        "urlxml" -> readFile(file),
-        "urlxml_folder" -> "",
-        "urlxml_file" -> s"${id}.txt"
-      )
+    case AttributeEditor(id, name, file) => map("deploy",
+      "id" -> id.toString,
+      "name" -> name,
+      "description" -> name,
+      "value" -> "AttributeEditor",
+      "debug" -> "yes",
+      "cid" -> id.toString,
+      "xml" -> readFile(file))
 
-    case x => Map("op" -> "echo",
+    case x => map("echo",
       "value" -> s"${x.getClass} not recognized")
   }
 

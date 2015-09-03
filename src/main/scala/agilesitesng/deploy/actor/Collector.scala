@@ -30,9 +30,9 @@ object Collector {
     def receive: Receive = config
 
     def config: Receive = LoggingReceive {
-      case SpoonBegin(site: String) =>
+      case SpoonBegin(site: String, user: String, pass: String) =>
         println(s">>> collector begin: ${site}")
-        val decoder = new Decoder(site)
+        val decoder = new Decoder(site, user, pass)
         count = 0
         context.become(sending(decoder))
     }
