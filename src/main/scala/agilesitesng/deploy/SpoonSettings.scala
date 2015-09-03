@@ -29,12 +29,14 @@ trait SpoonSettings {
     val sourceClasspath = (extraJars++(managedClasspath in Compile).value.files.map(_.getAbsolutePath)).mkString(File.pathSeparator)
     val spoonClasspath = (extraJars++ngSpoonClasspath.value.map(_.getAbsolutePath)).mkString(File.pathSeparator)
     val processors = ngSpoonProcessors.value.mkString(File.pathSeparator)
+    val spoonDebug = if (ngSpoonDebug.value) "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=8005" else ""
 
     val jvmOpts = Seq(
       "-cp", spoonClasspath,
       s"-Dspoon.spool=${spool.getAbsolutePath}",
       s"-Duid.properties=${uid.getAbsolutePath}",
-      s"-Dspoon.outdir=${target.getAbsolutePath}"
+      s"-Dspoon.outdir=${target.getAbsolutePath}",
+      spoonDebug
     )
     val runOpts = Seq("agilesitesng.deploy.spoon.SpoonMain",
       "--source-classpath", sourceClasspath,
@@ -63,7 +65,7 @@ trait SpoonSettings {
     , ngSpoonProcessors := Seq(
        "SiteAnnotation"
       ,"AttributeEditorAnnotation"
-      //,"AttributeAnnotation"
+      ,"AttributeAnnotation"
       //,"SiteEntryAnnotation"
       //,"TemplateAnnotation"
       /*,"CSElementAnnotation"
@@ -73,5 +75,6 @@ trait SpoonSettings {
     , ivyConfigurations += config("spoon")
     , libraryDependencies ++= AgileSitesConstants.spoonDependencies
     , spoonTask
+    , ngSpoonDebug := false
   )
 }

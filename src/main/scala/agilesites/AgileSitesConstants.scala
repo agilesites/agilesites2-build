@@ -14,7 +14,8 @@ object AgileSitesConstants {
   val spoonDependencies = Seq("net.openhft" % "spoon-core" % "4.3.0" % "spoon"
     , "org.scala-lang" % "scala-library" % "2.10.5" % "spoon"
     , "net.liftweb" % "lift-json_2.10" % "2.6" % "spoon"
-    )
+    , "ch.qos.logback" % "logback-classic" % "1.1.3" % "spoon"
+  )
 
   val tomcatVersion = "7.0.59"
 
