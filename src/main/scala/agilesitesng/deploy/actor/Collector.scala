@@ -1,12 +1,18 @@
 package agilesitesng.deploy.actor
 
 import java.io.File
+import java.net.URL
 
-import agilesitesng.deploy.model.SpoonModel
-import akka.actor.{ActorRef, ActorLogging, Actor, Props}
-import akka.event.LoggingReceive
 import spoon.Launcher
+import agilesitesng.deploy.model.SpoonModel
+
+import akka.actor._
+import akka.event.LoggingReceive
 import scala.collection.{mutable, JavaConversions}
+
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import akka.pattern.ask
 
 /**
  * Created by msciab on 05/08/15.
@@ -26,18 +32,22 @@ object Collector {
 
     var count = 0
     var answers = List.empty[String]
+    var decoder: Decoder = null
 
     def receive: Receive = config
 
     def config: Receive = LoggingReceive {
-      case SpoonBegin(site: String, user: String, pass: String) =>
-        println(s">>> collector begin: ${site}")
-        val decoder = new Decoder(site, user, pass)
+      case SpoonBegin(url: URL, site: String, user: String, pass: String) =>
+        println(s">>> collector begin: ${url}")
+        decoder = new Decoder(site, user, pass)
         count = 0
-        context.become(sending(decoder))
+        context.become(sending)
+        flushQueue
+
+      case obj: Object => enqueue(obj)
     }
 
-    def sending(decoder: Decoder): Receive = LoggingReceive {
+    def sending: Receive = LoggingReceive {
 
       case SpoonData(model) =>
         val map = decoder(model)

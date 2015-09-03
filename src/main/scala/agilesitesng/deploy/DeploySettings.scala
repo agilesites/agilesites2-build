@@ -22,6 +22,7 @@ trait DeploySettings {
   this: AutoPlugin with Utils =>
 
   import NgDeployKeys._
+
   implicit val timeout = Timeout(10.seconds)
 
   val loginTask = login in ng := {
@@ -36,7 +37,6 @@ trait DeploySettings {
       case ex: Exception => "ERR: " + ex.getMessage
     }
     println(s"<<< ServiceReply(${msg})")
-
   }
 
   val deployTask = deploy in ng := {
@@ -47,7 +47,7 @@ trait DeploySettings {
     val spool = (spoon in ng).toTask("").value
 
     // sending objects
-    hub ! SpoonBegin(sitesFocus.value, sitesUser.value, sitesPassword.value)
+    hub ! SpoonBegin(new java.net.URL(sitesUrl.value), sitesFocus.value, sitesUser.value, sitesPassword.value)
     val deployObjects = Spooler.load(readFile(spool))
     for (dobj <- deployObjects.deployObjects) {
       //println(s" sending ${dobj}")

@@ -34,7 +34,8 @@ object Services {
     def receive: Receive = preLogin(None, None, Cookie(Seq()), None)
 
     // build a get request
-    def buildGet(op: String, params: Tuple2[String, String]*)(url: URL, cookie: Cookie) = buildGetMap(op, params.toMap)(url, cookie)
+    def buildGet(op: String, params: Tuple2[String, String]*)
+                (url: URL, cookie: Cookie) = buildGetMap(op, params.toMap)(url, cookie)
 
     // build a get request out of a map
     def buildGetMap(op: String, params: Map[String, String])
@@ -104,7 +105,6 @@ object Services {
       case Ask(origin, ServiceLogin(url, username, password)) =>
         origin ! ServiceReply("OK - already logged in")
 
-
       // send a get request wait for an answer
       case ServiceGet(args) =>
         val op = args("op")
@@ -120,6 +120,7 @@ object Services {
               origin ! ServiceReply(body)
             case etc =>
               origin ! ServiceReply(s"ERROR: ${etc.toString}")
+              throw new Exception("restarting")
           }
         }
 

@@ -2,18 +2,14 @@ package agilesitesng.deploy
 
 import java.net.URL
 
-import akka.pattern.ask
 import agilesites.config.AgileSitesConfigKeys._
-import agilesitesng.deploy.actor.DeployProtocol.{ServiceReply, ServiceLogin}
-import agilesitesng.deploy.actor.{DeployHub, Services}
+import agilesitesng.deploy.actor.Manager
 import akka.actor.{ActorRef, PoisonPill}
 import akka.util.Timeout
-import scala.concurrent.Await
-import scala.concurrent.duration._
-
 import com.typesafe.sbt.web.SbtWeb
 import sbt.Keys._
 import sbt._
+import scala.concurrent.duration._
 
 /**
  * Created by msciab on 04/08/15.
@@ -23,14 +19,14 @@ trait ActorSettings {
 
   import NgDeployKeys._
 
-  val ngDeployHubKey = AttributeKey[ActorRef]("ng-deployer")
+  val ngManagerKey = AttributeKey[ActorRef]("ng-deployer")
 
   private def finish(state: State): State = {
-    state.get(ngDeployHubKey) map {
+    state.get(ngManagerKey) map {
       ngActor =>
         ngActor ! PoisonPill
     }
-    state.remove(ngDeployHubKey)
+    state.remove(ngManagerKey)
   }
 
   private def init(url: java.net.URL, user: String, pass: String, state: State): State = {
@@ -39,8 +35,8 @@ trait ActorSettings {
       arf =>
         val interval = 3.second
         implicit val timeout = Timeout(3.second)
-        val hub = arf.actorOf(DeployHub.actor(), "DeployHub")
-        val newState = state.put(ngDeployHubKey, hub)
+        val hub = arf.actorOf(Manager.actor(url, user, pass), "Manager")
+        val newState = state.put(ngManagerKey, hub)
         //newState.addExitHook(s: sbt.State => finish(s))
         newState
     }
@@ -53,6 +49,6 @@ trait ActorSettings {
       (finish)
   )
 
-  val actorSettings = Seq(ngDeployHub <<= state map (_.get(ngDeployHubKey).get))
+  val actorSettings = Seq(ngDeployHub <<= state map (_.get(ngManagerKey).get))
 
 }
