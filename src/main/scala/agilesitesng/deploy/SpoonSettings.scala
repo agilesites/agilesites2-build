@@ -26,18 +26,19 @@ trait SpoonSettings {
     target.mkdirs
     spool.getParentFile.mkdirs
 
-    val sourceClasspath = (extraJars++(managedClasspath in Compile).value.files.map(_.getAbsolutePath)).mkString(File.pathSeparator)
-    val spoonClasspath = (extraJars++ngSpoonClasspath.value.map(_.getAbsolutePath)).mkString(File.pathSeparator)
+    val sourceClasspath = (extraJars ++ (managedClasspath in Compile).value.files.map(_.getAbsolutePath)).mkString(File.pathSeparator)
+    val spoonClasspath = (extraJars ++ ngSpoonClasspath.value.map(_.getAbsoluteFile))
+
     val processors = ngSpoonProcessors.value.mkString(File.pathSeparator)
-    val spoonDebug = if (ngSpoonDebug.value) "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=8005" else ""
+    val spoonDebug = if (ngSpoonDebug.value) Seq("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=8005") else Seq()
 
     val jvmOpts = Seq(
-      "-cp", spoonClasspath,
+      //"-cp", spoonClasspath.mkString(File.pathSeparator),
       s"-Dspoon.spool=${spool.getAbsolutePath}",
       s"-Duid.properties=${uid.getAbsolutePath}",
-      s"-Dspoon.outdir=${target.getAbsolutePath}",
-      spoonDebug
-    )
+      s"-Dspoon.outdir=${target.getAbsolutePath}"
+    ) ++ spoonDebug
+
     val runOpts = Seq("agilesitesng.deploy.spoon.SpoonMain",
       "--source-classpath", sourceClasspath,
       "--processors", processors,
@@ -45,12 +46,21 @@ trait SpoonSettings {
       "-o", target.getAbsolutePath
     ) ++ args
 
+    //log.debug(s"spoonClasspath=${spoonClasspath.replace(File.pathSeparator, "\n")}")
+    //log.debug( (jvmOpts++runOpts).mkString("\n"))
 
-    log.debug( (jvmOpts++runOpts).mkString("\n"))
+    val file = baseDirectory.value / "spoon.sh"
+    val fw = new java.io.FileWriter(file)
+    fw.write(s"java ${jvmOpts.mkString(" ")} ${runOpts.mkString(" ")}")
+    fw.close
+    println(s" +++${file}")
 
     val forkOpt = ForkOptions(
+      bootJars = spoonClasspath,
       runJVMOptions = jvmOpts,
       workingDirectory = Some(baseDirectory.value))
+
+    //println(forkOpt.toString)
 
     Fork.java(forkOpt, runOpts)
 
@@ -63,9 +73,9 @@ trait SpoonSettings {
   }
     , ngSpoonProcessorJars := Nil
     , ngSpoonProcessors := Seq(
-       "SiteAnnotation"
-      ,"AttributeEditorAnnotation"
-      ,"AttributeAnnotation"
+      "SiteAnnotation"
+      , "AttributeEditorAnnotation"
+      , "AttributeAnnotation"
       //,"SiteEntryAnnotation"
       //,"TemplateAnnotation"
       /*,"CSElementAnnotation"
