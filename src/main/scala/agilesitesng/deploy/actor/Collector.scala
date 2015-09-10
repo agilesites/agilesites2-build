@@ -41,13 +41,13 @@ object Collector {
         println(s">>> collector begin: ${url}")
         decoder = new Decoder(site, user, pass)
         count = 0
-        context.become(sending)
+        context.become(sending(sender()))
         flushQueue
 
       case obj: Object => enqueue(obj)
     }
 
-    def sending: Receive = LoggingReceive {
+    def sending(origin: ActorRef): Receive = LoggingReceive {
 
       case SpoonData(model) =>
         val map = decoder(model)
@@ -57,16 +57,21 @@ object Collector {
 
       case Ask(origin, SpoonEnd(args)) =>
         println(">>> collector end ---")
-        context.become(replying(origin))
+        //context.become(replying(origin))
         flushQueue
+
+      case ServiceReply(msg) =>
+        println(s"<<< collector reply #$count")
+        origin ! SpoonReply(answers.reverse.mkString("\n-----\n"))
 
       case etc: Object => enqueue(etc)
     }
 
 
-    def replying(origin: ActorRef): Receive = LoggingReceive {
+ /*   def replying(origin: ActorRef): Receive = LoggingReceive {
       case ServiceReply(msg) =>
         println(s"<<< collector reply #${count}")
+        origin ! SpoonReply(answers.reverse.mkString("\n-----\n"))
         count = count - 1
         answers = msg :: answers
 
@@ -78,6 +83,6 @@ object Collector {
         }
       case etc: Object => enqueue(etc)
     }
-  }
+*/  }
 
 }
