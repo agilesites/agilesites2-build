@@ -2,7 +2,7 @@ package agilesitesng.deploy.actor
 
 import agilesitesng.Utils
 import agilesitesng.deploy.model.SpoonModel
-import agilesitesng.deploy.model.SpoonModel.{Attribute, AttributeEditor, Site}
+import agilesitesng.deploy.model.SpoonModel._
 
 /**
  * Created by msciab on 20/08/15.
@@ -18,7 +18,7 @@ class Decoder(site: String, username: String, password: String) extends Utils {
       ("value" -> value) +
       ("cid" -> id.toString) +
       ("name" -> name) +
-      ("descript" -> description) +
+      ("description" -> description) +
       ("site" -> site) +
       ("username" -> username) +
       ("password" -> password)
@@ -48,6 +48,19 @@ class Decoder(site: String, username: String, password: String) extends Utils {
       "op" -> "site",
       "id" -> id.toString,
       "name" -> name)
+
+    case Controller(id, name, file) => deploy("Controller", id, name, name,
+      'filename -> new java.io.File(file).getName,
+      'filefolder -> name.split("\\.").init.mkString("WCS_Controller/", "/", "/"),
+      'fileext -> file.split("\\.").last,
+      'filebody -> readFile(file)
+    )
+
+    //case CSElement(id, name) => deploy("CSElement", id, name, name)
+
+    //case Template(id, name) => deploy("Template", id, name, name)
+
+    //case SiteEntry(id, name) => deploy("SiteEntry", id, name, name)
 
     case x => Map("op" -> "echo",
       "value" -> s"${x.getClass} not recognized")

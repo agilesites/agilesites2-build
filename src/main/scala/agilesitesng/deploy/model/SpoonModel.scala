@@ -18,7 +18,8 @@ object SpoonModel extends ModelUtil {
     classOf[AttributeEditor],
     classOf[Template],
     classOf[CSElement],
-    classOf[SiteEntry])
+    classOf[SiteEntry],
+    classOf[Controller])
 
   case class DeployObjects(deployObjects: List[SpoonModel]) {
     def apply(n: Int) = deployObjects(n)
@@ -34,10 +35,12 @@ object SpoonModel extends ModelUtil {
 
   case class ParentDefinition(id: Long, name: String) extends SpoonModel
 
-  case class Template(id: Long, name: String) extends SpoonModel
+  case class Template(id: Long, name: String, file: String) extends SpoonModel
 
-  case class CSElement(id: Long, name: String) extends SpoonModel
+  case class CSElement(id: Long, name: String, file: String) extends SpoonModel
 
   case class SiteEntry(id: Long, name: String) extends SpoonModel
+
+  case class Controller(id: Long, name: String, file: String) extends SpoonModel
 
 }

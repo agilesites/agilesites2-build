@@ -51,7 +51,8 @@ trait SpoonSettings {
 
     val file = baseDirectory.value / "spoon.sh"
     val fw = new java.io.FileWriter(file)
-    fw.write(s"java ${jvmOpts.mkString(" ")} ${runOpts.mkString(" ")}")
+    val s = """java ${jvmOpts.mkString(" ")} ${runOpts.mkString(" ")}"""
+    fw.write(s.replace(""":""", """:\\n"""))
     fw.close
     println(s" +++${file}")
 
@@ -73,15 +74,17 @@ trait SpoonSettings {
   }
     , ngSpoonProcessorJars := Nil
     , ngSpoonProcessors := Seq(
-      "SiteAnnotation"
+      "ControllerAnnotation"
+      /*,"SiteAnnotation"
       , "AttributeEditorAnnotation"
       , "AttributeAnnotation"
-      //,"SiteEntryAnnotation"
-      //,"TemplateAnnotation"
-      /*,"CSElementAnnotation"
-      ,"ContentDefinitionAnnotation"
-      ,"ParentDefinitionAnnotation"*/)
-      .map(x => s"agilesitesng.deploy.spoon.${x}Processor")
+      , "SiteEntryAnnotation"
+      , "TemplateAnnotation"
+      , "CSElementAnnotation"
+      , "ControllerAnnotation"
+      , "ContentDefinitionAnnotation"
+      , "ParentDefinitionAnnotation"*/
+      ).map(x => s"agilesitesng.deploy.spoon.${x}Processor")
     , ivyConfigurations += config("spoon")
     , libraryDependencies ++= AgileSitesConstants.spoonDependencies
     , spoonTask

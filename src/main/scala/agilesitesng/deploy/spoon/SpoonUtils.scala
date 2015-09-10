@@ -17,7 +17,6 @@ trait SpoonUtils {
     file.getAbsolutePath
   }
 
-
   def writeFile(file: File, body: String) = {
     //println("*** %s%s****\n".format(file.toString, body))
     if (file.getParentFile != null)
@@ -25,5 +24,11 @@ trait SpoonUtils {
     val w = new java.io.FileWriter(file)
     w.write(body)
     w.close()
+  }
+
+  def class2file(className: String) = {
+    val base = new File(System.getProperty("spoon.outdir"))
+    val file = new File(base, className.replace('.', File.separatorChar)+".java")
+    file.getAbsolutePath
   }
 }

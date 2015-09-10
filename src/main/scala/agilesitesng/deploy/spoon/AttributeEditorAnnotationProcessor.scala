@@ -30,6 +30,6 @@ class AttributeEditorAnnotationProcessor
     println("...AttributeEditor...");
     println(cl.getDeclaringType.getQualifiedName)
 
-      Spooler.insert(95, SpoonModel.AttributeEditor(uid, name, outfile))
+    Spooler.insert(95, SpoonModel.AttributeEditor(uid, name, outfile))
   }
 }
