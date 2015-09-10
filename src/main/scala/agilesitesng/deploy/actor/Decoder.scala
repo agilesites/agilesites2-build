@@ -2,7 +2,7 @@ package agilesitesng.deploy.actor
 
 import agilesitesng.Utils
 import agilesitesng.deploy.model.SpoonModel
-import agilesitesng.deploy.model.SpoonModel.{Attribute, AttributeEditor, Site}
+import agilesitesng.deploy.model.SpoonModel._
 
 /**
  * Created by msciab on 20/08/15.
@@ -34,20 +34,37 @@ class Decoder(site: String, username: String, password: String) extends Utils {
     // TODO mul cab be Single, Multiple and ORDERED - need another field
     case Attribute(id, name, description, mul, attributeType, editor, assetType, subtypes) =>
       deploy("Attribute", id, name, description,
-        'type -> "STRING",
+        'type -> attributeType,
         'c -> "PageAttribute",
-        'mul -> "S",
+        'mul -> mul,
         'existDep -> "false",
         'notEmbedded -> "false",
-        'attributetype -> "0", //not defined
-        'assettypename -> "Page",
-        'assetsubtypename -> "" // a|b|c
+        'attributetype -> editor.getOrElse(""),
+        'assettypename -> assetType.getOrElse(""),
+        'assetsubtypename -> subtypes.mkString("|")
       )
 
-    case Site(id, name) => Map(
+   case ParentDefinition(id, name, description, parentType, parent, attributes) =>
+      deploy("ParentDefinition", id, name, description,
+        'type -> "STRING",
+        'c -> parentType,
+        'parent -> parent.getOrElse("")
+      )
+
+    case FlexFamily(attr,contentDef,parentDef,content,parent,filter) => Map(
+      "op" -> "flexFamily",
+      "flexAttribute" -> attr,
+      "flexParentDef" -> parentDef,
+      "flexContentDef" -> contentDef,
+      "flexParent" -> parent,
+      "flexContent" -> content,
+      "flexFilter" -> filter)
+
+    case Site(id, name, enabledTypes) => Map(
       "op" -> "site",
       "id" -> id.toString,
-      "name" -> name)
+      "name" -> name,
+      "enabledTypes" -> enabledTypes.mkString("|"))
 
     case x => Map("op" -> "echo",
       "value" -> s"${x.getClass} not recognized")

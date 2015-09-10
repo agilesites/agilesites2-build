@@ -27,7 +27,7 @@ trait SpoonSettings {
     spool.getParentFile.mkdirs
 
     val sourceClasspath = (extraJars ++ (managedClasspath in Compile).value.files.map(_.getAbsolutePath)).mkString(File.pathSeparator)
-    val spoonClasspath = (extraJars ++ ngSpoonClasspath.value.map(_.getAbsoluteFile))
+    val spoonClasspath = extraJars ++ ngSpoonClasspath.value.map(_.getAbsoluteFile)
 
     val processors = ngSpoonProcessors.value.mkString(File.pathSeparator)
     val spoonDebug = if (ngSpoonDebug.value) Seq("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=8005") else Seq()
@@ -60,8 +60,6 @@ trait SpoonSettings {
       runJVMOptions = jvmOpts,
       workingDirectory = Some(baseDirectory.value))
 
-    //println(forkOpt.toString)
-
     Fork.java(forkOpt, runOpts)
 
     spool
@@ -73,14 +71,20 @@ trait SpoonSettings {
   }
     , ngSpoonProcessorJars := Nil
     , ngSpoonProcessors := Seq(
-      "SiteAnnotation"
-      , "AttributeEditorAnnotation"
-      , "AttributeAnnotation"
+      "FlexFamilyAnnotation"
+      ,"SiteAnnotation"
+/*
+      ,"ParentDefinitionAnnotation"
+      ,"ContentDefinitionAnnotation"
+      ,"AttributeEditorAnnotation"
+      ,"AttributeAnnotation"
+      ,"NewStartMenuAnnotation"
+      ,"FindStartMenuAnnotation"
+*/
       //,"SiteEntryAnnotation"
       //,"TemplateAnnotation"
-      /*,"CSElementAnnotation"
-      ,"ContentDefinitionAnnotation"
-      ,"ParentDefinitionAnnotation"*/)
+      /*,"CSElementAnnotation"*/)
+
       .map(x => s"agilesitesng.deploy.spoon.${x}Processor")
     , ivyConfigurations += config("spoon")
     , libraryDependencies ++= AgileSitesConstants.spoonDependencies

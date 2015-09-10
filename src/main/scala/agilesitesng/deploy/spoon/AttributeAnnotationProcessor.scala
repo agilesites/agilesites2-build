@@ -5,6 +5,7 @@ import agilesitesng.deploy.model.{Spooler, SpoonModel, Uid}
 import org.slf4j.LoggerFactory
 import spoon.processing.AbstractAnnotationProcessor
 import spoon.reflect.declaration.CtField
+import spoon.support.reflect.declaration.CtAnnotationImpl
 import spoon.support.reflect.reference.CtArrayTypeReferenceImpl
 
 import scala.collection.JavaConversions._
@@ -21,7 +22,10 @@ class AttributeAnnotationProcessor extends AbstractAnnotationProcessor[Attribute
     val description = if (a.description() == null || a.description().isEmpty) name else  a.description()
     val fieldClass = cl.getReference.getType.getActualClass
     val multiple = fieldClass.isArray
-    val editor = a.editor()
+    val editor = a.editor() match {
+      case b if b.isEmpty => None
+      case b => Some(b)
+    }
     val attributeClass = if (multiple) fieldClass.getComponentType else fieldClass
     val attributeType = attributeClass match {
       case ba if ba == classOf[BlobAttribute] => "blob"
@@ -29,7 +33,6 @@ class AttributeAnnotationProcessor extends AbstractAnnotationProcessor[Attribute
       case fa if fa == classOf[Float] => "float"
       case ia if ia == classOf[Integer] => "int"
       case da if da == classOf[java.util.Date] => "date"
-
       case as if as == classOf[AssetAttribute[_]] => "asset"
       case _ => "unknown"
     }
@@ -42,11 +45,12 @@ class AttributeAnnotationProcessor extends AbstractAnnotationProcessor[Attribute
           cl.getReference.getType.asInstanceOf[CtArrayTypeReferenceImpl[_]].getComponentType
         else
           cl.getReference.getType
-        (componentType.getActualTypeArguments.get(0).getSimpleName,subtypes.flatten.toList)
-      case _ => ("", Nil)
+        (Some(componentType.getActualTypeArguments.get(0).getSimpleName),subtypes.flatten.toList)
+      case _ => (None, Nil)
     }
-    logger.debug(s"name:$name description: $description attributeType: $attributeType multiple: $multiple editor: $editor assetType: $assetType subtypes: $assetSubtypes")
-    Spooler.insert(90, SpoonModel.Attribute(Uid.generate(s"Attribute.$name"), name, description, multiple, attributeType, editor, assetType, assetSubtypes))
+    val mul = if (multiple) "M" else "S"
+    logger.debug(s"Attribute - name:$name description: $description attributeType: $attributeType mul: $mul editor: $editor assetType: $assetType subtypes: $assetSubtypes")
+    Spooler.insert(90, SpoonModel.Attribute(Uid.generate(s"Attribute.$name"), name, description, mul, attributeType, editor, assetType, assetSubtypes))
 
   }
 
