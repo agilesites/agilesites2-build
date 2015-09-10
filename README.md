@@ -1,3 +1,5 @@
+Obsolete repo - development moved to AgileSites3 repo
+
 # AgileSites Build 11g
 
 Sbt Plugin used all over the AgileSites 11g Framework
